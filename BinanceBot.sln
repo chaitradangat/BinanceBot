@@ -1,0 +1,55 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30002.166
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Binance.Net", "Binance.Net\Binance.Net.csproj", "{3B50F6D2-3D6D-47C3-AD1A-29C906D9DC93}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BinanceBot.Application", "BinanceBot.Application\BinanceBot.Application.csproj", "{CF326095-8499-47E6-A93C-8AA6267502F2}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BinanceBot.UI.Consol", "BinanceBot.UI.Consol\BinanceBot.UI.Consol.csproj", "{6D3A4DDB-9008-48CA-80BA-89A65D5C8670}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PineScriptPort", "PineScriptPort\PineScriptPort.csproj", "{2CADA038-B01B-42D9-959E-5205C3CB9C36}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BinanceBot.Strategy", "BinanceBot.Strategy\BinanceBot.Strategy.csproj", "{3282DA90-2E49-45C7-A84B-8D28141A8F83}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BinanceBot.Domain", "BinanceBot.Domain\BinanceBot.Domain.csproj", "{FCC5FF6E-AEEB-4B02-878D-C723EA1EDA4E}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{3B50F6D2-3D6D-47C3-AD1A-29C906D9DC93}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3B50F6D2-3D6D-47C3-AD1A-29C906D9DC93}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3B50F6D2-3D6D-47C3-AD1A-29C906D9DC93}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3B50F6D2-3D6D-47C3-AD1A-29C906D9DC93}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CF326095-8499-47E6-A93C-8AA6267502F2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CF326095-8499-47E6-A93C-8AA6267502F2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CF326095-8499-47E6-A93C-8AA6267502F2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CF326095-8499-47E6-A93C-8AA6267502F2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6D3A4DDB-9008-48CA-80BA-89A65D5C8670}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6D3A4DDB-9008-48CA-80BA-89A65D5C8670}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6D3A4DDB-9008-48CA-80BA-89A65D5C8670}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6D3A4DDB-9008-48CA-80BA-89A65D5C8670}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2CADA038-B01B-42D9-959E-5205C3CB9C36}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2CADA038-B01B-42D9-959E-5205C3CB9C36}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2CADA038-B01B-42D9-959E-5205C3CB9C36}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2CADA038-B01B-42D9-959E-5205C3CB9C36}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3282DA90-2E49-45C7-A84B-8D28141A8F83}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3282DA90-2E49-45C7-A84B-8D28141A8F83}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3282DA90-2E49-45C7-A84B-8D28141A8F83}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3282DA90-2E49-45C7-A84B-8D28141A8F83}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FCC5FF6E-AEEB-4B02-878D-C723EA1EDA4E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FCC5FF6E-AEEB-4B02-878D-C723EA1EDA4E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FCC5FF6E-AEEB-4B02-878D-C723EA1EDA4E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FCC5FF6E-AEEB-4B02-878D-C723EA1EDA4E}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {037E766B-D115-4589-BE4C-D4F5A55EB97A}
+	EndGlobalSection
+EndGlobal

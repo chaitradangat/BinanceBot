@@ -1,0 +1,113 @@
+//@version=4
+//
+
+strategy(title="Open Close Cross Strategy R5.1 revised by JustUncleL", shorttitle="OCC Strategy R5.1", overlay=true,pyramiding=0, default_qty_type=strategy.percent_of_equity, default_qty_value=10, calc_on_every_tick=false)
+
+// === INPUTS ===
+useRes = true
+
+intRes = 6 //always use on 4h interval
+
+stratRes = timeframe.ismonthly ? tostring(timeframe.multiplier * intRes, "###M") : timeframe.isweekly ? tostring(timeframe.multiplier * intRes, "###W") : timeframe.isdaily ? tostring(timeframe.multiplier * intRes, "###D") : timeframe.isintraday ? tostring(timeframe.multiplier * intRes, "####") : '60'
+
+basisType = "DEMA" //input(defval="SMMA", title="MA Type: ", options=["SMA", "EMA", "DEMA", "TEMA", "WMA", "VWMA", "SMMA", "HullMA", "LSMA", "ALMA", "SSMA", "TMA"])
+
+basisLen = 8
+
+tradeType = "BOTH"
+// === /INPUTS ===
+
+//debug var
+//x = bar_index
+//y = high
+//txt = stratRes
+//label.new(x,y,txt)
+
+
+
+// === BASE FUNCTIONS ===
+// Returns MA input selection variant, default to SMA if blank or typo.
+variant(type, src, len, offSig, offALMA) =>
+    v1 = sma(src, len)  // Simple
+    v2 = ema(src, len)  // Exponential
+    v3 = 2 * v2 - ema(v2, len)  // Double Exponential
+    v4 = 3 * (v2 - ema(v2, len)) + ema(ema(v2, len), len)  // Triple Exponential
+    v5 = wma(src, len)  // Weighted
+    v6 = vwma(src, len)  // Volume Weighted
+    v7 = 0.0
+    sma_1 = sma(src, len)  // Smoothed
+    v7 := na(v7[1]) ? sma_1 : (v7[1] * (len - 1) + src) / len
+    v8 = wma(2 * wma(src, len / 2) - wma(src, len), round(sqrt(len)))  // Hull
+    v9 = linreg(src, len, offSig)  // Least Squares
+    v10 = alma(src, len, offALMA, offSig)  // Arnaud Legoux
+    v11 = sma(v1, len)  // Triangular (extreme smooth)
+    // SuperSmoother filter
+    // © 2013  John F. Ehlers
+    a1 = exp(-1.414 * 3.14159 / len)
+    b1 = 2 * a1 * cos(1.414 * 3.14159 / len)
+    c2 = b1
+    c3 = -a1 * a1
+    c1 = 1 - c2 - c3
+    v12 = 0.0
+    v12 := c1 * (src + nz(src[1])) / 2 + c2 * nz(v12[1]) + c3 * nz(v12[2])
+    type == "EMA" ? v2 : type == "DEMA" ? v3 : 
+       type == "TEMA" ? v4 : type == "WMA" ? v5 : type == "VWMA" ? v6 : 
+       type == "SMMA" ? v7 : type == "HullMA" ? v8 : type == "LSMA" ? v9 : 
+       type == "ALMA" ? v10 : type == "TMA" ? v11 : type == "SSMA" ? v12 : v1
+
+// security wrapper for repeat calls
+reso(exp, use, res) =>
+    security_1 = security(syminfo.tickerid, res, exp, gaps=barmerge.gaps_off, lookahead=barmerge.lookahead_on)
+    use ? security_1 : exp
+
+// === /BASE FUNCTIONS ===
+
+// === SERIES SETUP ===
+closeSeries = variant(basisType, close, 8, -1, -1)
+
+openSeries = variant(basisType, open, 8, -1, -1)
+
+closeSeriesAlt = reso(closeSeries, true, stratRes)
+
+openSeriesAlt = reso(openSeries, true, stratRes)
+// === /SERIES ===
+
+trend = closeSeriesAlt > openSeriesAlt ? "BULLISH" : "BEARISH"
+
+bcolour = closeSeries > openSeriesAlt ? "BULLISH" : "BEARISH"
+
+
+//decision
+xlong = crossover(closeSeriesAlt, openSeriesAlt)
+
+xshort = crossunder(closeSeriesAlt, openSeriesAlt)
+
+longCond = xlong
+
+shortCond = xshort
+//end decision
+
+// === STRATEGY ===
+
+
+// Include bar limiting algorithm
+ebar = input(defval=180, title="Number of Bars for Back Testing", minval=0)
+dummy = input(false, title="- SET to ZERO for Daily or Longer Timeframes")
+//
+// Calculate how many mars since last bar
+tdays = (timenow - time) / 60000.0  // number of minutes since last bar
+tdays := timeframe.ismonthly ? tdays / 1440.0 / 5.0 / 4.3 / timeframe.multiplier : 
+   timeframe.isweekly ? tdays / 1440.0 / 5.0 / timeframe.multiplier : 
+   timeframe.isdaily ? tdays / 1440.0 / timeframe.multiplier : 
+   tdays / timeframe.multiplier  // number of bars since last bar
+//
+
+
+// Make sure we are within the bar range, Set up entries and exit conditions
+if (ebar == 0 or tdays <= ebar) and tradeType != "NONE"
+    strategy.entry("long", strategy.long, when=longCond == true and tradeType != "SHORT")
+    strategy.entry("short", strategy.short, when=shortCond == true and tradeType != "LONG")
+    strategy.close("long", when=shortCond == true and tradeType == "LONG")
+    strategy.close("short", when=longCond == true and tradeType == "SHORT")
+// === /STRATEGY ===
+// eof

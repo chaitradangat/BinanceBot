@@ -1,0 +1,21 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="OHLCKandle.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Binance.Net\Binance.Net.csproj" />
+    <ProjectReference Include="..\BinanceBot.Domain\BinanceBot.Domain.csproj" />
+    <ProjectReference Include="..\BinanceBot.Strategy\BinanceBot.Strategy.csproj" />
+  </ItemGroup>
+
+</Project>
