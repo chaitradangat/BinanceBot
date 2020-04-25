@@ -14,6 +14,8 @@ namespace BinanceBot.Domain
         BookProfitWithSell,
         EscapeTrapWithBuy,
         EscapeTrapWithSell,
+        MissedPositionBuy,
+        MissedPositionSell,
         None
     }
 }
