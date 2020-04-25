@@ -98,7 +98,7 @@ namespace BinanceBot.Application
 
                         webCall.GetKLinesDataCached(timeframe, candleCount, ref currentClose, ref ohlckandles);
 
-                        openclosestrategy.RunStrategy(ohlckandles, ref isBuy, ref isSell, ref trend, ref mood,ref histdata, ref currentPosition, currentClose, risk, reward, leverage,ref shortPercentage, ref longPercentage, ref profitFactor, signalStrength, ref strategyOutput, decreaseOnNegative);
+                        openclosestrategy.RunStrategy(ohlckandles, ref isBuy, ref isSell, ref trend, ref mood, ref histdata, ref currentPosition, currentClose, risk, reward, leverage, ref shortPercentage, ref longPercentage, ref profitFactor, signalStrength, ref strategyOutput, decreaseOnNegative);
 
                         if (isLive && strategyOutput != StrategyOutput.None)
                         {
@@ -128,11 +128,11 @@ namespace BinanceBot.Application
         {
             BinancePlacedOrder placedOrder = null;
 
-            if (strategyOutput == StrategyOutput.OpenPositionWithBuy || strategyOutput == StrategyOutput.ExitPositionWithBuy || strategyOutput == StrategyOutput.BookProfitWithBuy)
+            if (strategyOutput == StrategyOutput.OpenPositionWithBuy || strategyOutput == StrategyOutput.ExitPositionWithBuy || strategyOutput == StrategyOutput.BookProfitWithBuy || strategyOutput == StrategyOutput.MissedPositionBuy)
             {
                 placedOrder = webCall.PlaceBuyOrder(quantity, -1, true);
             }
-            else if (strategyOutput == StrategyOutput.OpenPositionWithSell || strategyOutput == StrategyOutput.ExitPositionWithSell || strategyOutput == StrategyOutput.BookProfitWithSell)
+            else if (strategyOutput == StrategyOutput.OpenPositionWithSell || strategyOutput == StrategyOutput.ExitPositionWithSell || strategyOutput == StrategyOutput.BookProfitWithSell || strategyOutput == StrategyOutput.MissedPositionSell)
             {
                 placedOrder = webCall.PlaceSellOrder(quantity, -1, true);
             }

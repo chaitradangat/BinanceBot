@@ -28,18 +28,18 @@ namespace BinanceBot.Strategy
             prevOutput = StrategyOutput.None;
         }
 
-        public void RunStrategy(List<OHLCKandle> inputkandles, ref bool isBuy, ref bool isSell, ref string trend, ref string mood, ref string histdata, ref SimplePosition currentPosition, decimal currentClose, decimal risk, decimal reward, decimal leverage, ref decimal shortPercentage, ref decimal longPercentage, ref decimal profitFactor, int signalStrength, ref StrategyOutput stratetgyOutput,decimal decreaseOnNegative)
+        public void RunStrategy(List<OHLCKandle> inputkandles, ref bool isBuy, ref bool isSell, ref string trend, ref string mood, ref string histdata, ref SimplePosition currentPosition, decimal currentClose, decimal risk, decimal reward, decimal leverage, ref decimal shortPercentage, ref decimal longPercentage, ref decimal profitFactor, int signalStrength, ref StrategyOutput stratetgyOutput, decimal decreaseOnNegative)
         {
             PineScriptFunction fn = new PineScriptFunction();
 
             //higher timeframe candles with smma values
             var largekandles = fn.converttohighertimeframe(inputkandles, 3);
 
-            largekandles =  fn.smma(largekandles, 8);
+            largekandles = fn.smma(largekandles, 8);
 
 
             //lower timeframe candles with smma values
-            inputkandles =  fn.smma(inputkandles, 8);
+            inputkandles = fn.smma(inputkandles, 8);
 
             var closeseriesmma = inputkandles.Select(x => x.Close).ToList();
 
@@ -86,7 +86,7 @@ namespace BinanceBot.Strategy
                 }
             }
 
-            stratetgyOutput = MakeBuySellDecision(isBuy, isSell, trend, mood, currentClose, ref currentPosition, risk, reward, leverage, ref shortPercentage, ref longPercentage, ref profitFactor, signalStrength, histdata,decreaseOnNegative);
+            stratetgyOutput = MakeBuySellDecision(isBuy, isSell, trend, mood, currentClose, ref currentPosition, risk, reward, leverage, ref shortPercentage, ref longPercentage, ref profitFactor, signalStrength, histdata, decreaseOnNegative);
 
             if (stratetgyOutput != StrategyOutput.None)
             {
@@ -143,7 +143,18 @@ namespace BinanceBot.Strategy
 
                     return SellCounter >= signalStrength;
                 }
+                if (!isBuy && !isSell && currentState == StrategyOutput.MissedPositionBuy)
+                {
+                    ++BuyCounter;
 
+                    return BuyCounter >= signalStrength;
+                }
+                if (!isBuy && !isSell && currentState == StrategyOutput.MissedPositionSell)
+                {
+                    ++SellCounter;
+
+                    return SellCounter >= signalStrength;
+                }
             }
 
             return false;
@@ -227,7 +238,7 @@ namespace BinanceBot.Strategy
             return false;
         }
 
-        private void CalculatePercentageChange(SimplePosition order, decimal currentClose, decimal leverage, ref decimal longPercentage, ref decimal shortPercentage, ref decimal profitFactor,decimal decreaseOnNegative)
+        private void CalculatePercentageChange(SimplePosition order, decimal currentClose, decimal leverage, ref decimal longPercentage, ref decimal shortPercentage, ref decimal profitFactor, decimal decreaseOnNegative)
         {
             if (order.OrderID != -1)
             {
@@ -250,11 +261,11 @@ namespace BinanceBot.Strategy
             }
         }
 
-        private StrategyOutput MakeBuySellDecision(bool isBuy, bool isSell, string trend, string mood, decimal currentClose, ref SimplePosition order, decimal risk, decimal reward, decimal leverage, ref decimal shortPercentage, ref decimal longPercentage, ref decimal profitFactor, int signalStrength, string histData,decimal decreaseOnNegative)
+        private StrategyOutput MakeBuySellDecision(bool isBuy, bool isSell, string trend, string mood, decimal currentClose, ref SimplePosition order, decimal risk, decimal reward, decimal leverage, ref decimal shortPercentage, ref decimal longPercentage, ref decimal profitFactor, int signalStrength, string histData, decimal decreaseOnNegative)
         {
             var sOutput = StrategyOutput.None;
 
-            CalculatePercentageChange(order, currentClose, leverage, ref longPercentage, ref shortPercentage, ref profitFactor,decreaseOnNegative);
+            CalculatePercentageChange(order, currentClose, leverage, ref longPercentage, ref shortPercentage, ref profitFactor, decreaseOnNegative);
 
             if (OpenPosition(order, isBuy, isSell, signalStrength, mood, trend))
             {
@@ -298,6 +309,23 @@ namespace BinanceBot.Strategy
                 if (order.OrderType == "SELL")
                 {
                     sOutput = StrategyOutput.EscapeTrapWithBuy;
+                }
+            }
+            else if (OpenMissedPosition(order,isBuy,isSell,histData))
+            {
+                string lastdecisiontype = "";
+
+                int lastdecisionperiod = 0;
+
+                GetLastDecision(histData, ref lastdecisiontype, ref lastdecisionperiod);
+
+                if (lastdecisiontype == "B")
+                {
+                    sOutput = StrategyOutput.MissedPositionBuy;
+                }
+                if (lastdecisiontype == "S")
+                {
+                    sOutput = StrategyOutput.MissedPositionSell;
                 }
             }
             else
@@ -365,5 +393,96 @@ namespace BinanceBot.Strategy
 
         }
 
+        private bool OpenMissedPosition(SimplePosition position, bool isBuy, bool isSell, string histdata)
+        {
+            if (position.OrderID != -1)
+            {
+                //position exists
+                return false;
+            }
+
+            if (isBuy || isSell)
+            {
+                return false;
+            }
+
+            if (string.IsNullOrEmpty(histdata))
+            {
+                //no historical decisions available
+                return false;
+            }
+
+            var lastdecision = histdata.Split(' ').Last();
+
+            if (!string.IsNullOrEmpty(lastdecision))
+            {
+                string lastdecisiontype;
+
+                if (lastdecision.Contains("B"))
+                {
+                    lastdecisiontype = "B";
+                }
+                else if (lastdecision.Contains("S"))
+                {
+                    lastdecisiontype = "S";
+                }
+                else
+                {
+                    return false;
+                }
+
+                int lastdecisionperiod = Convert.ToInt32(lastdecision.Replace(lastdecisiontype, ""));
+
+                if (lastdecisiontype == "B" && lastdecisionperiod >= 3 && lastdecisionperiod <= 5 && IsValidSignal(false, false, 200, StrategyOutput.MissedPositionBuy, ref prevOutput))
+                {
+                    //grab the missed position!!
+                    return true;
+                }
+                if (lastdecisiontype == "S" && lastdecisionperiod >= 3 && lastdecisionperiod <=5 && IsValidSignal(false, false, 200, StrategyOutput.MissedPositionSell, ref prevOutput))
+                {
+                    //grab the missed position!!
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private void GetLastDecision(string histdata, ref string decisiontype, ref int decisionperiod)
+        {
+            if (string.IsNullOrEmpty(histdata))
+            {
+                //no historical decisions available
+                decisiontype = "";
+                decisionperiod = -1;
+                return;
+            }
+
+            var lastdecision = histdata.Split(' ').Last();
+
+            if (!string.IsNullOrEmpty(lastdecision))
+            {
+                if (lastdecision.Contains("B"))
+                {
+                    decisiontype = "B";
+                }
+                else if (lastdecision.Contains("S"))
+                {
+                    decisiontype = "S";
+                }
+                else
+                {
+                    decisiontype = "";
+                    decisionperiod = -1;
+                }
+
+                decisionperiod = Convert.ToInt32(lastdecision.Replace(decisiontype, ""));
+            }
+            else
+            {
+                decisiontype = "";
+                decisionperiod = -1;
+            }
+        }
     }
 }
