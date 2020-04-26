@@ -1,7 +1,5 @@
 ﻿using System;
 
-using System.Configuration;
-
 using BinanceBot.Application;
 
 using BinanceBot.Settings;
