@@ -4,7 +4,7 @@ using System.Configuration;
 
 using BinanceBot.Application;
 
-
+using BinanceBot.Settings;
 
 namespace BinanceBot.UI.Consol
 {
@@ -12,33 +12,34 @@ namespace BinanceBot.UI.Consol
     {
         static void Main(string[] args)
         {
+
             #region -config variables-
-            string symbol = "";
+            string symbol = BinanceBotSettings.settings.Symbol;
 
-            decimal quantity = 0;
+            decimal quantity = BinanceBotSettings.settings.Quantity;
 
-            string ApiKey = "";
+            string ApiKey = BinanceBotSettings.settings.ApiKey;
 
-            string ApiSecret = "";
+            string ApiSecret = BinanceBotSettings.settings.ApiSecret;
 
-            decimal riskPercentage = 0;
+            decimal riskPercentage = BinanceBotSettings.settings.RiskPercentage;
 
-            decimal rewardPercentage = 0;
+            decimal rewardPercentage = BinanceBotSettings.settings.RewardPercentage;
 
-            decimal leverage = 0;
+            decimal decreaseOnNegative = BinanceBotSettings.settings.DecreaseOnNegative;
 
-            int signalStrength = 0;
+            decimal leverage = BinanceBotSettings.settings.Leverage;
 
-            string timeframe = "";
+            int signalStrength = BinanceBotSettings.settings.SignalStrength;
 
-            int candleCount = 15;
+            string timeframe = BinanceBotSettings.settings.TimeFrame;
 
-            bool isLive = true;
+            int candleCount = BinanceBotSettings.settings.CandleCount;
 
-            decimal decreaseOnNegative = (decimal)0.5;
+            bool isLive = BinanceBotSettings.settings.IsLive;
             #endregion
 
-            ReadConfig(ref symbol, ref quantity, ref ApiKey, ref ApiSecret, ref riskPercentage, ref rewardPercentage, ref leverage, ref signalStrength, ref timeframe, ref candleCount, ref isLive, ref decreaseOnNegative);
+            //ReadConfig(ref symbol, ref quantity, ref ApiKey, ref ApiSecret, ref riskPercentage, ref rewardPercentage, ref leverage, ref signalStrength, ref timeframe, ref candleCount, ref isLive, ref decreaseOnNegative);
 
             BinanceCommand bcmd = new BinanceCommand();
 
@@ -47,7 +48,8 @@ namespace BinanceBot.UI.Consol
             Console.ReadLine();
         }
 
-        static void ReadConfig(ref string symbol, ref decimal quantity, ref string ApiKey, ref string ApiSecret, ref decimal riskPercentage, ref decimal rewardPercentage, ref decimal leverge, ref int signalStrength, ref string timeframe, ref int candleCount, ref bool isLive, ref decimal decreaseOnNegative)
+        //method retired
+        /*static void ReadConfig(ref string symbol, ref decimal quantity, ref string ApiKey, ref string ApiSecret, ref decimal riskPercentage, ref decimal rewardPercentage, ref decimal leverge, ref int signalStrength, ref string timeframe, ref int candleCount, ref bool isLive, ref decimal decreaseOnNegative)
         {
             symbol = ConfigurationManager.AppSettings["SYMBOL"];
 
@@ -72,6 +74,6 @@ namespace BinanceBot.UI.Consol
             isLive = bool.Parse(ConfigurationManager.AppSettings["ISLIVE"]);
 
             decreaseOnNegative = decimal.Parse(ConfigurationManager.AppSettings["DECREASEONNEGATIVE"]);
-        }
+        }*/
     }
 }
