@@ -16,38 +16,133 @@ namespace BinanceBot.Settings
             }
         }
 
-        [ConfigurationProperty("StopLossSignalStrength", DefaultValue = 20, IsRequired = false)]
-        public int StopLossSignalStrength
+        /*
+         int KandleMultiplier; //3
+
+        int ExitSignalStrength; //15
+
+        int EscapeTrapCandleIdx; //3
+
+        int EscapeTrapSignalStrength; //300
+
+        int MissedPositionStartCandleIndex; //3
+
+        int MissedPositionEndCandleIndex; //5
+
+        int MissedPositionSignalStrength; //200
+
+        bool EscapeTraps; //true
+
+        bool GrabMissedPosition; //true
+         */
+
+        [ConfigurationProperty("KandleMultiplier", IsRequired = true)]
+        public int KandleMultiplier
         {
             get
             {
-                return Convert.ToInt32(this["StopLossSignalStrength"]);
+                return Convert.ToInt32(this["KandleMultiplier"]);
             }
             set
             {
-                this["StopLossSignalStrength"] = value;
+                this["KandleMultiplier"] = value;
             }
         }
-
-
-        //commented code for reference
-        /*[ConfigurationProperty("frontPagePostCount", DefaultValue = 20, IsRequired = false)]
-        [IntegerValidator(MinValue = 1, MaxValue = 100)]
-        public int FrontPagePostCount
+        [ConfigurationProperty("ExitSignalStrength", IsRequired = true)]
+        public int ExitSignalStrength
         {
-            get { return (int)this["frontPagePostCount"]; }
-            set { this["frontPagePostCount"] = value; }
+            get
+            {
+                return Convert.ToInt32(this["ExitSignalStrength"]);
+            }
+            set
+            {
+                this["ExitSignalStrength"] = value;
+            }
         }
-
-
-        [ConfigurationProperty("title", IsRequired = true)]
-        [StringValidator(InvalidCharacters = "  ~!@#$%^&*()[]{}/;’\"|\\", MinLength = 1, MaxLength = 256)]
-        public string Title
+        [ConfigurationProperty("EscapeTrapCandleIdx", IsRequired = true)]
+        public int EscapeTrapCandleIdx
         {
-            get { return (string)this["title"]; }
-            set { this["title"] = value; }
-        }*/
-
-
+            get
+            {
+                return Convert.ToInt32(this["EscapeTrapCandleIdx"]);
+            }
+            set
+            {
+                this["EscapeTrapCandleIdx"] = value;
+            }
+        }
+        [ConfigurationProperty("ExitSignalStrength", IsRequired = true)]
+        public int EscapeTrapSignalStrength
+        {
+            get
+            {
+                return Convert.ToInt32(this["EscapeTrapSignalStrength"]);
+            }
+            set
+            {
+                this["EscapeTrapSignalStrength"] = value;
+            }
+        }
+        [ConfigurationProperty("MissedPositionStartCandleIndex", IsRequired = true)]
+        public int MissedPositionStartCandleIndex
+        {
+            get
+            {
+                return Convert.ToInt32(this["MissedPositionStartCandleIndex"]);
+            }
+            set
+            {
+                this["MissedPositionStartCandleIndex"] = value;
+            }
+        }
+        [ConfigurationProperty("MissedPositionEndCandleIndex", IsRequired = true)]
+        public int MissedPositionEndCandleIndex
+        {
+            get
+            {
+                return Convert.ToInt32(this["MissedPositionEndCandleIndex"]);
+            }
+            set
+            {
+                this["MissedPositionEndCandleIndex"] = value;
+            }
+        }
+        [ConfigurationProperty("MissedPositionSignalStrength", IsRequired = true)]
+        public int MissedPositionSignalStrength
+        {
+            get
+            {
+                return Convert.ToInt32(this["MissedPositionSignalStrength"]);
+            }
+            set
+            {
+                this["MissedPositionSignalStrength"] = value;
+            }
+        }
+        [ConfigurationProperty("EscapeTraps", IsRequired = true)]
+        public bool EscapeTraps
+        {
+            get
+            {
+                return bool.Parse(this["EscapeTraps"].ToString());
+            }
+            set
+            {
+                this["EscapeTraps"] = value;
+            }
+        }
+        [ConfigurationProperty("GrabMissedPosition", IsRequired = true)]
+        public bool GrabMissedPosition
+        {
+            get
+            {
+                return bool.Parse(this["GrabMissedPosition"].ToString());
+            }
+            set
+            {
+                this["GrabMissedPosition"] = value;
+            }
+        }
     }
 }

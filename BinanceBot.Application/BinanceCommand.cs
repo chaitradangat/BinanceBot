@@ -13,7 +13,7 @@ using BinanceBot.Strategy;
 
 using BinanceBot.Domain;
 
-
+using BinanceBot.Settings;
 
 namespace BinanceBot.Application
 {
@@ -88,7 +88,7 @@ namespace BinanceBot.Application
 
                         var strategyOutput = StrategyOutput.None;
 
-                        Thread.Sleep(1500);
+                        Thread.Sleep(BinanceBotSettings.settings.PingTimer);
                         #endregion
 
                         if (isLive)
@@ -98,7 +98,9 @@ namespace BinanceBot.Application
 
                         webCall.GetKLinesDataCached(timeframe, candleCount, ref currentClose, ref ohlckandles);
 
-                        openclosestrategy.RunStrategy(ohlckandles, ref isBuy, ref isSell, ref trend, ref mood, ref histdata, ref currentPosition, currentClose, risk, reward, leverage, ref shortPercentage, ref longPercentage, ref profitFactor, signalStrength, ref strategyOutput, decreaseOnNegative);
+                        openclosestrategy.RunStrategy(ohlckandles, ref isBuy, ref isSell, ref trend, ref mood, 
+                        ref histdata, ref currentPosition, currentClose, risk, reward, leverage, ref shortPercentage,
+                        ref longPercentage, ref profitFactor, signalStrength, ref strategyOutput, decreaseOnNegative);
 
                         if (isLive && strategyOutput != StrategyOutput.None)
                         {
@@ -257,6 +259,5 @@ namespace BinanceBot.Application
             File.AppendAllLines("debug.logs", new[] { debuginfo });
         }
         #endregion
-
     }
 }
