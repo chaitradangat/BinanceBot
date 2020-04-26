@@ -16,6 +16,7 @@ namespace BinanceBot.Domain
         EscapeTrapWithSell,
         MissedPositionBuy,
         MissedPositionSell,
+        StopLossHit,
         None
     }
 }
