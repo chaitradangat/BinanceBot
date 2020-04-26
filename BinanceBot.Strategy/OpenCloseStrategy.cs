@@ -166,11 +166,11 @@ namespace BinanceBot.Strategy
             {
                 return false;
             }
-            else if (order.OrderType == "BUY" && longPercentage <= risk)
+            else if (order.OrderType == "BUY" && longPercentage <= risk && IsValidSignal(isBuy,isSell,15,StrategyOutput.ExitPositionWithSell, ref prevOutput))
             {
                 return true;
             }
-            else if (order.OrderType == "SELL" && shortPercentage <= risk)
+            else if (order.OrderType == "SELL" && shortPercentage <= risk && IsValidSignal(isBuy, isSell, 15, StrategyOutput.ExitPositionWithBuy, ref prevOutput))
             {
                 return true;
             }
