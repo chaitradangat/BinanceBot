@@ -15,6 +15,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Binance.Net\Binance.Net.csproj" />
     <ProjectReference Include="..\BinanceBot.Domain\BinanceBot.Domain.csproj" />
+    <ProjectReference Include="..\BinanceBot.Settings\BinanceBot.Settings.csproj" />
     <ProjectReference Include="..\BinanceBot.Strategy\BinanceBot.Strategy.csproj" />
   </ItemGroup>
 
