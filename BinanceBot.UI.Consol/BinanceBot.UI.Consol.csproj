@@ -11,6 +11,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\BinanceBot.Application\BinanceBot.Application.csproj" />
+    <ProjectReference Include="..\BinanceBot.Settings\BinanceBot.Settings.csproj" />
     <ProjectReference Include="..\PineScriptPort\PineScriptPort.csproj" />
   </ItemGroup>
 

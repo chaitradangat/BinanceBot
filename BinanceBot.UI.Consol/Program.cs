@@ -12,7 +12,6 @@ namespace BinanceBot.UI.Consol
     {
         static void Main(string[] args)
         {
-
             #region -config variables-
             string symbol = BinanceBotSettings.settings.Symbol;
 
@@ -38,8 +37,6 @@ namespace BinanceBot.UI.Consol
 
             bool isLive = BinanceBotSettings.settings.IsLive;
             #endregion
-
-            //ReadConfig(ref symbol, ref quantity, ref ApiKey, ref ApiSecret, ref riskPercentage, ref rewardPercentage, ref leverage, ref signalStrength, ref timeframe, ref candleCount, ref isLive, ref decreaseOnNegative);
 
             BinanceCommand bcmd = new BinanceCommand();
 
