@@ -72,7 +72,7 @@ namespace BinanceBot.Settings
                 this["EscapeTrapCandleIdx"] = value;
             }
         }
-        [ConfigurationProperty("ExitSignalStrength", IsRequired = true)]
+        [ConfigurationProperty("EscapeTrapSignalStrength", IsRequired = true)]
         public int EscapeTrapSignalStrength
         {
             get
