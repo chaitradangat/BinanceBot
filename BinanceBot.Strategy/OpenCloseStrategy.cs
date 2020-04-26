@@ -206,6 +206,7 @@ namespace BinanceBot.Strategy
         {
             if (order.OrderID == -1)
             {
+                //no positions to exit from
                 return false;
             }
             else if (order.OrderType == "BUY" && longPercentage <= risk && IsValidSignal(isBuy, isSell, ExitSignalStrength, StrategyOutput.ExitPositionWithSell, ref prevOutput))//15
@@ -282,111 +283,87 @@ namespace BinanceBot.Strategy
 
         private bool EscapeTrap(SimplePosition position, bool isBuy, bool isSell, string histdata)
         {
+            //no open positions
             if (position.OrderID == -1)
             {
-                //no open positions
                 return false;
             }
 
+            //no historical decisions available
             if (string.IsNullOrEmpty(histdata))
             {
-                //no historical decisions available
                 return false;
             }
 
+            //in middle of decision
             if (isBuy || isSell)
             {
                 return false;
             }
 
-            var lastdecision = histdata.Split(' ').Last();
-
-            if (!string.IsNullOrEmpty(lastdecision))
+            //invalid historical data
+            string decisiontype = "";
+            int decisionperiod = -1;
+            GetLatestDecision(histdata, ref decisiontype, ref decisionperiod);
+            if (string.IsNullOrEmpty(decisiontype) || decisionperiod == -1 )
             {
-                string lastdecisiontype;
+                return false;
+            }
 
-                if (lastdecision.Contains("B"))
-                {
-                    lastdecisiontype = "B";
-                }
-                else if (lastdecision.Contains("S"))
-                {
-                    lastdecisiontype = "S";
-                }
-                else
-                {
-                    return false;
-                }
+            //the bot is trapped with sell position!!
+            if (position.OrderType == "SELL" && decisiontype == "B" && decisionperiod >= EscapeTrapCandleIdx && IsValidSignal(false, false, EscapeTrapSignalStrength, StrategyOutput.EscapeTrapWithBuy, ref prevOutput))//3,300
+            {
+                return true;
+            }
 
-                int lastdecisionperiod = Convert.ToInt32(lastdecision.Replace(lastdecisiontype, ""));
-
-                if (position.OrderType == "SELL" && lastdecisiontype == "B" && lastdecisionperiod >= EscapeTrapCandleIdx && IsValidSignal(false, false, EscapeTrapSignalStrength, StrategyOutput.EscapeTrapWithBuy, ref prevOutput))//3,300
-                {
-                    //the bot is trapped!!
-                    return true;
-                }
-                if (position.OrderType == "BUY" && lastdecisiontype == "S" && lastdecisionperiod >= EscapeTrapCandleIdx && IsValidSignal(false, false, EscapeTrapSignalStrength, StrategyOutput.EscapeTrapWithSell, ref prevOutput))//3,300
-                {
-                    //the bot is trapped
-                    return true;
-                }
+            //the bot is trapped with buy position
+            if (position.OrderType == "BUY" && decisiontype == "S" && decisionperiod >= EscapeTrapCandleIdx && IsValidSignal(false, false, EscapeTrapSignalStrength, StrategyOutput.EscapeTrapWithSell, ref prevOutput))//3,300
+            {
+                return true;
             }
 
             return false;
-
-
         }
 
         private bool OpenMissedPosition(SimplePosition position, bool isBuy, bool isSell, string histdata)
         {
+            //position already exists
             if (position.OrderID != -1)
             {
-                //position exists
                 return false;
             }
 
+            //in middle of a decision
             if (isBuy || isSell)
             {
                 return false;
             }
 
+            //no historical data available
             if (string.IsNullOrEmpty(histdata))
             {
-                //no historical decisions available
                 return false;
             }
 
-            var lastdecision = histdata.Split(' ').Last();
-
-            if (!string.IsNullOrEmpty(lastdecision))
+            //invalid historical data
+            string decisiontype = "";
+            int decisionperiod = -1;
+            GetLatestDecision(histdata, ref decisiontype, ref decisionperiod);
+            if (string.IsNullOrEmpty(decisiontype) || decisionperiod == -1)
             {
-                string lastdecisiontype;
+                return false;
+            }
 
-                if (lastdecision.Contains("B"))
-                {
-                    lastdecisiontype = "B";
-                }
-                else if (lastdecision.Contains("S"))
-                {
-                    lastdecisiontype = "S";
-                }
-                else
-                {
-                    return false;
-                }
-
-                int lastdecisionperiod = Convert.ToInt32(lastdecision.Replace(lastdecisiontype, ""));
-
-                if (lastdecisiontype == "B" && lastdecisionperiod >= MissedPositionStartCandleIndex && lastdecisionperiod <= MissedPositionEndCandleIndex && IsValidSignal(false, false, MissedPositionSignalStrength, StrategyOutput.MissedPositionBuy, ref prevOutput))//3,5,200
-                {
-                    //grab the missed position!!
-                    return true;
-                }
-                if (lastdecisiontype == "S" && lastdecisionperiod >= MissedPositionStartCandleIndex && lastdecisionperiod <= MissedPositionEndCandleIndex && IsValidSignal(false, false, MissedPositionSignalStrength, StrategyOutput.MissedPositionSell, ref prevOutput))//3,5,200
-                {
-                    //grab the missed position!!
-                    return true;
-                }
+            //missed buy position
+            if (decisiontype == "B" && decisionperiod >= MissedPositionStartCandleIndex && decisionperiod <= MissedPositionEndCandleIndex && IsValidSignal(false, false, MissedPositionSignalStrength, StrategyOutput.MissedPositionBuy, ref prevOutput))//3,5,200
+            {
+                return true;
+            }
+            
+            //missed sell position
+            if (decisiontype == "S" && decisionperiod >= MissedPositionStartCandleIndex && decisionperiod <= MissedPositionEndCandleIndex && IsValidSignal(false, false, MissedPositionSignalStrength, StrategyOutput.MissedPositionSell, ref prevOutput))//3,5,200
+            {
+                return true;
             }
 
             return false;
@@ -467,17 +444,17 @@ namespace BinanceBot.Strategy
             }
             else if (OpenMissedPosition(order, isBuy, isSell, histData) && GrabMissedPosition)
             {
-                string lastdecisiontype = "";
+                string decisiontype = "";
 
-                int lastdecisionperiod = 0;
+                int decisionperiod = 0;
 
-                GetLastDecision(histData, ref lastdecisiontype, ref lastdecisionperiod);
+                GetLatestDecision(histData, ref decisiontype, ref decisionperiod);
 
-                if (lastdecisiontype == "B")
+                if (decisiontype == "B")
                 {
                     sOutput = StrategyOutput.MissedPositionBuy;
                 }
-                if (lastdecisiontype == "S")
+                if (decisiontype == "S")
                 {
                     sOutput = StrategyOutput.MissedPositionSell;
                 }
@@ -490,25 +467,27 @@ namespace BinanceBot.Strategy
             return sOutput;
         }
 
-        private void GetLastDecision(string histdata, ref string decisiontype, ref int decisionperiod)
+        private void GetLatestDecision(string histdata, ref string decisiontype, ref int decisionperiod)
         {
+            decisiontype = "";
+            
+            decisionperiod = -1;
+
             if (string.IsNullOrEmpty(histdata))
             {
                 //no historical decisions available
-                decisiontype = "";
-                decisionperiod = -1;
                 return;
             }
 
-            var lastdecision = histdata.Split(' ').Last();
+            var latestdecision = histdata.Split(' ').Last();
 
-            if (!string.IsNullOrEmpty(lastdecision))
+            if (!string.IsNullOrEmpty(latestdecision))
             {
-                if (lastdecision.Contains("B"))
+                if (latestdecision.Contains("B"))
                 {
                     decisiontype = "B";
                 }
-                else if (lastdecision.Contains("S"))
+                else if (latestdecision.Contains("S"))
                 {
                     decisiontype = "S";
                 }
@@ -518,7 +497,7 @@ namespace BinanceBot.Strategy
                     decisionperiod = -1;
                 }
 
-                decisionperiod = Convert.ToInt32(lastdecision.Replace(decisiontype, ""));
+                decisionperiod = Convert.ToInt32(latestdecision.Replace(decisiontype, ""));
             }
             else
             {
