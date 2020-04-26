@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-
+using System.Configuration;
 
 using PineScriptPort;
 
 using BinanceBot.Domain;
+
+using BinanceBot.Settings;
 
 namespace BinanceBot.Strategy
 {
@@ -19,6 +21,25 @@ namespace BinanceBot.Strategy
         private StrategyOutput prevOutput;
         #endregion
 
+        #region -variables of strategy configuration-
+
+        private int KandleMultiplier; //3
+
+        private int ExitSignalStrength; //15
+
+
+        private bool EscapeTraps; //true
+        private int EscapeTrapCandleIdx; //3
+        private int EscapeTrapSignalStrength; //300
+
+
+        private bool GrabMissedPosition; //true
+        private int MissedPositionStartCandleIndex; //3
+        private int MissedPositionEndCandleIndex; //5
+        private int MissedPositionSignalStrength; //200
+
+        #endregion
+
         public OpenCloseStrategy()
         {
             BuyCounter = 0;
@@ -26,6 +47,27 @@ namespace BinanceBot.Strategy
             SellCounter = 0;
 
             prevOutput = StrategyOutput.None;
+
+            //set strategy variables
+            KandleMultiplier = OpenCloseStrategySettings.settings.KandleMultiplier;
+
+            ExitSignalStrength = OpenCloseStrategySettings.settings.ExitSignalStrength;
+
+            //set escape strategy variables
+            EscapeTraps = OpenCloseStrategySettings.settings.EscapeTraps;
+
+            EscapeTrapCandleIdx = OpenCloseStrategySettings.settings.EscapeTrapCandleIdx;
+
+            EscapeTrapSignalStrength = OpenCloseStrategySettings.settings.EscapeTrapSignalStrength;
+
+            //set missed position strategy variables
+            GrabMissedPosition = OpenCloseStrategySettings.settings.GrabMissedPosition;
+
+            MissedPositionStartCandleIndex = OpenCloseStrategySettings.settings.MissedPositionStartCandleIndex;
+
+            MissedPositionEndCandleIndex = OpenCloseStrategySettings.settings.MissedPositionEndCandleIndex;
+
+            MissedPositionSignalStrength = OpenCloseStrategySettings.settings.MissedPositionSignalStrength;
         }
 
         public void RunStrategy(List<OHLCKandle> inputkandles, ref bool isBuy, ref bool isSell, ref string trend, ref string mood, ref string histdata, ref SimplePosition currentPosition, decimal currentClose, decimal risk, decimal reward, decimal leverage, ref decimal shortPercentage, ref decimal longPercentage, ref decimal profitFactor, int signalStrength, ref StrategyOutput stratetgyOutput, decimal decreaseOnNegative)
@@ -166,7 +208,7 @@ namespace BinanceBot.Strategy
             {
                 return false;
             }
-            else if (order.OrderType == "BUY" && longPercentage <= risk && IsValidSignal(isBuy,isSell,15,StrategyOutput.ExitPositionWithSell, ref prevOutput))
+            else if (order.OrderType == "BUY" && longPercentage <= risk && IsValidSignal(isBuy, isSell, 15, StrategyOutput.ExitPositionWithSell, ref prevOutput))
             {
                 return true;
             }
@@ -236,104 +278,6 @@ namespace BinanceBot.Strategy
             }
 
             return false;
-        }
-
-        private void CalculatePercentageChange(SimplePosition order, decimal currentClose, decimal leverage, ref decimal longPercentage, ref decimal shortPercentage, ref decimal profitFactor, decimal decreaseOnNegative)
-        {
-            if (order.OrderID != -1)
-            {
-                shortPercentage = leverage * ((order.EntryPrice - currentClose) / order.EntryPrice) * 100;
-
-                longPercentage = leverage * ((currentClose - order.EntryPrice) / order.EntryPrice) * 100;
-
-                if (shortPercentage < 0 && order.OrderType == "SELL")
-                {
-                    profitFactor = decreaseOnNegative;
-                }
-                else if (longPercentage < 0 && order.OrderType == "BUY")
-                {
-                    profitFactor = decreaseOnNegative;
-                }
-                else
-                {
-
-                }
-            }
-        }
-
-        private StrategyOutput MakeBuySellDecision(bool isBuy, bool isSell, string trend, string mood, decimal currentClose, ref SimplePosition order, decimal risk, decimal reward, decimal leverage, ref decimal shortPercentage, ref decimal longPercentage, ref decimal profitFactor, int signalStrength, string histData, decimal decreaseOnNegative)
-        {
-            var sOutput = StrategyOutput.None;
-
-            CalculatePercentageChange(order, currentClose, leverage, ref longPercentage, ref shortPercentage, ref profitFactor, decreaseOnNegative);
-
-            if (OpenPosition(order, isBuy, isSell, signalStrength, mood, trend))
-            {
-                if (isBuy)
-                {
-                    sOutput = StrategyOutput.OpenPositionWithBuy;
-                }
-                if (isSell)
-                {
-                    sOutput = StrategyOutput.OpenPositionWithSell;
-                }
-            }
-            else if (ExitPosition(order, isBuy, isSell, longPercentage, shortPercentage, risk, signalStrength))
-            {
-                if (order.OrderType == "BUY")
-                {
-                    sOutput = StrategyOutput.ExitPositionWithSell;
-                }
-                if (order.OrderType == "SELL")
-                {
-                    sOutput = StrategyOutput.ExitPositionWithBuy;
-                }
-            }
-            else if (BookProfit(order, isBuy, isSell, profitFactor, shortPercentage, longPercentage, reward, signalStrength))
-            {
-                if (order.OrderType == "BUY")
-                {
-                    sOutput = StrategyOutput.BookProfitWithSell;
-                }
-                if (order.OrderType == "SELL")
-                {
-                    sOutput = StrategyOutput.BookProfitWithBuy;
-                }
-            }
-            else if (EscapeTrap(order, isBuy, isSell, histData))
-            {
-                if (order.OrderType == "BUY")
-                {
-                    sOutput = StrategyOutput.EscapeTrapWithSell;
-                }
-                if (order.OrderType == "SELL")
-                {
-                    sOutput = StrategyOutput.EscapeTrapWithBuy;
-                }
-            }
-            else if (OpenMissedPosition(order,isBuy,isSell,histData))
-            {
-                string lastdecisiontype = "";
-
-                int lastdecisionperiod = 0;
-
-                GetLastDecision(histData, ref lastdecisiontype, ref lastdecisionperiod);
-
-                if (lastdecisiontype == "B")
-                {
-                    sOutput = StrategyOutput.MissedPositionBuy;
-                }
-                if (lastdecisiontype == "S")
-                {
-                    sOutput = StrategyOutput.MissedPositionSell;
-                }
-            }
-            else
-            {
-                sOutput = StrategyOutput.None;
-            }
-
-            return sOutput;
         }
 
         private bool EscapeTrap(SimplePosition position, bool isBuy, bool isSell, string histdata)
@@ -438,7 +382,7 @@ namespace BinanceBot.Strategy
                     //grab the missed position!!
                     return true;
                 }
-                if (lastdecisiontype == "S" && lastdecisionperiod >= 3 && lastdecisionperiod <=5 && IsValidSignal(false, false, 200, StrategyOutput.MissedPositionSell, ref prevOutput))
+                if (lastdecisiontype == "S" && lastdecisionperiod >= 3 && lastdecisionperiod <= 5 && IsValidSignal(false, false, 200, StrategyOutput.MissedPositionSell, ref prevOutput))
                 {
                     //grab the missed position!!
                     return true;
@@ -446,6 +390,104 @@ namespace BinanceBot.Strategy
             }
 
             return false;
+        }
+
+        private void CalculatePercentageChange(SimplePosition order, decimal currentClose, decimal leverage, ref decimal longPercentage, ref decimal shortPercentage, ref decimal profitFactor, decimal decreaseOnNegative)
+        {
+            if (order.OrderID != -1)
+            {
+                shortPercentage = leverage * ((order.EntryPrice - currentClose) / order.EntryPrice) * 100;
+
+                longPercentage = leverage * ((currentClose - order.EntryPrice) / order.EntryPrice) * 100;
+
+                if (shortPercentage < 0 && order.OrderType == "SELL")
+                {
+                    profitFactor = decreaseOnNegative;
+                }
+                else if (longPercentage < 0 && order.OrderType == "BUY")
+                {
+                    profitFactor = decreaseOnNegative;
+                }
+                else
+                {
+                    //meh :\
+                }
+            }
+        }
+
+        private StrategyOutput MakeBuySellDecision(bool isBuy, bool isSell, string trend, string mood, decimal currentClose, ref SimplePosition order, decimal risk, decimal reward, decimal leverage, ref decimal shortPercentage, ref decimal longPercentage, ref decimal profitFactor, int signalStrength, string histData, decimal decreaseOnNegative)
+        {
+            var sOutput = StrategyOutput.None;
+
+            CalculatePercentageChange(order, currentClose, leverage, ref longPercentage, ref shortPercentage, ref profitFactor, decreaseOnNegative);
+
+            if (OpenPosition(order, isBuy, isSell, signalStrength, mood, trend))
+            {
+                if (isBuy)
+                {
+                    sOutput = StrategyOutput.OpenPositionWithBuy;
+                }
+                if (isSell)
+                {
+                    sOutput = StrategyOutput.OpenPositionWithSell;
+                }
+            }
+            else if (ExitPosition(order, isBuy, isSell, longPercentage, shortPercentage, risk, signalStrength))
+            {
+                if (order.OrderType == "BUY")
+                {
+                    sOutput = StrategyOutput.ExitPositionWithSell;
+                }
+                if (order.OrderType == "SELL")
+                {
+                    sOutput = StrategyOutput.ExitPositionWithBuy;
+                }
+            }
+            else if (BookProfit(order, isBuy, isSell, profitFactor, shortPercentage, longPercentage, reward, signalStrength))
+            {
+                if (order.OrderType == "BUY")
+                {
+                    sOutput = StrategyOutput.BookProfitWithSell;
+                }
+                if (order.OrderType == "SELL")
+                {
+                    sOutput = StrategyOutput.BookProfitWithBuy;
+                }
+            }
+            else if (EscapeTrap(order, isBuy, isSell, histData))
+            {
+                if (order.OrderType == "BUY")
+                {
+                    sOutput = StrategyOutput.EscapeTrapWithSell;
+                }
+                if (order.OrderType == "SELL")
+                {
+                    sOutput = StrategyOutput.EscapeTrapWithBuy;
+                }
+            }
+            else if (OpenMissedPosition(order, isBuy, isSell, histData))
+            {
+                string lastdecisiontype = "";
+
+                int lastdecisionperiod = 0;
+
+                GetLastDecision(histData, ref lastdecisiontype, ref lastdecisionperiod);
+
+                if (lastdecisiontype == "B")
+                {
+                    sOutput = StrategyOutput.MissedPositionBuy;
+                }
+                if (lastdecisiontype == "S")
+                {
+                    sOutput = StrategyOutput.MissedPositionSell;
+                }
+            }
+            else
+            {
+                sOutput = StrategyOutput.None;
+            }
+
+            return sOutput;
         }
 
         private void GetLastDecision(string histdata, ref string decisiontype, ref int decisionperiod)
@@ -485,4 +527,7 @@ namespace BinanceBot.Strategy
             }
         }
     }
+
+    
+
 }
