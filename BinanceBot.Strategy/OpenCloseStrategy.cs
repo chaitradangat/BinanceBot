@@ -75,7 +75,7 @@ namespace BinanceBot.Strategy
             PineScriptFunction fn = new PineScriptFunction();
 
             //higher timeframe candles with smma values
-            var largekandles = fn.converttohighertimeframe(inputkandles, 3);
+            var largekandles = fn.converttohighertimeframe(inputkandles, KandleMultiplier);//3
 
             largekandles = fn.smma(largekandles, 8);
 
@@ -208,11 +208,11 @@ namespace BinanceBot.Strategy
             {
                 return false;
             }
-            else if (order.OrderType == "BUY" && longPercentage <= risk && IsValidSignal(isBuy, isSell, 15, StrategyOutput.ExitPositionWithSell, ref prevOutput))
+            else if (order.OrderType == "BUY" && longPercentage <= risk && IsValidSignal(isBuy, isSell, ExitSignalStrength, StrategyOutput.ExitPositionWithSell, ref prevOutput))//15
             {
                 return true;
             }
-            else if (order.OrderType == "SELL" && shortPercentage <= risk && IsValidSignal(isBuy, isSell, 15, StrategyOutput.ExitPositionWithBuy, ref prevOutput))
+            else if (order.OrderType == "SELL" && shortPercentage <= risk && IsValidSignal(isBuy, isSell, ExitSignalStrength, StrategyOutput.ExitPositionWithBuy, ref prevOutput))//15
             {
                 return true;
             }
@@ -320,12 +320,12 @@ namespace BinanceBot.Strategy
 
                 int lastdecisionperiod = Convert.ToInt32(lastdecision.Replace(lastdecisiontype, ""));
 
-                if (position.OrderType == "SELL" && lastdecisiontype == "B" && lastdecisionperiod >= 3 && IsValidSignal(false, false, 300, StrategyOutput.EscapeTrapWithBuy, ref prevOutput))
+                if (position.OrderType == "SELL" && lastdecisiontype == "B" && lastdecisionperiod >= EscapeTrapCandleIdx && IsValidSignal(false, false, EscapeTrapSignalStrength, StrategyOutput.EscapeTrapWithBuy, ref prevOutput))//3,300
                 {
                     //the bot is trapped!!
                     return true;
                 }
-                if (position.OrderType == "BUY" && lastdecisiontype == "S" && lastdecisionperiod >= 3 && IsValidSignal(false, false, 300, StrategyOutput.EscapeTrapWithSell, ref prevOutput))
+                if (position.OrderType == "BUY" && lastdecisiontype == "S" && lastdecisionperiod >= EscapeTrapCandleIdx && IsValidSignal(false, false, EscapeTrapSignalStrength, StrategyOutput.EscapeTrapWithSell, ref prevOutput))//3,300
                 {
                     //the bot is trapped
                     return true;
@@ -377,12 +377,12 @@ namespace BinanceBot.Strategy
 
                 int lastdecisionperiod = Convert.ToInt32(lastdecision.Replace(lastdecisiontype, ""));
 
-                if (lastdecisiontype == "B" && lastdecisionperiod >= 3 && lastdecisionperiod <= 5 && IsValidSignal(false, false, 200, StrategyOutput.MissedPositionBuy, ref prevOutput))
+                if (lastdecisiontype == "B" && lastdecisionperiod >= MissedPositionStartCandleIndex && lastdecisionperiod <= MissedPositionEndCandleIndex && IsValidSignal(false, false, MissedPositionSignalStrength, StrategyOutput.MissedPositionBuy, ref prevOutput))//3,5,200
                 {
                     //grab the missed position!!
                     return true;
                 }
-                if (lastdecisiontype == "S" && lastdecisionperiod >= 3 && lastdecisionperiod <= 5 && IsValidSignal(false, false, 200, StrategyOutput.MissedPositionSell, ref prevOutput))
+                if (lastdecisiontype == "S" && lastdecisionperiod >= MissedPositionStartCandleIndex && lastdecisionperiod <= MissedPositionEndCandleIndex && IsValidSignal(false, false, MissedPositionSignalStrength, StrategyOutput.MissedPositionSell, ref prevOutput))//3,5,200
                 {
                     //grab the missed position!!
                     return true;
@@ -454,7 +454,7 @@ namespace BinanceBot.Strategy
                     sOutput = StrategyOutput.BookProfitWithBuy;
                 }
             }
-            else if (EscapeTrap(order, isBuy, isSell, histData))
+            else if (EscapeTrap(order, isBuy, isSell, histData) && EscapeTraps)
             {
                 if (order.OrderType == "BUY")
                 {
@@ -465,7 +465,7 @@ namespace BinanceBot.Strategy
                     sOutput = StrategyOutput.EscapeTrapWithBuy;
                 }
             }
-            else if (OpenMissedPosition(order, isBuy, isSell, histData))
+            else if (OpenMissedPosition(order, isBuy, isSell, histData) && GrabMissedPosition)
             {
                 string lastdecisiontype = "";
 
@@ -527,7 +527,4 @@ namespace BinanceBot.Strategy
             }
         }
     }
-
-    
-
 }
