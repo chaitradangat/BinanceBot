@@ -271,7 +271,7 @@ namespace Binance.Net
             var parameters = new Dictionary<string, object>
             {
               { "timestamp", GetTimestamp() },
-//            { "recvWindow", 10000000 }
+              { "recvWindow", 30000 }
               //'recvWindow': 10000000
             };
             
