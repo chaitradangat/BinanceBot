@@ -173,6 +173,18 @@ namespace BinanceBot.Strategy
 
                     return SellCounter >= signalStrength;
                 }
+                if (currentState == StrategyOutput.ExitPositionWithBuy)
+                {
+                    ++BuyCounter;
+
+                    return BuyCounter >= signalStrength;
+                }
+                if (currentState == StrategyOutput.ExitPositionWithSell)
+                {
+                    ++SellCounter;
+
+                    return SellCounter >= signalStrength;
+                }
                 if (!isBuy && !isSell && currentState == StrategyOutput.EscapeTrapWithBuy)
                 {
                     ++BuyCounter;
