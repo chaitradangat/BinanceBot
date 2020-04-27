@@ -14,6 +14,7 @@ using BinanceBot.Strategy;
 using BinanceBot.Domain;
 
 using BinanceBot.Settings;
+using System.Net.NetworkInformation;
 
 namespace BinanceBot.Application
 {
@@ -21,9 +22,13 @@ namespace BinanceBot.Application
     {
         private BinanceWebCall webCall;
 
+        private int pingtime;
+
         public BinanceCommand()
         {
             webCall = new BinanceWebCall();
+
+            pingtime = BinanceBotSettings.settings.PingTimer;
         }
 
         public void ConnectFuturesBot(string symbol, decimal quantity, string ApiKey, string ApiSecret, decimal risk, decimal reward, decimal leverage, int signalStrength, string timeframe, int candleCount, bool isLive, decimal decreaseOnNegative)
@@ -88,7 +93,7 @@ namespace BinanceBot.Application
 
                         var strategyOutput = StrategyOutput.None;
 
-                        Thread.Sleep(BinanceBotSettings.settings.PingTimer);
+                        Thread.Sleep(pingtime);
                         #endregion
 
                         if (isLive)
@@ -113,7 +118,7 @@ namespace BinanceBot.Application
                         longPercentage, reward, risk, profitFactor, leverage,
                         symbol, sw.ElapsedMilliseconds, signalStrength, histdata, openclosestrategy.BuyCounter, openclosestrategy.SellCounter);
                     }
-                    catch (Exception)
+                    catch (Exception ex)
                     {
                         ++errorCount;
                     }
