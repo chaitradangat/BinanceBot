@@ -145,11 +145,25 @@ namespace BinanceBot.Application
             }
             else if (strategyOutput == StrategyOutput.EscapeTrapWithBuy)
             {
-                placedOrder = webCall.PlaceBuyOrder(quantity * 2, -1, true);
+                if (BinanceBotSettings.settings.ReOpenOnEscape)
+                {
+                    placedOrder = webCall.PlaceBuyOrder(quantity * 2 , -1, true);
+                }
+                else
+                {
+                    placedOrder = webCall.PlaceBuyOrder(quantity, -1, true);
+                }
             }
             else if (strategyOutput == StrategyOutput.EscapeTrapWithSell)
             {
-                placedOrder = webCall.PlaceSellOrder(quantity * 2, -1, true);
+                if (BinanceBotSettings.settings.ReOpenOnEscape)
+                {
+                    placedOrder = webCall.PlaceSellOrder(quantity * 2, -1, true);
+                }
+                else
+                {
+                    placedOrder = webCall.PlaceSellOrder(quantity, -1, true);
+                }
             }
             else
             {
