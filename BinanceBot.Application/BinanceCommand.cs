@@ -103,13 +103,13 @@ namespace BinanceBot.Application
 
                         webCall.GetKLinesDataCached(timeframe, candleCount, ref currentClose, ref ohlckandles);
 
-                        openclosestrategy.RunStrategy(ohlckandles, ref isBuy, ref isSell, ref trend, ref mood, 
+                        openclosestrategy.RunStrategy(ohlckandles, ref isBuy, ref isSell, ref trend, ref mood,
                         ref histdata, ref currentPosition, currentClose, risk, reward, leverage, ref shortPercentage,
                         ref longPercentage, ref profitFactor, signalStrength, ref strategyOutput, decreaseOnNegative);
 
                         if (isLive && strategyOutput != StrategyOutput.None)
                         {
-                            PlaceOrders(quantity, currentClose, strategyOutput);
+                            PlaceOrders(quantity, currentClose, strategyOutput, longPercentage, shortPercentage);
                         }
 
                         sw.Stop();
@@ -131,7 +131,7 @@ namespace BinanceBot.Application
             }
         }
 
-        public void PlaceOrders(decimal quantity, decimal currrentClose, StrategyOutput strategyOutput)
+        public void PlaceOrders(decimal quantity, decimal currrentClose, StrategyOutput strategyOutput, decimal longPercentage, decimal shortPercentage)
         {
             BinancePlacedOrder placedOrder = null;
 
@@ -147,7 +147,7 @@ namespace BinanceBot.Application
             {
                 if (BinanceBotSettings.settings.ReOpenOnEscape)
                 {
-                    placedOrder = webCall.PlaceBuyOrder(quantity * 2 , -1, true);
+                    placedOrder = webCall.PlaceBuyOrder(quantity * 2, -1, true);
                 }
                 else
                 {
@@ -172,7 +172,7 @@ namespace BinanceBot.Application
 
             if (placedOrder != null)
             {
-                DumpToLog(currrentClose, currrentClose, strategyOutput.ToString(), strategyOutput.ToString(), -1, -1);
+                DumpToLog(currrentClose, currrentClose, strategyOutput.ToString(), strategyOutput.ToString(), longPercentage, shortPercentage);
             }
 
         }
