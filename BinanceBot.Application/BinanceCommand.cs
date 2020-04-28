@@ -76,7 +76,7 @@ namespace BinanceBot.Application
 
                          = new SimplePosition
                          {
-                             OrderID = -1,
+                             PositionID = -1,
 
                              OrderType = "",
 
@@ -135,11 +135,15 @@ namespace BinanceBot.Application
         {
             BinancePlacedOrder placedOrder = null;
 
-            if (strategyOutput == StrategyOutput.OpenPositionWithBuy || strategyOutput == StrategyOutput.ExitPositionWithBuy || strategyOutput == StrategyOutput.BookProfitWithBuy || strategyOutput == StrategyOutput.MissedPositionBuy)
+            if (strategyOutput == StrategyOutput.OpenPositionWithBuy || strategyOutput == StrategyOutput.ExitPositionWithBuy 
+                || strategyOutput == StrategyOutput.BookProfitWithBuy || strategyOutput == StrategyOutput.MissedPositionBuy
+                || strategyOutput == StrategyOutput.ExitPositionHeavyLossWithBuy)
             {
                 placedOrder = webCall.PlaceBuyOrder(quantity, -1, true);
             }
-            else if (strategyOutput == StrategyOutput.OpenPositionWithSell || strategyOutput == StrategyOutput.ExitPositionWithSell || strategyOutput == StrategyOutput.BookProfitWithSell || strategyOutput == StrategyOutput.MissedPositionSell)
+            else if (strategyOutput == StrategyOutput.OpenPositionWithSell || strategyOutput == StrategyOutput.ExitPositionWithSell 
+                || strategyOutput == StrategyOutput.BookProfitWithSell || strategyOutput == StrategyOutput.MissedPositionSell
+                || strategyOutput == StrategyOutput.ExitPositionHeavyLossWithSell)
             {
                 placedOrder = webCall.PlaceSellOrder(quantity, -1, true);
             }
@@ -242,17 +246,17 @@ namespace BinanceBot.Application
 
             Console.WriteLine("\nORDER DETAILS: \n");
 
-            Console.WriteLine("ID {0}\n", order?.OrderID);
+            Console.WriteLine("ID {0}\n", order?.PositionID);
 
             Console.WriteLine("TYPE {0} \n", order?.OrderType);
 
             Console.WriteLine("ENTRY PRICE {0} \n", order?.EntryPrice);
 
-            if (order?.OrderID != -1 && order?.OrderType == "SELL")
+            if (order?.PositionID != -1 && order?.OrderType == "SELL")
             {
                 Console.WriteLine("PERCENTAGE {0} \n", Math.Round(shortPercentage, 3));
             }
-            if (order?.OrderID != -1 && order?.OrderType == "BUY")
+            if (order?.PositionID != -1 && order?.OrderType == "BUY")
             {
                 Console.WriteLine("PERCENTAGE {0} \n", Math.Round(longPercentage, 3));
             }
