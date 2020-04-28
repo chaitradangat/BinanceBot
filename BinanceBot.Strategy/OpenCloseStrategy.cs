@@ -38,6 +38,7 @@ namespace BinanceBot.Strategy
         private int MissedPositionEndCandleIndex; //5
         private int MissedPositionSignalStrength; //200
 
+        private bool ExitImmediate;
         #endregion
 
         public OpenCloseStrategy()
@@ -52,6 +53,8 @@ namespace BinanceBot.Strategy
             KandleMultiplier = OpenCloseStrategySettings.settings.KandleMultiplier;
 
             ExitSignalStrength = OpenCloseStrategySettings.settings.ExitSignalStrength;
+
+            ExitImmediate = OpenCloseStrategySettings.settings.ExitImmediate;
 
             //set escape strategy variables
             EscapeTraps = OpenCloseStrategySettings.settings.EscapeTraps;
@@ -161,25 +164,37 @@ namespace BinanceBot.Strategy
             //simple logic of current and previous states match
             if (prevState == currentState && prevState != StrategyOutput.None)
             {
-                if (isBuy && (currentState == StrategyOutput.OpenPositionWithBuy || currentState == StrategyOutput.ExitPositionWithBuy || currentState == StrategyOutput.BookProfitWithBuy))
+                if (isBuy && (currentState == StrategyOutput.OpenPositionWithBuy || currentState == StrategyOutput.BookProfitWithBuy))
                 {
                     ++BuyCounter;
 
                     return BuyCounter >= signalStrength;
                 }
-                if (isSell && (currentState == StrategyOutput.OpenPositionWithSell || currentState == StrategyOutput.ExitPositionWithSell || currentState == StrategyOutput.BookProfitWithSell))
+                if (isSell && (currentState == StrategyOutput.OpenPositionWithSell || currentState == StrategyOutput.BookProfitWithSell))
                 {
                     ++SellCounter;
 
                     return SellCounter >= signalStrength;
                 }
-                if (currentState == StrategyOutput.ExitPositionWithBuy)
+                if (isBuy && currentState == StrategyOutput.ExitPositionWithBuy)
                 {
                     ++BuyCounter;
 
                     return BuyCounter >= signalStrength;
                 }
-                if (currentState == StrategyOutput.ExitPositionWithSell)
+                if (isSell && currentState == StrategyOutput.ExitPositionWithSell)
+                {
+                    ++SellCounter;
+
+                    return SellCounter >= signalStrength;
+                }
+                if (ExitImmediate && currentState == StrategyOutput.ExitPositionWithBuy)
+                {
+                    ++BuyCounter;
+
+                    return BuyCounter >= signalStrength;
+                }
+                if (ExitImmediate && currentState == StrategyOutput.ExitPositionWithSell)
                 {
                     ++SellCounter;
 
@@ -317,7 +332,7 @@ namespace BinanceBot.Strategy
             string decisiontype = "";
             int decisionperiod = -1;
             GetLatestDecision(histdata, ref decisiontype, ref decisionperiod);
-            if (string.IsNullOrEmpty(decisiontype) || decisionperiod == -1 )
+            if (string.IsNullOrEmpty(decisiontype) || decisionperiod == -1)
             {
                 return false;
             }
@@ -371,7 +386,7 @@ namespace BinanceBot.Strategy
             {
                 return true;
             }
-            
+
             //missed sell position
             if (decisiontype == "S" && decisionperiod >= MissedPositionStartCandleIndex && decisionperiod <= MissedPositionEndCandleIndex && IsValidSignal(false, false, MissedPositionSignalStrength, StrategyOutput.MissedPositionSell, ref prevOutput))//3,5,200
             {
@@ -482,7 +497,7 @@ namespace BinanceBot.Strategy
         private void GetLatestDecision(string histdata, ref string decisiontype, ref int decisionperiod)
         {
             decisiontype = "";
-            
+
             decisionperiod = -1;
 
             if (string.IsNullOrEmpty(histdata))
