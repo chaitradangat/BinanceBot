@@ -11,7 +11,7 @@ namespace BinanceBot.Domain
             this.Quantity = (decimal)0.002;
         }
 
-        public long OrderID { get; set; }
+        public long PositionID { get; set; }
 
         public decimal Quantity { get; set; }
 
