@@ -110,7 +110,7 @@ namespace BinanceBot.Application
             {
                 PositionID = -1,
 
-                OrderType = "",
+                PositionType = "",
 
                 EntryPrice = -1,
 
@@ -131,28 +131,28 @@ namespace BinanceBot.Application
                 {
                     position.EntryPrice = currentPosition.entryPrice;
                     position.PositionID = 999;
-                    position.OrderType = "SELL";
+                    position.PositionType = "SELL";
                     position.Quantity = quantity;
                 }
                 else if (currentPosition.entryPrice < currentPosition.markPrice && currentPosition.unRealizedProfit < 0)
                 {
                     position.EntryPrice = currentPosition.entryPrice;
                     position.PositionID = 999;
-                    position.OrderType = "SELL";
+                    position.PositionType = "SELL";
                     position.Quantity = quantity;
                 }
                 else if (currentPosition.entryPrice < currentPosition.markPrice && currentPosition.unRealizedProfit > 0)
                 {
                     position.EntryPrice = currentPosition.entryPrice;
                     position.PositionID = 999;
-                    position.OrderType = "BUY";
+                    position.PositionType = "BUY";
                     position.Quantity = quantity;
                 }
                 else if (currentPosition.entryPrice > currentPosition.markPrice && currentPosition.unRealizedProfit < 0)
                 {
                     position.EntryPrice = currentPosition.entryPrice;
                     position.PositionID = 999;
-                    position.OrderType = "BUY";
+                    position.PositionType = "BUY";
                     position.Quantity = quantity;
                 }
                 else
@@ -168,7 +168,7 @@ namespace BinanceBot.Application
 
                 position.PositionID = -1;
 
-                position.OrderType = "";
+                position.PositionType = "";
 
                 position.EntryPrice = -1;
 

@@ -15,7 +15,7 @@ namespace BinanceBot.Domain
 
         public decimal Quantity { get; set; }
 
-        public string OrderType { get; set; }
+        public string PositionType { get; set; }
 
         public decimal EntryPrice { get; set; }
 

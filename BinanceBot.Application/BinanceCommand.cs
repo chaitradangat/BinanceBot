@@ -78,7 +78,7 @@ namespace BinanceBot.Application
                          {
                              PositionID = -1,
 
-                             OrderType = "",
+                             PositionType = "",
 
                              EntryPrice = -1,
 
@@ -248,15 +248,15 @@ namespace BinanceBot.Application
 
             Console.WriteLine("ID {0}\n", order?.PositionID);
 
-            Console.WriteLine("TYPE {0} \n", order?.OrderType);
+            Console.WriteLine("TYPE {0} \n", order?.PositionType);
 
             Console.WriteLine("ENTRY PRICE {0} \n", order?.EntryPrice);
 
-            if (order?.PositionID != -1 && order?.OrderType == "SELL")
+            if (order?.PositionID != -1 && order?.PositionType == "SELL")
             {
                 Console.WriteLine("PERCENTAGE {0} \n", Math.Round(shortPercentage, 3));
             }
-            if (order?.PositionID != -1 && order?.OrderType == "BUY")
+            if (order?.PositionID != -1 && order?.PositionType == "BUY")
             {
                 Console.WriteLine("PERCENTAGE {0} \n", Math.Round(longPercentage, 3));
             }
