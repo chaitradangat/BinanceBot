@@ -189,5 +189,19 @@ namespace BinanceBot.Settings
             }
         }
 
+        [ConfigurationProperty("REOPENONESCAPE", IsRequired = true)]
+        public bool ReOpenOnEscape
+        {
+            get
+            {
+                return bool.Parse(this["REOPENONESCAPE"].ToString());
+            }
+            set
+            {
+                this["REOPENONESCAPE"] = value;
+            }
+        }
+
+
     }
 }
