@@ -153,5 +153,18 @@ namespace BinanceBot.Settings
                 this["ExitImmediate"] = value;
             }
         }
+        [ConfigurationProperty("HeavyRiskPercentage", IsRequired = true)]
+        public decimal HeavyRiskPercentage
+        {
+            get
+            {
+                return decimal.Parse(this["HeavyRiskPercentage"].ToString());
+            }
+            set
+            {
+                this["HeavyRiskPercentage"] = value;
+            }
+        }
+
     }
 }
