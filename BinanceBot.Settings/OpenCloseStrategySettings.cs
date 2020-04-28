@@ -141,5 +141,17 @@ namespace BinanceBot.Settings
                 this["GrabMissedPosition"] = value;
             }
         }
+        [ConfigurationProperty("ExitImmediate", IsRequired = true)]
+        public bool ExitImmediate
+        {
+            get
+            {
+                return bool.Parse(this["ExitImmediate"].ToString());
+            }
+            set
+            {
+                this["ExitImmediate"] = value;
+            }
+        }
     }
 }
