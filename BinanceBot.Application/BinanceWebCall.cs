@@ -108,7 +108,7 @@ namespace BinanceBot.Application
 
             position = new SimplePosition
             {
-                OrderID = -1,
+                PositionID = -1,
 
                 OrderType = "",
 
@@ -130,28 +130,28 @@ namespace BinanceBot.Application
                 if (currentPosition.entryPrice > currentPosition.markPrice && currentPosition.unRealizedProfit > 0)
                 {
                     position.EntryPrice = currentPosition.entryPrice;
-                    position.OrderID = 999;
+                    position.PositionID = 999;
                     position.OrderType = "SELL";
                     position.Quantity = quantity;
                 }
                 else if (currentPosition.entryPrice < currentPosition.markPrice && currentPosition.unRealizedProfit < 0)
                 {
                     position.EntryPrice = currentPosition.entryPrice;
-                    position.OrderID = 999;
+                    position.PositionID = 999;
                     position.OrderType = "SELL";
                     position.Quantity = quantity;
                 }
                 else if (currentPosition.entryPrice < currentPosition.markPrice && currentPosition.unRealizedProfit > 0)
                 {
                     position.EntryPrice = currentPosition.entryPrice;
-                    position.OrderID = 999;
+                    position.PositionID = 999;
                     position.OrderType = "BUY";
                     position.Quantity = quantity;
                 }
                 else if (currentPosition.entryPrice > currentPosition.markPrice && currentPosition.unRealizedProfit < 0)
                 {
                     position.EntryPrice = currentPosition.entryPrice;
-                    position.OrderID = 999;
+                    position.PositionID = 999;
                     position.OrderType = "BUY";
                     position.Quantity = quantity;
                 }
@@ -166,7 +166,7 @@ namespace BinanceBot.Application
 
                 profitFactor = 1;
 
-                position.OrderID = -1;
+                position.PositionID = -1;
 
                 position.OrderType = "";
 
