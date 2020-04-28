@@ -118,12 +118,14 @@ namespace BinanceBot.Application
                         longPercentage, reward, risk, profitFactor, leverage,
                         symbol, sw.ElapsedMilliseconds, signalStrength, histdata, openclosestrategy.BuyCounter, openclosestrategy.SellCounter);
                     }
-                    catch (Exception ex)
+                    catch (Exception)
                     {
+                        Thread.Sleep(10);
+
                         ++errorCount;
                     }
 
-                    if (errorCount >= 5)
+                    if (errorCount >= 300)
                     {
                         break;
                     }
