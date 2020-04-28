@@ -135,18 +135,20 @@ namespace BinanceBot.Application
         {
             BinancePlacedOrder placedOrder = null;
 
-            if (strategyOutput == StrategyOutput.OpenPositionWithBuy || strategyOutput == StrategyOutput.ExitPositionWithBuy 
-                || strategyOutput == StrategyOutput.BookProfitWithBuy || strategyOutput == StrategyOutput.MissedPositionBuy
-                || strategyOutput == StrategyOutput.ExitPositionHeavyLossWithBuy)
+            if (strategyOutput == StrategyOutput.OpenPositionWithBuy || strategyOutput == StrategyOutput.ExitPositionWithBuy || 
+                strategyOutput == StrategyOutput.BookProfitWithBuy || strategyOutput == StrategyOutput.MissedPositionBuy  || 
+                strategyOutput == StrategyOutput.ExitPositionHeavyLossWithBuy)
             {
                 placedOrder = webCall.PlaceBuyOrder(quantity, -1, true);
             }
-            else if (strategyOutput == StrategyOutput.OpenPositionWithSell || strategyOutput == StrategyOutput.ExitPositionWithSell 
-                || strategyOutput == StrategyOutput.BookProfitWithSell || strategyOutput == StrategyOutput.MissedPositionSell
-                || strategyOutput == StrategyOutput.ExitPositionHeavyLossWithSell)
+
+            else if (strategyOutput == StrategyOutput.OpenPositionWithSell || strategyOutput == StrategyOutput.ExitPositionWithSell || 
+                     strategyOutput == StrategyOutput.BookProfitWithSell || strategyOutput == StrategyOutput.MissedPositionSell || 
+                     strategyOutput == StrategyOutput.ExitPositionHeavyLossWithSell)
             {
                 placedOrder = webCall.PlaceSellOrder(quantity, -1, true);
             }
+            
             else if (strategyOutput == StrategyOutput.EscapeTrapWithBuy)
             {
                 if (BinanceBotSettings.settings.ReOpenOnEscape)
@@ -158,6 +160,7 @@ namespace BinanceBot.Application
                     placedOrder = webCall.PlaceBuyOrder(quantity, -1, true);
                 }
             }
+            
             else if (strategyOutput == StrategyOutput.EscapeTrapWithSell)
             {
                 if (BinanceBotSettings.settings.ReOpenOnEscape)
