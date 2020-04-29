@@ -137,20 +137,20 @@ namespace BinanceBot.Application
         {
             BinancePlacedOrder placedOrder = null;
 
-            if (strategyOutput == StrategyOutput.OpenPositionWithBuy || strategyOutput == StrategyOutput.ExitPositionWithBuy || 
-                strategyOutput == StrategyOutput.BookProfitWithBuy || strategyOutput == StrategyOutput.MissedPositionBuy  || 
+            if (strategyOutput == StrategyOutput.OpenPositionWithBuy || strategyOutput == StrategyOutput.ExitPositionWithBuy ||
+                strategyOutput == StrategyOutput.BookProfitWithBuy || strategyOutput == StrategyOutput.MissedPositionBuy ||
                 strategyOutput == StrategyOutput.ExitPositionHeavyLossWithBuy)
             {
                 placedOrder = webCall.PlaceBuyOrder(quantity, -1, true);
             }
 
-            else if (strategyOutput == StrategyOutput.OpenPositionWithSell || strategyOutput == StrategyOutput.ExitPositionWithSell || 
-                     strategyOutput == StrategyOutput.BookProfitWithSell || strategyOutput == StrategyOutput.MissedPositionSell || 
+            else if (strategyOutput == StrategyOutput.OpenPositionWithSell || strategyOutput == StrategyOutput.ExitPositionWithSell ||
+                     strategyOutput == StrategyOutput.BookProfitWithSell || strategyOutput == StrategyOutput.MissedPositionSell ||
                      strategyOutput == StrategyOutput.ExitPositionHeavyLossWithSell)
             {
                 placedOrder = webCall.PlaceSellOrder(quantity, -1, true);
             }
-            
+
             else if (strategyOutput == StrategyOutput.EscapeTrapWithBuy)
             {
                 if (BinanceBotSettings.settings.ReOpenOnEscape)
@@ -162,7 +162,7 @@ namespace BinanceBot.Application
                     placedOrder = webCall.PlaceBuyOrder(quantity, -1, true);
                 }
             }
-            
+
             else if (strategyOutput == StrategyOutput.EscapeTrapWithSell)
             {
                 if (BinanceBotSettings.settings.ReOpenOnEscape)
@@ -281,8 +281,15 @@ namespace BinanceBot.Application
 
         private void DumpToLog(decimal currentClose, decimal entryPrice, string OrderType, string decision, decimal percentage, decimal limitpercentage)
         {
-            var debuginfo = string.Format("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}", DateTime.Now.ToUniversalTime().ToString(), currentClose, entryPrice
-                        , OrderType, decision, percentage, limitpercentage);
+            var debuginfo = string.Format("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}",
+                DateTime.Now.ToUniversalTime().AddMinutes(330).ToString(),
+                currentClose,
+                entryPrice,
+                "",
+                decision,
+                Math.Round(percentage, 3),
+                Math.Round(limitpercentage, 3)
+              );
 
             File.AppendAllLines("debug.logs", new[] { debuginfo });
         }
