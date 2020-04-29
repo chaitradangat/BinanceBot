@@ -44,117 +44,6 @@ namespace BinanceBot.Strategy
 
         #endregion
 
-        public OpenCloseStrategy()
-        {
-            BuyCounter = 0;
-
-            SellCounter = 0;
-
-            prevOutput = StrategyOutput.None;
-
-            //set strategy variables
-            KandleMultiplier = OpenCloseStrategySettings.settings.KandleMultiplier;
-
-            ExitSignalStrength = OpenCloseStrategySettings.settings.ExitSignalStrength;
-
-            ExitImmediate = OpenCloseStrategySettings.settings.ExitImmediate;
-
-            //set escape strategy variables
-            EscapeTraps = OpenCloseStrategySettings.settings.EscapeTraps;
-
-            EscapeTrapCandleIdx = OpenCloseStrategySettings.settings.EscapeTrapCandleIdx;
-
-            EscapeTrapSignalStrength = OpenCloseStrategySettings.settings.EscapeTrapSignalStrength;
-
-            //set missed position strategy variables
-            GrabMissedPosition = OpenCloseStrategySettings.settings.GrabMissedPosition;
-
-            MissedPositionStartCandleIndex = OpenCloseStrategySettings.settings.MissedPositionStartCandleIndex;
-
-            MissedPositionEndCandleIndex = OpenCloseStrategySettings.settings.MissedPositionEndCandleIndex;
-
-            MissedPositionSignalStrength = OpenCloseStrategySettings.settings.MissedPositionSignalStrength;
-
-            HeavyRiskPercentage = OpenCloseStrategySettings.settings.HeavyRiskPercentage;
-        }
-
-        public void RunStrategy(List<OHLCKandle> inputkandles, ref bool isBuy, ref bool isSell, ref string trend, ref string mood, ref string histdata, ref SimplePosition currentPosition, decimal currentClose, decimal risk, decimal reward, decimal leverage, ref decimal shortPercentage, ref decimal longPercentage, ref decimal profitFactor, int signalStrength, ref StrategyOutput stratetgyOutput, decimal decreaseOnNegative)
-        {
-            PineScriptFunction fn = new PineScriptFunction();
-
-            //higher timeframe candles with smma values
-            var largekandles = fn.converttohighertimeframe(inputkandles, KandleMultiplier);//3
-
-            largekandles = fn.smma(largekandles, 8);
-
-
-            //lower timeframe candles with smma values
-            inputkandles = fn.smma(inputkandles, 8);
-
-            var closeseriesmma = inputkandles.Select(x => x.Close).ToList();
-
-
-            //map higher timeframe values to lower timeframe values
-            var altkandles = fn.superimposekandles(largekandles, inputkandles);
-
-            var closeSeriesAlt = altkandles.Select(x => x.Close).ToList();
-
-            var openSeriesAlt = altkandles.Select(x => x.Open).ToList();
-
-
-            //trend and mood calculation-
-            trend = closeSeriesAlt.Last() > openSeriesAlt.Last() ? "BULLISH" : "BEARISH";
-
-            mood = closeseriesmma.Last() > openSeriesAlt.Last() ? "BULLISH" : "BEARISH";
-
-
-            //buy sell signal
-            var xlong = fn.crossover(closeSeriesAlt, openSeriesAlt);
-
-            var xshort = fn.crossunder(closeSeriesAlt, openSeriesAlt);
-
-            isBuy = xlong.Last();
-
-            isSell = xshort.Last();
-
-
-            //historical data
-            histdata = "";
-            for (int i = 0; i < xlong.Count; i++)
-            {
-                if (xlong[i])
-                {
-                    histdata += " B" + (xlong.Count - i - 1).ToString();
-                }
-                else if (xshort[i])
-                {
-                    histdata += " S" + (xlong.Count - i - 1).ToString();
-                }
-                else
-                {
-                    // meh :\
-                }
-            }
-
-            stratetgyOutput = MakeBuySellDecision(isBuy, isSell, trend, mood, currentClose, ref currentPosition, risk, reward, leverage, ref shortPercentage, ref longPercentage, ref profitFactor, signalStrength, histdata, decreaseOnNegative, HeavyRiskPercentage);
-
-            if (stratetgyOutput != StrategyOutput.None)
-            {
-                ResetCounters();
-
-                profitFactor = (decimal)1;
-            }
-        }
-
-        private void ResetCounters()
-        {
-            BuyCounter = 0;
-
-            SellCounter = 0;
-
-            prevOutput = StrategyOutput.None;
-        }
-
         #region -Validator Methods for Buy Sell Decision-
         private bool IsValidSignal(bool isBuy, bool isSell, int signalStrength, StrategyOutput currentState, ref StrategyOutput prevState)
         {
@@ -447,6 +336,158 @@ namespace BinanceBot.Strategy
         }
         #endregion
 
+        #region -utility functions-
+        private void ResetCounters()
+        {
+            BuyCounter = 0;
+
+            SellCounter = 0;
+
+            prevOutput = StrategyOutput.None;
+        }
+
+        private void GetLatestDecision(string histdata, ref string decisiontype, ref int decisionperiod)
+        {
+            decisiontype = "";
+
+            decisionperiod = -1;
+
+            if (string.IsNullOrEmpty(histdata))
+            {
+                //no historical decisions available
+                return;
+            }
+
+            var latestdecision = histdata.Split(' ').Last();
+
+            if (!string.IsNullOrEmpty(latestdecision))
+            {
+                if (latestdecision.Contains("B"))
+                {
+                    decisiontype = "B";
+                }
+                else if (latestdecision.Contains("S"))
+                {
+                    decisiontype = "S";
+                }
+                else
+                {
+                    decisiontype = "";
+                    decisionperiod = -1;
+                }
+
+                decisionperiod = Convert.ToInt32(latestdecision.Replace(decisiontype, ""));
+            }
+            else
+            {
+                decisiontype = "";
+                decisionperiod = -1;
+            }
+        }
+        #endregion
+
+        public OpenCloseStrategy()
+        {
+            BuyCounter = 0;
+
+            SellCounter = 0;
+
+            prevOutput = StrategyOutput.None;
+
+            //set strategy variables
+            KandleMultiplier = OpenCloseStrategySettings.settings.KandleMultiplier;
+
+            ExitSignalStrength = OpenCloseStrategySettings.settings.ExitSignalStrength;
+
+            ExitImmediate = OpenCloseStrategySettings.settings.ExitImmediate;
+
+            //set escape strategy variables
+            EscapeTraps = OpenCloseStrategySettings.settings.EscapeTraps;
+
+            EscapeTrapCandleIdx = OpenCloseStrategySettings.settings.EscapeTrapCandleIdx;
+
+            EscapeTrapSignalStrength = OpenCloseStrategySettings.settings.EscapeTrapSignalStrength;
+
+            //set missed position strategy variables
+            GrabMissedPosition = OpenCloseStrategySettings.settings.GrabMissedPosition;
+
+            MissedPositionStartCandleIndex = OpenCloseStrategySettings.settings.MissedPositionStartCandleIndex;
+
+            MissedPositionEndCandleIndex = OpenCloseStrategySettings.settings.MissedPositionEndCandleIndex;
+
+            MissedPositionSignalStrength = OpenCloseStrategySettings.settings.MissedPositionSignalStrength;
+
+            HeavyRiskPercentage = OpenCloseStrategySettings.settings.HeavyRiskPercentage;
+        }
+
+        public void RunStrategy(List<OHLCKandle> inputkandles, ref bool isBuy, ref bool isSell, ref string trend, ref string mood, ref string histdata, ref SimplePosition currentPosition, decimal currentClose, decimal risk, decimal reward, decimal leverage, ref decimal shortPercentage, ref decimal longPercentage, ref decimal profitFactor, int signalStrength, ref StrategyOutput stratetgyOutput, decimal decreaseOnNegative)
+        {
+            PineScriptFunction fn = new PineScriptFunction();
+
+            //higher timeframe candles with smma values
+            var largekandles = fn.converttohighertimeframe(inputkandles, KandleMultiplier);//3
+
+            largekandles = fn.smma(largekandles, 8);
+
+
+            //lower timeframe candles with smma values
+            inputkandles = fn.smma(inputkandles, 8);
+
+            var closeseriesmma = inputkandles.Select(x => x.Close).ToList();
+
+
+            //map higher timeframe values to lower timeframe values
+            var altkandles = fn.superimposekandles(largekandles, inputkandles);
+
+            var closeSeriesAlt = altkandles.Select(x => x.Close).ToList();
+
+            var openSeriesAlt = altkandles.Select(x => x.Open).ToList();
+
+
+            //trend and mood calculation-
+            trend = closeSeriesAlt.Last() > openSeriesAlt.Last() ? "BULLISH" : "BEARISH";
+
+            mood = closeseriesmma.Last() > openSeriesAlt.Last() ? "BULLISH" : "BEARISH";
+
+
+            //buy sell signal
+            var xlong = fn.crossover(closeSeriesAlt, openSeriesAlt);
+
+            var xshort = fn.crossunder(closeSeriesAlt, openSeriesAlt);
+
+            isBuy = xlong.Last();
+
+            isSell = xshort.Last();
+
+
+            //historical data
+            histdata = "";
+            for (int i = 0; i < xlong.Count; i++)
+            {
+                if (xlong[i])
+                {
+                    histdata += " B" + (xlong.Count - i - 1).ToString();
+                }
+                else if (xshort[i])
+                {
+                    histdata += " S" + (xlong.Count - i - 1).ToString();
+                }
+                else
+                {
+                    // meh :\
+                }
+            }
+
+            stratetgyOutput = MakeBuySellDecision(isBuy, isSell, trend, mood, currentClose, ref currentPosition, risk, reward, leverage, ref shortPercentage, ref longPercentage, ref profitFactor, signalStrength, histdata, decreaseOnNegative, HeavyRiskPercentage);
+
+            if (stratetgyOutput != StrategyOutput.None)
+            {
+                ResetCounters();
+
+                profitFactor = (decimal)1;
+            }
+        }
+
         private StrategyOutput MakeBuySellDecision(bool isBuy, bool isSell, string trend, string mood, decimal currentClose, ref SimplePosition position, decimal risk, decimal reward, decimal leverage, ref decimal shortPercentage, ref decimal longPercentage, ref decimal profitFactor, int signalStrength, string histData, decimal decreaseOnNegative,decimal HeavyRiskPercentage)
         {
             var sOutput = StrategyOutput.None;
@@ -533,43 +574,5 @@ namespace BinanceBot.Strategy
             return sOutput;
         }
 
-        private void GetLatestDecision(string histdata, ref string decisiontype, ref int decisionperiod)
-        {
-            decisiontype = "";
-
-            decisionperiod = -1;
-
-            if (string.IsNullOrEmpty(histdata))
-            {
-                //no historical decisions available
-                return;
-            }
-
-            var latestdecision = histdata.Split(' ').Last();
-
-            if (!string.IsNullOrEmpty(latestdecision))
-            {
-                if (latestdecision.Contains("B"))
-                {
-                    decisiontype = "B";
-                }
-                else if (latestdecision.Contains("S"))
-                {
-                    decisiontype = "S";
-                }
-                else
-                {
-                    decisiontype = "";
-                    decisionperiod = -1;
-                }
-
-                decisionperiod = Convert.ToInt32(latestdecision.Replace(decisiontype, ""));
-            }
-            else
-            {
-                decisiontype = "";
-                decisionperiod = -1;
-            }
-        }
     }
 }
