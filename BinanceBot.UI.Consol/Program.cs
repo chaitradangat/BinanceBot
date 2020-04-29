@@ -4,6 +4,8 @@ using BinanceBot.Application;
 
 using BinanceBot.Settings;
 
+using BinanceBot.Domain;
+
 namespace BinanceBot.UI.Consol
 {
     class Program
@@ -34,11 +36,29 @@ namespace BinanceBot.UI.Consol
             int candleCount = BinanceBotSettings.settings.CandleCount;
 
             bool isLive = BinanceBotSettings.settings.IsLive;
+
+
+            StrategyInput strategyInput = new StrategyInput
+            {
+                candleCount = BinanceBotSettings.settings.CandleCount,
+                decreaseOnNegative = BinanceBotSettings.settings.DecreaseOnNegative,
+                leverage = BinanceBotSettings.settings.Leverage,
+                quantity = BinanceBotSettings.settings.Quantity,
+                reward = BinanceBotSettings.settings.RewardPercentage,
+                risk = BinanceBotSettings.settings.RiskPercentage,
+                signalStrength = BinanceBotSettings.settings.SignalStrength,
+                symbol = BinanceBotSettings.settings.Symbol,
+                timeframe = BinanceBotSettings.settings.TimeFrame
+            };
+
+
             #endregion
 
-            BinanceCommand bcmd = new BinanceCommand();
+            BinanceCommand bcmd = new BinanceCommand(ApiKey, ApiSecret);
 
-            bcmd.ConnectFuturesBot(symbol, quantity, ApiKey, ApiSecret, riskPercentage, rewardPercentage, leverage, signalStrength, timeframe, candleCount, isLive, decreaseOnNegative);
+            bcmd.ConnectFuturesBot(symbol, quantity, riskPercentage, rewardPercentage, leverage, signalStrength, timeframe, candleCount, isLive, decreaseOnNegative);
+
+            bcmd.StartRoBot(strategyInput, isLive);
 
             Console.ReadLine();
         }
