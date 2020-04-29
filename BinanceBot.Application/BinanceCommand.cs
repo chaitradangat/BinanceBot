@@ -181,7 +181,7 @@ namespace BinanceBot.Application
 
             if (placedOrder != null)
             {
-                DumpToLog(currrentClose, currrentClose, strategyOutput.ToString(), strategyOutput.ToString(), longPercentage, shortPercentage);
+                DumpToLog(currrentClose, strategyOutput.ToString(), longPercentage, shortPercentage);
             }
 
         }
@@ -279,17 +279,26 @@ namespace BinanceBot.Application
             Console.WriteLine("Refresh Rate {0} milliseconds\n", cycleTime);
         }
 
-        private void DumpToLog(decimal currentClose, decimal entryPrice, string OrderType, string decision, decimal percentage, decimal limitpercentage)
+        private void DumpToLog(decimal currentClose, string decision, decimal longPercentage, decimal shortPercentage)
         {
-            var debuginfo = string.Format("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}",
-                DateTime.Now.ToUniversalTime().AddMinutes(330).ToString(),
-                currentClose,
-                entryPrice,
-                "",
-                decision,
-                Math.Round(percentage, 3),
-                Math.Round(limitpercentage, 3)
-              );
+            string timeutc530 = DateTime.Now.ToUniversalTime().AddMinutes(330).ToString();
+
+            decimal percentage;
+
+            if (decision.ToLower().Contains("buy"))
+            {
+                percentage = Math.Round(shortPercentage,3);
+            }
+            else if (decision.ToLower().Contains("sell"))
+            {
+                percentage = Math.Round(longPercentage,3);
+            }
+            else
+            {
+                percentage = 0;
+            }
+
+            string debuginfo = string.Format("{0}\t{1}\t{2}\t{3}", timeutc530, decision, currentClose, percentage);
 
             File.AppendAllLines("debug.logs", new[] { debuginfo });
         }
