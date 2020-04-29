@@ -9,6 +9,31 @@ namespace BinanceBot.Domain
         public SimplePosition()
         {
             this.Quantity = (decimal)0.002;
+
+            this.PositionID = -1;
+
+            this.PositionType = "";
+
+            this.EntryPrice = -1;
+
+            this.Trend = "";
+
+            this.Mood = "";
+        }
+
+        public SimplePosition(decimal Quantity)
+        {
+            this.Quantity = Quantity;
+
+            this.PositionID = -1;
+
+            this.PositionType = "";
+
+            this.EntryPrice = -1;
+
+            this.Trend = "";
+
+            this.Mood = "";
         }
 
         public long PositionID { get; set; }
