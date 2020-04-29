@@ -14,7 +14,7 @@ namespace BinanceBot.Application
     public class BinanceWebCall
     {
         //shared variables
-        private BinanceClient client;
+        public BinanceClient client;
         private string symbol;
         private TimeSpan? TimeZoneDiff;
         private List<OHLCKandle> kandleCache;
@@ -36,6 +36,15 @@ namespace BinanceBot.Application
         public void AssignBinanceWebCallFeatures(BinanceClient client, string symbol)
         {
             this.client = client;
+            this.symbol = symbol;
+        }
+        /// <summary>
+        /// Assign variables common to this class to all functions
+        /// </summary>
+        /// <param name="client"></param>
+        /// <param name="symbol"></param>
+        public void AssignBinanceWebCallFeatures(string symbol)
+        {
             this.symbol = symbol;
         }
         /// <summary>
