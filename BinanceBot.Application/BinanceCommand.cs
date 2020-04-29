@@ -14,7 +14,6 @@ using BinanceBot.Strategy;
 using BinanceBot.Domain;
 
 using BinanceBot.Settings;
-using System.Net.NetworkInformation;
 
 namespace BinanceBot.Application
 {
