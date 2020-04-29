@@ -4,7 +4,6 @@ using System.IO;
 using System.Threading;
 using System.Diagnostics;
 
-
 using Binance.Net;
 
 using Binance.Net.Objects;
@@ -15,6 +14,7 @@ using BinanceBot.Domain;
 
 using BinanceBot.Settings;
 
+
 namespace BinanceBot.Application
 {
     public class BinanceCommand
@@ -23,14 +23,16 @@ namespace BinanceBot.Application
 
         private int pingtime;
 
-        public BinanceCommand()
+        public BinanceCommand(string ApiKey, string ApiSecret)
         {
             webCall = new BinanceWebCall();
+
+            webCall.AddAuthenticationInformation(ApiKey, ApiSecret);
 
             pingtime = BinanceBotSettings.settings.PingTimer;
         }
 
-        public void ConnectFuturesBot(string symbol, decimal quantity, string ApiKey, string ApiSecret, decimal risk, decimal reward, decimal leverage, int signalStrength, string timeframe, int candleCount, bool isLive, decimal decreaseOnNegative)
+        public void ConnectFuturesBot(string symbol, decimal quantity, decimal risk, decimal reward, decimal leverage, int signalStrength, string timeframe, int candleCount, bool isLive, decimal decreaseOnNegative)
         {
             #region -strategy and function level variables-
             var openclosestrategy = new OpenCloseStrategy();
@@ -38,19 +40,18 @@ namespace BinanceBot.Application
             var profitFactor = (decimal)1;
 
             var errorCount = 0;
+
+            webCall.AssignBinanceWebCallFeatures(symbol); //improve this further later
             #endregion
 
-            webCall.AddAuthenticationInformation(ApiKey, ApiSecret);
-
-            using (var client = new BinanceClient())
+            using (webCall.client = new BinanceClient())
             {
-                webCall.AssignBinanceWebCallFeatures(client, symbol);
-
                 while (true)
                 {
                     try
                     {
                         #region -variables refreshed every cycle-
+
                         Stopwatch sw = new Stopwatch();
 
                         sw.Start();
@@ -131,6 +132,79 @@ namespace BinanceBot.Application
                 }
             }
         }
+
+        public void StartRoBot(StrategyInput strategyInput, bool isLive)
+        {
+            #region -strategy and function level variables-
+            var openclosestrategy = new OpenCloseStrategy();
+
+            var profitFactor = (decimal)1;
+
+            var errorCount = 0;
+
+            webCall.AssignBinanceWebCallFeatures(strategyInput.symbol); //improve this further later
+            #endregion
+
+            using (webCall.client = new BinanceClient())
+            {
+                while (true)
+                {
+                    try
+                    {
+                        #region -variables refreshed every cycle-
+                        StrategyData strategyData = new StrategyData();//important tracking and verification of profitfactor pending
+
+                        Stopwatch sw = new Stopwatch();
+
+                        sw.Start();
+
+                        List<OHLCKandle> ohlckandles = new List<OHLCKandle>();
+
+                        var currentClose = default(decimal);
+
+                        var currentPosition = new SimplePosition(strategyInput.quantity);
+
+                        var strategyOutput = StrategyOutput.None;
+
+                        Thread.Sleep(pingtime);
+                        #endregion
+
+                        if (isLive)
+                        {
+                            webCall.GetCurrentPosition(ref currentPosition, strategyInput.quantity, ref profitFactor);
+                        }
+
+                        webCall.GetKLinesDataCached(strategyInput.timeframe, strategyInput.candleCount, ref currentClose, ref ohlckandles);
+
+                        strategyInput.currentClose = currentClose;
+
+                        openclosestrategy.RunStrategy(ohlckandles, strategyInput, ref strategyData, ref currentPosition, ref strategyOutput, ref profitFactor);
+
+                        if (isLive && strategyOutput != StrategyOutput.None)
+                        {
+                            PlaceOrders(strategyInput.quantity, currentClose, strategyOutput, strategyData.longPercentage, strategyData.shortPercentage);
+                        }
+
+                        sw.Stop();
+
+                        DumpToConsole(strategyData, currentPosition, strategyInput, currentClose, sw.ElapsedMilliseconds, openclosestrategy.BuyCounter, openclosestrategy.SellCounter);
+
+                    }
+                    catch (Exception)
+                    {
+                        Thread.Sleep(10);
+
+                        ++errorCount;
+                    }
+
+                    if (errorCount >= 300)
+                    {
+                        break;
+                    }
+                }
+            }
+        }
+
 
         public void PlaceOrders(decimal quantity, decimal currrentClose, StrategyOutput strategyOutput, decimal longPercentage, decimal shortPercentage)
         {
@@ -278,6 +352,98 @@ namespace BinanceBot.Application
             Console.WriteLine("Refresh Rate {0} milliseconds\n", cycleTime);
         }
 
+
+        private void DumpToConsole(StrategyData strategyData, SimplePosition order, StrategyInput sInput, decimal currentClose, long cycleTime, int BuyCounter, int SellCounter)
+        {
+            Console.Clear();
+
+            Console.WriteLine();
+
+            Console.WriteLine("\n--------------------------------------------------------------------------");
+
+            Console.WriteLine("\nMARKET DETAILS: \n");
+
+            //latest price
+            Console.WriteLine("{0} : {1}\n", sInput.symbol, currentClose);
+
+            //mood
+            if (strategyData.mood == "BULLISH")
+            {//\u02C4
+                Console.WriteLine("MOOD    : {0}\n", "UP");
+            }
+            else if (strategyData.mood == "BEARISH")
+            {
+                Console.WriteLine("MOOD    : {0}\n", "DOWN");
+            }
+            else
+            {
+                Console.WriteLine("MOOD : {0}\n", "");
+            }
+
+            //trend
+            if (strategyData.trend == "BULLISH")
+            {
+                Console.WriteLine("TREND   : {0}\n", "UP");
+            }
+            else if (strategyData.trend == "BEARISH")
+            {
+                Console.WriteLine("TREND   : {0}\n", "DOWN");
+            }
+            else
+            {
+                Console.WriteLine("TREND : {0}\n", "");
+            }
+
+            //signal
+            if (strategyData.isBuy)
+            {
+                Console.WriteLine("SIGNAL  : {0}\n", "BUY");
+                Console.WriteLine("SIGNA%  : {0}%\n", 100 * BuyCounter / sInput.signalStrength);
+            }
+            else if (strategyData.isSell)
+            {
+                Console.WriteLine("SIGNAL  : {0}\n", "SELL");
+                Console.WriteLine("SIGNA%  : {0}%\n", 100 * SellCounter / sInput.signalStrength);
+            }
+            else
+            {
+                Console.WriteLine("SIGNAL  : {0}\n", "NO SIGNAL");
+            }
+
+            Console.WriteLine("HISTORY : {0}", strategyData.histdata);
+
+            Console.WriteLine("\n--------------------------------------------------------------------------");
+
+            Console.WriteLine("\nORDER DETAILS: \n");
+
+            Console.WriteLine("ID {0}\n", order?.PositionID);
+
+            Console.WriteLine("TYPE {0} \n", order?.PositionType);
+
+            Console.WriteLine("ENTRY PRICE {0} \n", order?.EntryPrice);
+
+            if (order?.PositionID != -1 && order?.PositionType == "SELL")
+            {
+                Console.WriteLine("PERCENTAGE {0} \n", Math.Round(strategyData.shortPercentage, 3));
+            }
+            if (order?.PositionID != -1 && order?.PositionType == "BUY")
+            {
+                Console.WriteLine("PERCENTAGE {0} \n", Math.Round(strategyData.longPercentage, 3));
+            }
+
+            Console.WriteLine("ADJUSTED PROFIT LIMIT {0}% \n", sInput.reward * strategyData.profitFactor);
+
+            Console.WriteLine("CURRENT PROFIT LIMIT {0}% \n", sInput.reward);
+
+            Console.WriteLine("CURRENT LOSS LIMIT {0}% \n", sInput.risk);
+
+            Console.WriteLine("CURRENT LEVERAGE {0}x\n", sInput.leverage);
+
+            Console.WriteLine("--------------------------------------------------------------------------\n");
+
+            Console.WriteLine("Refresh Rate {0} milliseconds\n", cycleTime);
+        }
+
         private void DumpToLog(decimal currentClose, string decision, decimal longPercentage, decimal shortPercentage)
         {
             string timeutc530 = DateTime.Now.ToUniversalTime().AddMinutes(330).ToString();
@@ -286,11 +452,11 @@ namespace BinanceBot.Application
 
             if (decision.ToLower().Contains("buy"))
             {
-                percentage = Math.Round(shortPercentage,3);
+                percentage = Math.Round(shortPercentage, 3);
             }
             else if (decision.ToLower().Contains("sell"))
             {
-                percentage = Math.Round(longPercentage,3);
+                percentage = Math.Round(longPercentage, 3);
             }
             else
             {
