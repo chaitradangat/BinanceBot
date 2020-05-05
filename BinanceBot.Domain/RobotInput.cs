@@ -7,7 +7,7 @@ namespace BinanceBot.Domain
     /// <summary>
     /// Class to accomodate all inputs for the strategy
     /// </summary>
-    public class StrategyInput
+    public class RobotInput
     {
         public decimal decreaseOnNegative { get; set; }
 
