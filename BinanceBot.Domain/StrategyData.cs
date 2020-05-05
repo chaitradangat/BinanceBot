@@ -7,9 +7,6 @@ namespace BinanceBot.Domain
     /// </summary>
     public class StrategyData
     {
-        //currentClose, risk, reward, leverage,signalStrength, decreaseOnNegative,ohlckandles
-        //ref currentPostion,ref strategyOutput
-
         public StrategyData()
         {
             //this.isBuy = default(bool);
@@ -25,6 +22,8 @@ namespace BinanceBot.Domain
             //this.longPercentage = default(decimal);
 
             //this.histdata = default(string);
+
+            this.profitFactor = (decimal)1;
         }
 
         public StrategyData(decimal profitFactor)

@@ -109,7 +109,7 @@ namespace BinanceBot.Application
 
                         if (isLive && strategyOutput != StrategyOutput.None)
                         {
-                            PlaceOrders(quantity, currentClose, strategyOutput, longPercentage, shortPercentage);
+                            //PlaceOrders(quantity, currentClose, strategyOutput, longPercentage, shortPercentage); old logic broken here change laterz
                         }
 
                         sw.Stop();
@@ -138,7 +138,7 @@ namespace BinanceBot.Application
             #region -strategy and function level variables-
             var openclosestrategy = new OpenCloseStrategy();
 
-            var profitFactor = (decimal)1;
+            StrategyData strategyData = new StrategyData(1);
 
             var errorCount = 0;
 
@@ -152,7 +152,7 @@ namespace BinanceBot.Application
                     try
                     {
                         #region -variables refreshed every cycle-
-                        StrategyData strategyData = new StrategyData();//important tracking and verification of profitfactor pending
+                        strategyData = new StrategyData(strategyData.profitFactor);//tracking updated check for more elegant ways to write this..
 
                         Stopwatch sw = new Stopwatch();
 
@@ -171,18 +171,18 @@ namespace BinanceBot.Application
 
                         if (isLive)
                         {
-                            webCall.GetCurrentPosition(ref currentPosition, robotInput.quantity, ref profitFactor);
+                            webCall.GetCurrentPosition(ref currentPosition, robotInput.quantity, ref strategyData);
                         }
 
                         webCall.GetKLinesDataCached(robotInput.timeframe, robotInput.candleCount, ref currentClose, ref ohlckandles);
 
                         robotInput.currentClose = currentClose;
 
-                        openclosestrategy.RunStrategy(ohlckandles, robotInput, ref strategyData, ref currentPosition, ref strategyOutput, ref profitFactor);
+                        openclosestrategy.RunStrategy(ohlckandles, robotInput, ref strategyData, ref currentPosition, ref strategyOutput);
 
                         if (isLive && strategyOutput != StrategyOutput.None)
                         {
-                            PlaceOrders(robotInput.quantity, currentClose, strategyOutput, strategyData.longPercentage, strategyData.shortPercentage);
+                            PlaceOrders(robotInput.quantity, currentClose, strategyOutput, strategyData);
                         }
 
                         sw.Stop();
@@ -206,7 +206,7 @@ namespace BinanceBot.Application
         }
 
 
-        public void PlaceOrders(decimal quantity, decimal currrentClose, StrategyOutput strategyOutput, decimal longPercentage, decimal shortPercentage)
+        public void PlaceOrders(decimal quantity, decimal currrentClose, StrategyOutput strategyOutput, StrategyData strategyData)
         {
             BinancePlacedOrder placedOrder = null;
 
@@ -254,7 +254,7 @@ namespace BinanceBot.Application
 
             if (placedOrder != null)
             {
-                DumpToLog(currrentClose, strategyOutput.ToString(), longPercentage, shortPercentage);
+                DumpToLog(currrentClose, strategyOutput.ToString(), strategyData);
             }
 
         }
@@ -444,7 +444,7 @@ namespace BinanceBot.Application
             Console.WriteLine("Refresh Rate {0} milliseconds\n", cycleTime);
         }
 
-        private void DumpToLog(decimal currentClose, string decision, decimal longPercentage, decimal shortPercentage)
+        private void DumpToLog(decimal currentClose, string decision, StrategyData strategyData)
         {
             string timeutc530 = DateTime.Now.ToUniversalTime().AddMinutes(330).ToString();
 
@@ -452,18 +452,18 @@ namespace BinanceBot.Application
 
             if (decision.ToLower().Contains("buy"))
             {
-                percentage = Math.Round(shortPercentage, 3);
+                percentage = Math.Round(strategyData.shortPercentage, 3);
             }
             else if (decision.ToLower().Contains("sell"))
             {
-                percentage = Math.Round(longPercentage, 3);
+                percentage = Math.Round(strategyData.longPercentage, 3);
             }
             else
             {
                 percentage = 0;
             }
 
-            string debuginfo = string.Format("{0}\t{1}\t{2}\t{3}", timeutc530, decision, currentClose, percentage);
+            string debuginfo = string.Format("{0}\t{1}\t{2}\t{3}\t{4}", timeutc530, decision, currentClose, percentage, strategyData.histdata);
 
             File.AppendAllLines("debug.logs", new[] { debuginfo });
         }

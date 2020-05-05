@@ -707,7 +707,7 @@ namespace BinanceBot.Strategy
             }
         }
 
-        public void RunStrategy(List<OHLCKandle> inputkandles, RobotInput robotInput, ref StrategyData strategyData, ref SimplePosition currentPosition, ref StrategyOutput stratetgyOutput, ref decimal profitFactor)
+        public void RunStrategy(List<OHLCKandle> inputkandles, RobotInput robotInput, ref StrategyData strategyData, ref SimplePosition currentPosition, ref StrategyOutput stratetgyOutput)
         {
             PineScriptFunction fn = new PineScriptFunction();
 
@@ -775,19 +775,17 @@ namespace BinanceBot.Strategy
                 ResetCounters();
 
                 strategyData.profitFactor = 1m;
-
-                profitFactor = 1m;
             }
         }
 
 
-        private StrategyOutput MakeBuySellDecision(ref StrategyData strategyData, ref SimplePosition position,RobotInput strategyInput, decimal HeavyRiskPercentage)
+        private StrategyOutput MakeBuySellDecision(ref StrategyData strategyData, ref SimplePosition position,RobotInput roboInput, decimal HeavyRiskPercentage)
         {
             var sOutput = StrategyOutput.None;
             
-            CalculatePercentageChange(position, strategyInput.currentClose, strategyInput.leverage, strategyInput.decreaseOnNegative, ref strategyData);
+            CalculatePercentageChange(position, roboInput.currentClose, roboInput.leverage, roboInput.decreaseOnNegative, ref strategyData);
 
-            if (OpenPosition(position, strategyData, strategyInput.signalStrength))
+            if (OpenPosition(position, strategyData, roboInput.signalStrength))
             {
                 if (strategyData.isBuy)
                 {
@@ -809,7 +807,7 @@ namespace BinanceBot.Strategy
                     sOutput = StrategyOutput.ExitPositionHeavyLossWithBuy;
                 }
             }
-            else if (ExitPosition(position, strategyData, strategyInput.risk, strategyInput.signalStrength))
+            else if (ExitPosition(position, strategyData, roboInput.risk, roboInput.signalStrength))
             {
                 if (position.PositionType == "BUY")
                 {
@@ -820,7 +818,7 @@ namespace BinanceBot.Strategy
                     sOutput = StrategyOutput.ExitPositionWithBuy;
                 }
             }
-            else if (BookProfit(position, strategyData, strategyInput.reward))
+            else if (BookProfit(position, strategyData, roboInput.reward))
             {
                 if (position.PositionType == "BUY")
                 {
