@@ -185,6 +185,85 @@ namespace BinanceBot.Application
             }
         }
         /// <summary>
+        /// Get All Positions for given Symbol
+        /// </summary>
+        /// <param name="position"></param>
+        /// <param name="quantity"></param>
+        /// <param name="profitFactor"></param>
+        public void GetCurrentPosition(ref SimplePosition position, decimal quantity, ref StrategyData strategyData)
+        {
+        getpositions:
+
+            position = new SimplePosition
+            {
+                PositionID = -1,
+
+                PositionType = "",
+
+                EntryPrice = -1,
+
+                Quantity = quantity,
+
+                Trend = "",
+
+                Mood = ""
+            };
+
+            var positions = client.GetPositions(default, true);
+
+            var currentPosition = positions.Data.Where(x => x.symbol == symbol).Single();
+
+            if (currentPosition.entryPrice != 0)
+            {
+                if (currentPosition.entryPrice > currentPosition.markPrice && currentPosition.unRealizedProfit > 0)
+                {
+                    position.EntryPrice = currentPosition.entryPrice;
+                    position.PositionID = 999;
+                    position.PositionType = "SELL";
+                    position.Quantity = quantity;
+                }
+                else if (currentPosition.entryPrice < currentPosition.markPrice && currentPosition.unRealizedProfit < 0)
+                {
+                    position.EntryPrice = currentPosition.entryPrice;
+                    position.PositionID = 999;
+                    position.PositionType = "SELL";
+                    position.Quantity = quantity;
+                }
+                else if (currentPosition.entryPrice < currentPosition.markPrice && currentPosition.unRealizedProfit > 0)
+                {
+                    position.EntryPrice = currentPosition.entryPrice;
+                    position.PositionID = 999;
+                    position.PositionType = "BUY";
+                    position.Quantity = quantity;
+                }
+                else if (currentPosition.entryPrice > currentPosition.markPrice && currentPosition.unRealizedProfit < 0)
+                {
+                    position.EntryPrice = currentPosition.entryPrice;
+                    position.PositionID = 999;
+                    position.PositionType = "BUY";
+                    position.Quantity = quantity;
+                }
+                else
+                {
+                    Thread.Sleep(1000);
+                    goto getpositions;
+                }
+            }
+            else
+            {
+
+                strategyData.profitFactor = 1;
+
+                position.PositionID = -1;
+
+                position.PositionType = "";
+
+                position.EntryPrice = -1;
+
+                position.Quantity = quantity;
+            }
+        }
+        /// <summary>
         /// Get Candle Data From the Servers
         /// </summary>
         /// <param name="timeframe"></param>
