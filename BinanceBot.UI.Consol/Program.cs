@@ -38,7 +38,7 @@ namespace BinanceBot.UI.Consol
             bool isLive = BinanceBotSettings.settings.IsLive;
 
 
-            StrategyInput strategyInput = new StrategyInput
+            RobotInput strategyInput = new RobotInput
             {
                 candleCount = BinanceBotSettings.settings.CandleCount,
                 decreaseOnNegative = BinanceBotSettings.settings.DecreaseOnNegative,
@@ -56,7 +56,7 @@ namespace BinanceBot.UI.Consol
 
             BinanceCommand bcmd = new BinanceCommand(ApiKey, ApiSecret);
 
-            bcmd.ConnectFuturesBot(symbol, quantity, riskPercentage, rewardPercentage, leverage, signalStrength, timeframe, candleCount, isLive, decreaseOnNegative);
+            //bcmd.ConnectFuturesBot(symbol, quantity, riskPercentage, rewardPercentage, leverage, signalStrength, timeframe, candleCount, isLive, decreaseOnNegative);
 
             bcmd.StartRoBot(strategyInput, isLive);
 

@@ -133,7 +133,7 @@ namespace BinanceBot.Application
             }
         }
 
-        public void StartRoBot(StrategyInput strategyInput, bool isLive)
+        public void StartRoBot(RobotInput strategyInput, bool isLive)
         {
             #region -strategy and function level variables-
             var openclosestrategy = new OpenCloseStrategy();
@@ -353,7 +353,7 @@ namespace BinanceBot.Application
         }
 
 
-        private void DumpToConsole(StrategyData strategyData, SimplePosition order, StrategyInput sInput, decimal currentClose, long cycleTime, int BuyCounter, int SellCounter)
+        private void DumpToConsole(StrategyData strategyData, SimplePosition order, RobotInput sInput, decimal currentClose, long cycleTime, int BuyCounter, int SellCounter)
         {
             Console.Clear();
 

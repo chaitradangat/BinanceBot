@@ -707,7 +707,7 @@ namespace BinanceBot.Strategy
             }
         }
 
-        public void RunStrategy(List<OHLCKandle> inputkandles, StrategyInput strategyInput, ref StrategyData strategyData, ref SimplePosition currentPosition, ref StrategyOutput stratetgyOutput, ref decimal profitFactor)
+        public void RunStrategy(List<OHLCKandle> inputkandles, RobotInput strategyInput, ref StrategyData strategyData, ref SimplePosition currentPosition, ref StrategyOutput stratetgyOutput, ref decimal profitFactor)
         {
             PineScriptFunction fn = new PineScriptFunction();
 
@@ -781,7 +781,7 @@ namespace BinanceBot.Strategy
         }
 
 
-        private StrategyOutput MakeBuySellDecision(ref StrategyData strategyData, ref SimplePosition position,StrategyInput strategyInput, decimal HeavyRiskPercentage)
+        private StrategyOutput MakeBuySellDecision(ref StrategyData strategyData, ref SimplePosition position,RobotInput strategyInput, decimal HeavyRiskPercentage)
         {
             var sOutput = StrategyOutput.None;
             
