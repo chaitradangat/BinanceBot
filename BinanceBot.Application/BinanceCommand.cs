@@ -133,7 +133,7 @@ namespace BinanceBot.Application
             }
         }
 
-        public void StartRoBot(RobotInput strategyInput, bool isLive)
+        public void StartRoBot(RobotInput robotInput, bool isLive)
         {
             #region -strategy and function level variables-
             var openclosestrategy = new OpenCloseStrategy();
@@ -142,7 +142,7 @@ namespace BinanceBot.Application
 
             var errorCount = 0;
 
-            webCall.AssignBinanceWebCallFeatures(strategyInput.symbol); //improve this further later
+            webCall.AssignBinanceWebCallFeatures(robotInput.symbol); //improve this further later
             #endregion
 
             using (webCall.client = new BinanceClient())
@@ -162,7 +162,7 @@ namespace BinanceBot.Application
 
                         var currentClose = default(decimal);
 
-                        var currentPosition = new SimplePosition(strategyInput.quantity);
+                        var currentPosition = new SimplePosition(robotInput.quantity);
 
                         var strategyOutput = StrategyOutput.None;
 
@@ -171,23 +171,23 @@ namespace BinanceBot.Application
 
                         if (isLive)
                         {
-                            webCall.GetCurrentPosition(ref currentPosition, strategyInput.quantity, ref profitFactor);
+                            webCall.GetCurrentPosition(ref currentPosition, robotInput.quantity, ref profitFactor);
                         }
 
-                        webCall.GetKLinesDataCached(strategyInput.timeframe, strategyInput.candleCount, ref currentClose, ref ohlckandles);
+                        webCall.GetKLinesDataCached(robotInput.timeframe, robotInput.candleCount, ref currentClose, ref ohlckandles);
 
-                        strategyInput.currentClose = currentClose;
+                        robotInput.currentClose = currentClose;
 
-                        openclosestrategy.RunStrategy(ohlckandles, strategyInput, ref strategyData, ref currentPosition, ref strategyOutput, ref profitFactor);
+                        openclosestrategy.RunStrategy(ohlckandles, robotInput, ref strategyData, ref currentPosition, ref strategyOutput, ref profitFactor);
 
                         if (isLive && strategyOutput != StrategyOutput.None)
                         {
-                            PlaceOrders(strategyInput.quantity, currentClose, strategyOutput, strategyData.longPercentage, strategyData.shortPercentage);
+                            PlaceOrders(robotInput.quantity, currentClose, strategyOutput, strategyData.longPercentage, strategyData.shortPercentage);
                         }
 
                         sw.Stop();
 
-                        DumpToConsole(strategyData, currentPosition, strategyInput, currentClose, sw.ElapsedMilliseconds, openclosestrategy.BuyCounter, openclosestrategy.SellCounter);
+                        DumpToConsole(strategyData, currentPosition, robotInput, currentClose, sw.ElapsedMilliseconds, openclosestrategy.BuyCounter, openclosestrategy.SellCounter);
 
                     }
                     catch (Exception)
