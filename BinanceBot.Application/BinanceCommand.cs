@@ -190,7 +190,7 @@ namespace BinanceBot.Application
                         DumpToConsole(strategyData, currentPosition, robotInput, currentClose, sw.ElapsedMilliseconds, openclosestrategy.BuyCounter, openclosestrategy.SellCounter);
 
                     }
-                    catch (Exception)
+                    catch (Exception ex)
                     {
                         Thread.Sleep(10);
 
