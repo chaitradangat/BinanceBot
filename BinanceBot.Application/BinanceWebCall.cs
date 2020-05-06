@@ -211,7 +211,7 @@ namespace BinanceBot.Application
 
             var positions = client.GetPositions(default, true);
 
-            var currentPosition = positions.Data.Where(x => x.symbol == symbol).Single();
+            var currentPosition = positions.Data.Where(x => x.symbol == symbol && x.positionSide == "BOTH").Single();
 
             if (currentPosition.entryPrice != 0)
             {
