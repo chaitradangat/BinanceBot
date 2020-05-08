@@ -49,5 +49,13 @@ namespace BinanceBot.Domain
         public decimal profitFactor { get; set; }
 
         public StrategyOutput prevOutput { get; set; }
+
+        public StrategyOutput Output { get; set; }
+
+        public int LatestSignalStrength { get; set; }
+
+        public int BuyCounter { get; set; }
+
+        public int SellCounter { get; set; }
     }
 }
