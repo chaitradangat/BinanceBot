@@ -711,11 +711,11 @@ namespace BinanceBot.Strategy
         {
             PineScriptFunction fn = new PineScriptFunction();
 
-            //higher timeframe candles with smma values
+            //convert to higher timeframe
             var largekandles = fn.converttohighertimeframe(inputkandles, KandleMultiplier);//3
 
+            //higher timeframe candles with smma values
             largekandles = fn.smma(largekandles, 8);
-
 
             //lower timeframe candles with smma values
             inputkandles = fn.smma(inputkandles, 8);
