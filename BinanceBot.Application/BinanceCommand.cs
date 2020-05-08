@@ -63,8 +63,6 @@ namespace BinanceBot.Application
 
                         var currentPosition = new SimplePosition(robotInput.quantity);
 
-                        var strategyOutput = StrategyOutput.None;
-
                         Thread.Sleep(pingtime);
                         #endregion
 
@@ -77,16 +75,16 @@ namespace BinanceBot.Application
 
                         robotInput.currentClose = currentClose;
 
-                        openclosestrategy.RunStrategy(ohlckandles, robotInput, ref strategyData, ref currentPosition, ref strategyOutput);
+                        openclosestrategy.RunStrategy(ohlckandles, robotInput, ref strategyData, ref currentPosition);
 
-                        if (isLive && strategyOutput != StrategyOutput.None)
+                        if (isLive && strategyData.Output != StrategyOutput.None)
                         {
-                            PlaceOrders(robotInput.quantity, currentClose, strategyOutput, strategyData);
+                            PlaceOrders(robotInput.quantity, currentClose, strategyData.Output, strategyData);
                         }
 
                         sw.Stop();
 
-                        DumpToConsole(strategyData, currentPosition, robotInput, currentClose, sw.ElapsedMilliseconds, openclosestrategy.BuyCounter, openclosestrategy.SellCounter);
+                        DumpToConsole(strategyData, currentPosition, robotInput, currentClose, sw.ElapsedMilliseconds);
 
                     }
                     catch (Exception ex)
@@ -157,7 +155,7 @@ namespace BinanceBot.Application
 
         }
 
-        private void DumpToConsole(StrategyData strategyData, SimplePosition order, RobotInput sInput, decimal currentClose, long cycleTime, int BuyCounter, int SellCounter)
+        private void DumpToConsole(StrategyData strategyData, SimplePosition order, RobotInput sInput, decimal currentClose, long cycleTime)
         {
             Console.Clear();
 
@@ -198,21 +196,40 @@ namespace BinanceBot.Application
                 Console.WriteLine("TREND : {0}\n", "");
             }
 
-            //signal
-            if (strategyData.isBuy)
+            if (strategyData.prevOutput.ToString().ToLower().Contains("buy") && strategyData.LatestSignalStrength != 0)
             {
-                Console.WriteLine("SIGNAL  : {0}\n", "BUY");
-                Console.WriteLine("SIGNA%  : {0}%\n", 100 * BuyCounter / sInput.signalStrength);
+                //signal
+                Console.WriteLine("DECISION : {0}  {1}%  @STRENGTH OF {2}\n", strategyData.prevOutput.ToString(),
+                    100 * strategyData.BuyCounter / strategyData.LatestSignalStrength, strategyData.LatestSignalStrength
+                    );
             }
-            else if (strategyData.isSell)
+            else if (strategyData.prevOutput.ToString().ToLower().Contains("sell") && strategyData.LatestSignalStrength != 0)
             {
-                Console.WriteLine("SIGNAL  : {0}\n", "SELL");
-                Console.WriteLine("SIGNA%  : {0}%\n", 100 * SellCounter / sInput.signalStrength);
+                Console.WriteLine("DECISION : {0}  {1}%  @STRENGTH OF {2}\n", strategyData.prevOutput.ToString(),
+                    100 * strategyData.SellCounter / strategyData.LatestSignalStrength, strategyData.LatestSignalStrength
+                    );
             }
             else
             {
-                Console.WriteLine("SIGNAL  : {0}\n", "NO SIGNAL");
+                Console.WriteLine("DECISION : {0}\n","NO DECISION");
             }
+
+            //if (strategyData.isBuy)
+            //{
+            //    Console.WriteLine("SIGNAL  : {0}\n", "BUY");
+
+            //    Console.WriteLine("SIGNA%  : {0}%\n", 100 * strategyData.BuyCounter / sInput.signalStrength);
+            //}
+            //else if (strategyData.isSell)
+            //{
+            //    Console.WriteLine("SIGNAL  : {0}\n", "SELL");
+             
+            //    Console.WriteLine("SIGNA%  : {0}%\n", 100 * strategyData.SellCounter / sInput.signalStrength);
+            //}
+            //else
+            //{
+            //    Console.WriteLine("SIGNAL  : {0}\n", "NO SIGNAL");
+            //}
 
             Console.WriteLine("HISTORY : {0}", strategyData.histdata);
 

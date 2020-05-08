@@ -24,11 +24,19 @@ namespace BinanceBot.Domain
             //this.histdata = default(string);
 
             this.profitFactor = (decimal)1;
+
+            this.Output = StrategyOutput.None;
+
+            this.prevOutput = StrategyOutput.None;
         }
 
         public StrategyData(decimal profitFactor)
         {
             this.profitFactor = profitFactor;
+
+            this.Output = StrategyOutput.None;
+
+            this.prevOutput = StrategyOutput.None;
         }
 
 

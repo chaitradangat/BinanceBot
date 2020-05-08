@@ -15,11 +15,13 @@ namespace BinanceBot.Strategy
     public class OpenCloseStrategy
     {
         #region -variables to calculate signal strength-
-        public int BuyCounter;
+        private int BuyCounter;
 
-        public int SellCounter;
+        private int SellCounter;
 
         private StrategyOutput prevOutput;
+
+        private int LatestSignalStrength;
         #endregion
 
         #region -variables of strategy configuration-
@@ -50,6 +52,8 @@ namespace BinanceBot.Strategy
         #region -Validator Methods for Buy Sell Decision-
         private bool IsValidSignal(bool isBuy, bool isSell, int signalStrength, StrategyOutput currentState, ref StrategyOutput prevState)
         {
+            LatestSignalStrength = signalStrength;
+
             if (prevState != currentState)
             {
                 BuyCounter = 0;
@@ -349,6 +353,8 @@ namespace BinanceBot.Strategy
             SellCounter = 0;
 
             prevOutput = StrategyOutput.None;
+
+            LatestSignalStrength = 0;
         }
 
         private void GetLatestDecision(string histdata, ref string decisiontype, ref int decisionperiod)
@@ -427,7 +433,7 @@ namespace BinanceBot.Strategy
             HeavyRiskPercentage = OpenCloseStrategySettings.settings.HeavyRiskPercentage;
         }
 
-        public void RunStrategy(List<OHLCKandle> inputkandles, RobotInput robotInput, ref StrategyData strategyData, ref SimplePosition currentPosition, ref StrategyOutput stratetgyOutput)
+        public void RunStrategy(List<OHLCKandle> inputkandles, RobotInput robotInput, ref StrategyData strategyData, ref SimplePosition currentPosition)
         {
             PineScriptFunction fn = new PineScriptFunction();
 
@@ -497,12 +503,9 @@ namespace BinanceBot.Strategy
                 }
             }
 
+            MakeBuySellDecision(ref strategyData, ref currentPosition, robotInput);
 
-            stratetgyOutput = MakeBuySellDecision(ref strategyData, ref currentPosition, robotInput, HeavyRiskPercentage);
-
-
-
-            if (stratetgyOutput != StrategyOutput.None)
+            if (strategyData.Output != StrategyOutput.None)
             {
                 ResetCounters();
 
@@ -510,7 +513,7 @@ namespace BinanceBot.Strategy
             }
         }
 
-        private StrategyOutput MakeBuySellDecision(ref StrategyData strategyData, ref SimplePosition position,RobotInput roboInput, decimal HeavyRiskPercentage)
+        private void MakeBuySellDecision(ref StrategyData strategyData, ref SimplePosition position,RobotInput roboInput)
         {
             var sOutput = StrategyOutput.None;
             
@@ -593,7 +596,15 @@ namespace BinanceBot.Strategy
                 sOutput = StrategyOutput.None;
             }
 
-            return sOutput;
+            strategyData.prevOutput = prevOutput;
+
+            strategyData.LatestSignalStrength = LatestSignalStrength;//improve this code laterz
+
+            strategyData.BuyCounter = BuyCounter;
+
+            strategyData.SellCounter = SellCounter;
+
+            strategyData.Output = sOutput;
         }
     }
 }
