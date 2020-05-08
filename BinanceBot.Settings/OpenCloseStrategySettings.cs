@@ -166,5 +166,17 @@ namespace BinanceBot.Settings
             }
         }
 
+        [ConfigurationProperty("Smoothing", IsRequired = true)]
+        public string Smoothing
+        {
+            get
+            {
+                return Convert.ToString(this["Smoothing"]);
+            }
+            set
+            {
+                this["Smoothing"] = value;
+            }
+        }
     }
 }
