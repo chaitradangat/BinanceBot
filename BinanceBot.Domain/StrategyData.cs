@@ -47,5 +47,7 @@ namespace BinanceBot.Domain
         public decimal longPercentage { get; set; }
 
         public decimal profitFactor { get; set; }
+
+        public StrategyOutput prevOutput { get; set; }
     }
 }
