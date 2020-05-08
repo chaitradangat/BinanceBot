@@ -864,8 +864,6 @@ namespace PineScriptPort
         {
             trimseries(ref closevalues, ref openvalues);
 
-            var diff = Math.Abs(kandles.Count - closevalues.Count);
-
             while (kandles.Count != closevalues.Count)
             {
                 if (kandles.Count > closevalues.Count)
@@ -888,15 +886,19 @@ namespace PineScriptPort
         }
 
 
-        public void dema(ref List<OHLCKandle> kandles, int lookback)
+        public List<OHLCKandle> dema(List<OHLCKandle> kandles, int lookback)
         {
-            var demaclosevalues = dema(kandles.Select(x => x.Close).ToList(), lookback);
+            var kandles_ = new List<OHLCKandle>(kandles);
 
-            var demaopenvalues = dema(kandles.Select(x => x.Open).ToList(), lookback);
+            var demaclosevalues = dema(kandles_.Select(x => x.Close).ToList(), lookback);
+
+            var demaopenvalues = dema(kandles_.Select(x => x.Open).ToList(), lookback);
 
             trimseries(ref demaclosevalues, ref demaopenvalues);
 
-            reassignohlc(ref kandles, demaclosevalues, demaopenvalues);
+            reassignohlc(ref kandles_, demaclosevalues, demaopenvalues);
+
+            return kandles_;
         }
 
         public List<OHLCKandle> smma(List<OHLCKandle> kandles, int lookback)
