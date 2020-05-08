@@ -270,7 +270,9 @@ namespace BinanceBot.Application
             string debuginfo = string.Format("{0}\t{1}\t{2}\t{3}\t{4}", timeutc530, decision, currentClose, percentage, strategyData.histdata);
 
             File.AppendAllLines("debug.logs", new[] { debuginfo });
+
+            File.AppendAllLines("Logs\\debug.txt", new[] { debuginfo });
         }
-        
+
     }
 }
