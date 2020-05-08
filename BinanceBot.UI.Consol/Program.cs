@@ -56,8 +56,6 @@ namespace BinanceBot.UI.Consol
 
             BinanceCommand bcmd = new BinanceCommand(ApiKey, ApiSecret);
 
-            //bcmd.ConnectFuturesBot(symbol, quantity, riskPercentage, rewardPercentage, leverage, signalStrength, timeframe, candleCount, isLive, decreaseOnNegative);
-
             bcmd.StartRoBot(strategyInput, isLive);
 
             Console.ReadLine();
