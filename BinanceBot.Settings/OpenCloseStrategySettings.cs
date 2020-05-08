@@ -13,26 +13,6 @@ namespace BinanceBot.Settings
             }
         }
 
-        /*
-         int KandleMultiplier; //3
-
-        int ExitSignalStrength; //15
-
-        int EscapeTrapCandleIdx; //3
-
-        int EscapeTrapSignalStrength; //300
-
-        int MissedPositionStartCandleIndex; //3
-
-        int MissedPositionEndCandleIndex; //5
-
-        int MissedPositionSignalStrength; //200
-
-        bool EscapeTraps; //true
-
-        bool GrabMissedPosition; //true
-         */
-
         [ConfigurationProperty("KandleMultiplier", IsRequired = true)]
         public int KandleMultiplier
         {
@@ -165,7 +145,6 @@ namespace BinanceBot.Settings
                 this["HeavyRiskPercentage"] = value;
             }
         }
-
         [ConfigurationProperty("Smoothing", IsRequired = true)]
         public string Smoothing
         {
