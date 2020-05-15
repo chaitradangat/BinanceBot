@@ -509,8 +509,6 @@ namespace BinanceBot.Application
             }
         }
 
-
-
         #region -timezone and server time functions-
         /// <summary>
         /// Get live server time of Binance Server
