@@ -13,7 +13,7 @@ using BinanceBot.Strategy;
 using BinanceBot.Domain;
 
 using BinanceBot.Settings;
-
+using System.Linq;
 
 namespace BinanceBot.Application
 {
@@ -41,7 +41,8 @@ namespace BinanceBot.Application
 
             var errorCount = 0;
 
-            webCall.AssignBinanceWebCallFeatures(robotInput.symbol); //improve this further later
+            //improve this further later
+            webCall.AssignBinanceWebCallFeatures(robotInput.symbol);
             #endregion
 
             using (webCall.client = new BinanceClient())
@@ -211,7 +212,7 @@ namespace BinanceBot.Application
             }
             else
             {
-                Console.WriteLine("DECISION : {0}\n","NO DECISION");
+                Console.WriteLine("DECISION : {0}\n", "NO DECISION");
             }
 
             Console.WriteLine("HISTORY : {0}", strategyData.histdata);
@@ -267,7 +268,7 @@ namespace BinanceBot.Application
                 percentage = 0;
             }
 
-            string debuginfo = string.Format("{0}\t{1}\t{2}\t{3}\t{4}", timeutc530, decision, currentClose, percentage, strategyData.histdata);
+            string debuginfo = string.Format("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}\t{7}", timeutc530, decision, currentClose, percentage, strategyData.histdata,strategyData.BollingerUpper,strategyData.BollingerMiddle,strategyData.BollingerLower);
 
             File.AppendAllLines("debug.logs", new[] { debuginfo });
 
