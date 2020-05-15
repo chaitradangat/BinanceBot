@@ -51,5 +51,11 @@ namespace BinanceBot.Domain
         public int BuyCounter { get; set; }
 
         public int SellCounter { get; set; }
+
+        public double BollingerUpper { get; set; }
+
+        public double BollingerMiddle { get; set; }
+
+        public double BollingerLower { get; set; }
     }
 }
