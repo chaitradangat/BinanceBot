@@ -962,21 +962,38 @@ namespace PineScriptPort
             }
         }
 
-        /// <summary>
+        /// <summary> #tested OK
         /// Gets the bollinger of last element in the series
         /// </summary>
         /// <param name="kandles"></param>
         /// <param name="BollingerUpper"></param>
         /// <param name="BollingerMiddle"></param>
         /// <param name="BollingerLower"></param>
-        public void bollinger(List<OHLCKandle> kandles, int lookback, ref double BollingerUpper, ref double BollingerMiddle, ref double BollingerLower)
+        public List<OHLCKandle> bollinger(List<OHLCKandle> kandles, int lookback)
         {
-            var closeseries = kandles.Select(x => x.Close).ToList();
+            var _kandles = new List<OHLCKandle>(kandles);
 
-            closeseries = sma(closeseries, lookback);
+            var stdevs = stdev(_kandles.Select(x => x.Close).ToList(), lookback);
 
+            var _sma = sma(_kandles.Select(x => x.Close).ToList(), lookback);
 
+            trimseries(ref stdevs, ref _sma);
 
+            while (_kandles.Count != stdevs.Count)
+            {
+                _kandles.RemoveAt(0);
+            }
+
+            for (int i = 0; i < _kandles.Count; i++)
+            {
+                _kandles[i].High = _sma[i] + (2 * stdevs[i]);
+
+                _kandles[i].Low = _sma[i] - (2 * stdevs[i]);
+
+                _kandles[i].Close = _sma[i];
+            }
+
+            return _kandles;
         }
 
         /// <summary> #tested OK
