@@ -9,20 +9,6 @@ namespace BinanceBot.Domain
     {
         public StrategyData()
         {
-            //this.isBuy = default(bool);
-
-            //this.isSell = default(bool);
-
-            //this.mood = default(string);
-
-            //this.trend = default(string);
-
-            //this.shortPercentage = default(decimal);
-
-            //this.longPercentage = default(decimal);
-
-            //this.histdata = default(string);
-
             this.profitFactor = (decimal)1;
 
             this.Output = StrategyOutput.None;
