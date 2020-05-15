@@ -169,6 +169,9 @@ namespace BinanceBot.Strategy
 
             if (strategyData.isBuy && IsValidSignal(strategyData.isBuy, strategyData.isSell, signalStrength, StrategyOutput.OpenPositionWithBuy, ref prevOutput))
             {
+
+
+
                 return true;
             }
 
@@ -343,6 +346,49 @@ namespace BinanceBot.Strategy
 
         }
 
+        /// <summary>
+        /// Function to add bollinger bias to Buy Sell Decision while opening position
+        /// </summary>
+        /// <param name="tradingPrice"></param>
+        /// <param name="bollingerUpper"></param>
+        /// <param name="bollingerMiddle"></param>
+        /// <param name="bollingerLower"></param>
+        /// <returns></returns>
+        private bool IsBollingerBuy(StrategyData strategyData, decimal tradingPrice,decimal profitPercentage)
+        {
+            //calculate percetage scope for buy with respect to upper bollinger Band
+            var buyPercentageScope = ((strategyData.BollingerUpper - tradingPrice) / strategyData.BollingerUpper) * 100;
+
+            if (buyPercentageScope >= profitPercentage)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        /// <summary>
+        /// Function to add bollinger bias to Buy Sell Decision while opening position
+        /// </summary>
+        /// <param name="tradingPrice"></param>
+        /// <param name="bollingerUpper"></param>
+        /// <param name="bollingerMiddle"></param>
+        /// <param name="bollingerLower"></param>
+        private bool IsBollingerSell(StrategyData strategyData, decimal tradingPrice, decimal profitPercentage)
+        {
+            //calculate percetage scope for buy with respect to upper bollinger Band
+            var sellPercentageScope = ((tradingPrice - strategyData.BollingerLower) / tradingPrice) * 100;
+
+            if (sellPercentageScope >= profitPercentage)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
         #endregion
 
         #region -utility functions-
@@ -437,6 +483,17 @@ namespace BinanceBot.Strategy
         {
             PineScriptFunction fn = new PineScriptFunction();
 
+            //make a copy of original data
+            var kcopy = inputkandles.Select(x => new OHLCKandle
+            {
+                Close = x.Close,
+                CloseTime = x.CloseTime,
+                Open = x.Open,
+                OpenTime = x.OpenTime,
+                High = x.High,
+                Low = x.Low
+            }).ToList();
+
             //convert to higher timeframe
             var largekandles = fn.converttohighertimeframe(inputkandles, KandleMultiplier);//3
 
@@ -456,7 +513,7 @@ namespace BinanceBot.Strategy
                 //lower timeframe candles with smma values
                 inputkandles = fn.smma(inputkandles, 8);
             }
-            
+
 
             var closeseriesmma = inputkandles.Select(x => x.Close).ToList();
 
@@ -484,6 +541,15 @@ namespace BinanceBot.Strategy
 
             strategyData.isSell = xshort.Last();
 
+
+            //bollinger bands data
+            var bollingerData = fn.bollinger(kcopy, 20);
+
+            strategyData.BollingerUpper = bollingerData.Last().High;
+
+            strategyData.BollingerMiddle = bollingerData.Last().Close;
+
+            strategyData.BollingerLower = bollingerData.Last().Low;
 
             //historical data
             strategyData.histdata = "";
