@@ -149,7 +149,7 @@ namespace BinanceBot.Application
                 //no action
             }
 
-            if (placedOrder != null)
+            if (placedOrder != null || strategyOutput == StrategyOutput.AvoidOpenWithSell || strategyOutput == StrategyOutput.AvoidOpenWithBuy)
             {
                 DumpToLog(currrentClose, strategyOutput.ToString(), strategyData);
             }
