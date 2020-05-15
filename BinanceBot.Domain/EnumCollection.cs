@@ -18,6 +18,8 @@ namespace BinanceBot.Domain
         MissedPositionSell,
         ExitPositionHeavyLossWithBuy,
         ExitPositionHeavyLossWithSell,
+        AvoidOpenWithBuy,
+        AvoidOpenWithSell,
         None
     }
 }
