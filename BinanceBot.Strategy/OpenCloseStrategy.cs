@@ -354,12 +354,12 @@ namespace BinanceBot.Strategy
         /// <param name="bollingerMiddle"></param>
         /// <param name="bollingerLower"></param>
         /// <returns></returns>
-        private bool IsBollingerBuy(StrategyData strategyData, decimal tradingPrice,decimal profitPercentage)
+        private bool IsBollingerBuy(StrategyData strategyData, decimal tradingPrice, decimal profitPercentage)
         {
             //calculate percetage scope for buy with respect to upper bollinger Band
             var buyPercentageScope = ((strategyData.BollingerUpper - tradingPrice) / strategyData.BollingerUpper) * 100;
 
-            if (buyPercentageScope >= profitPercentage)
+            if (buyPercentageScope >= (profitPercentage * strategyData.profitFactor))
             {
                 return true;
             }
@@ -380,7 +380,7 @@ namespace BinanceBot.Strategy
             //calculate percetage scope for buy with respect to upper bollinger Band
             var sellPercentageScope = ((tradingPrice - strategyData.BollingerLower) / tradingPrice) * 100;
 
-            if (sellPercentageScope >= profitPercentage)
+            if (sellPercentageScope >= (profitPercentage * strategyData.profitFactor))
             {
                 return true;
             }
@@ -579,21 +579,35 @@ namespace BinanceBot.Strategy
             }
         }
 
-        private void MakeBuySellDecision(ref StrategyData strategyData, ref SimplePosition position,RobotInput roboInput)
+        private void MakeBuySellDecision(ref StrategyData strategyData, ref SimplePosition position, RobotInput roboInput)
         {
             var sOutput = StrategyOutput.None;
-            
+
             CalculatePercentageChange(position, roboInput.currentClose, roboInput.leverage, roboInput.decreaseOnNegative, ref strategyData);
 
             if (OpenPosition(position, strategyData, roboInput.signalStrength))
             {
                 if (strategyData.isBuy)
                 {
-                    sOutput = StrategyOutput.OpenPositionWithBuy;
+                    if (IsBollingerBuy(strategyData, roboInput.currentClose, roboInput.reward))
+                    {
+                        sOutput = StrategyOutput.OpenPositionWithBuy;
+                    }
+                    else
+                    {
+                        sOutput = StrategyOutput.AvoidOpenWithBuy;
+                    }
                 }
                 if (strategyData.isSell)
                 {
-                    sOutput = StrategyOutput.OpenPositionWithSell;
+                    if (IsBollingerSell(strategyData, roboInput.currentClose, roboInput.reward))
+                    {
+                        sOutput = StrategyOutput.OpenPositionWithSell;
+                    }
+                    else
+                    {
+                        sOutput = StrategyOutput.AvoidOpenWithSell;
+                    }
                 }
             }
             else if (ExitPositionHeavyLoss(position, strategyData, HeavyRiskPercentage))
@@ -650,11 +664,25 @@ namespace BinanceBot.Strategy
 
                 if (decisiontype == "B")
                 {
-                    sOutput = StrategyOutput.MissedPositionBuy;
+                    if (IsBollingerBuy(strategyData, roboInput.currentClose, roboInput.reward))
+                    {
+                        sOutput = StrategyOutput.MissedPositionBuy;
+                    }
+                    else
+                    {
+                        sOutput = StrategyOutput.AvoidOpenWithBuy;
+                    }
                 }
                 if (decisiontype == "S")
                 {
-                    sOutput = StrategyOutput.MissedPositionSell;
+                    if (IsBollingerSell(strategyData, roboInput.currentClose, roboInput.reward))
+                    {
+                        sOutput = StrategyOutput.MissedPositionSell;
+                    }
+                    else
+                    {
+                        sOutput = StrategyOutput.AvoidOpenWithSell;
+                    }
                 }
             }
             else
