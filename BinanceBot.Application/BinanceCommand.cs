@@ -214,23 +214,6 @@ namespace BinanceBot.Application
                 Console.WriteLine("DECISION : {0}\n","NO DECISION");
             }
 
-            //if (strategyData.isBuy)
-            //{
-            //    Console.WriteLine("SIGNAL  : {0}\n", "BUY");
-
-            //    Console.WriteLine("SIGNA%  : {0}%\n", 100 * strategyData.BuyCounter / sInput.signalStrength);
-            //}
-            //else if (strategyData.isSell)
-            //{
-            //    Console.WriteLine("SIGNAL  : {0}\n", "SELL");
-             
-            //    Console.WriteLine("SIGNA%  : {0}%\n", 100 * strategyData.SellCounter / sInput.signalStrength);
-            //}
-            //else
-            //{
-            //    Console.WriteLine("SIGNAL  : {0}\n", "NO SIGNAL");
-            //}
-
             Console.WriteLine("HISTORY : {0}", strategyData.histdata);
 
             Console.WriteLine("\n--------------------------------------------------------------------------");
