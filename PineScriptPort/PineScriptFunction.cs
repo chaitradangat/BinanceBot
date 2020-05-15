@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
+using System.Runtime.Serialization;
 using System.Text;
 
 using BinanceBot.Domain;
@@ -35,18 +37,6 @@ namespace PineScriptPort
 
             return results;
         }
-
-
-
-
-
-
-
-
-
-
-
-
 
         /// <summary>
         /// calculates ema for a given series
@@ -885,7 +875,6 @@ namespace PineScriptPort
             }
         }
 
-
         public List<OHLCKandle> dema(List<OHLCKandle> kandles, int lookback)
         {
             var kandles_ = new List<OHLCKandle>(kandles);
@@ -916,7 +905,6 @@ namespace PineScriptPort
             return kandles_;
         }
 
-
         public List<OHLCKandle> superimposekandles(List<OHLCKandle> largekandles, List<OHLCKandle> smallkandles)
         {
             var _smallkandles = new List<OHLCKandle>(smallkandles);
@@ -942,14 +930,84 @@ namespace PineScriptPort
             return _smallkandles;
         }
 
+        public static void AddBollingerBands(ref SortedList<DateTime, Dictionary<string, double>> data, int period, int factor)
+        {
+            double total_average = 0;
+            double total_squares = 0;
+
+            for (int i = 0; i < data.Count(); i++)
+            {
+                total_average += data.Values[i]["close"];
+
+                total_squares += Math.Pow(data.Values[i]["close"], 2);
 
 
 
+                if (i >= period - 1)
+                {
+                    double average = total_average / period;
+
+                    double stdev = Math.Sqrt((total_squares - Math.Pow(total_average, 2) / period) / period);
+
+                    data.Values[i]["bollinger_average"] = average;
+
+                    data.Values[i]["bollinger_top"] = average + factor * stdev;
+
+                    data.Values[i]["bollinger_bottom"] = average - factor * stdev;
+
+                    total_average -= data.Values[i - period + 1]["close"];
+
+                    total_squares -= Math.Pow(data.Values[i - period + 1]["close"], 2);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Gets the bollinger of last element in the series
+        /// </summary>
+        /// <param name="kandles"></param>
+        /// <param name="BollingerUpper"></param>
+        /// <param name="BollingerMiddle"></param>
+        /// <param name="BollingerLower"></param>
+        public void bollinger(List<OHLCKandle> kandles, int lookback, ref double BollingerUpper, ref double BollingerMiddle, ref double BollingerLower)
+        {
+            var closeseries = kandles.Select(x => x.Close).ToList();
+
+            closeseries = sma(closeseries, lookback);
 
 
 
+        }
 
+        /// <summary> #tested OK
+        /// returns standard deviation of a series with lookback
+        /// </summary>
+        /// <param name="series"></param>
+        /// <param name="lookback"></param>
+        /// <returns></returns>
+        public List<decimal> stdev(List<decimal> series, int lookback)
+        {
+            var results = new List<decimal>();
 
+            series.Reverse();
+
+            for (int i = 0; i < series.Count - lookback; i++)
+            {
+                var slice = series.Skip(i).Take(lookback);
+
+                var avg = slice.Average();
+
+                var sum = slice.Select(x => Math.Pow((double)(x - avg), 2)).Sum();
+
+                var dev = Math.Sqrt(sum / lookback);
+
+                results.Add((decimal)dev);
+            }
+
+            results.Reverse();
+
+            return results;
+        }
 
 
     }
