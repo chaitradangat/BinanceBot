@@ -157,5 +157,17 @@ namespace BinanceBot.Settings
                 this["Smoothing"] = value;
             }
         }
+        [ConfigurationProperty("BollingerFactor", IsRequired = true)]
+        public decimal BollingerFactor
+        {
+            get
+            {
+                return decimal.Parse(this["BollingerFactor"].ToString());
+            }
+            set
+            {
+                this["BollingerFactor"] = value;
+            }
+        }
     }
 }
