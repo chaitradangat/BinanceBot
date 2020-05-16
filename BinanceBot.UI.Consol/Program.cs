@@ -13,30 +13,12 @@ namespace BinanceBot.UI.Consol
         static void Main(string[] args)
         {
             #region -config variables-
-            string symbol = BinanceBotSettings.settings.Symbol;
-
-            decimal quantity = BinanceBotSettings.settings.Quantity;
 
             string ApiKey = BinanceBotSettings.settings.ApiKey;
 
             string ApiSecret = BinanceBotSettings.settings.ApiSecret;
 
-            decimal riskPercentage = BinanceBotSettings.settings.RiskPercentage;
-
-            decimal rewardPercentage = BinanceBotSettings.settings.RewardPercentage;
-
-            decimal decreaseOnNegative = BinanceBotSettings.settings.DecreaseOnNegative;
-
-            decimal leverage = BinanceBotSettings.settings.Leverage;
-
-            int signalStrength = BinanceBotSettings.settings.SignalStrength;
-
-            string timeframe = BinanceBotSettings.settings.TimeFrame;
-
-            int candleCount = BinanceBotSettings.settings.CandleCount;
-
             bool isLive = BinanceBotSettings.settings.IsLive;
-
 
             RobotInput strategyInput = new RobotInput
             {
@@ -50,7 +32,6 @@ namespace BinanceBot.UI.Consol
                 symbol = BinanceBotSettings.settings.Symbol,
                 timeframe = BinanceBotSettings.settings.TimeFrame
             };
-
 
             #endregion
 
