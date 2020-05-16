@@ -160,14 +160,20 @@ namespace BinanceBot.Application
         {
             Console.Clear();
 
-            Console.WriteLine();
+            var bu_percentage = Math.Round((100 * (strategyData.BollingerUpper - currentClose) / strategyData.BollingerUpper), 3);
 
-            Console.WriteLine("\n--------------------------------------------------------------------------");
+            var bm_percentage = Math.Round((100 * (strategyData.BollingerMiddle - currentClose) / strategyData.BollingerMiddle), 3);
+
+            var bd_percentage = Math.Round((100 * (currentClose - strategyData.BollingerLower) / currentClose), 3);
+
+            Console.WriteLine("\n\n--------------------------------------------------------------------------");
 
             Console.WriteLine("\nMARKET DETAILS: \n");
 
             //latest price
-            Console.WriteLine("{0} : {1}\n", sInput.symbol, currentClose);
+            Console.WriteLine("{0} : {1} \n", sInput.symbol, currentClose);
+
+            Console.WriteLine("BBAND   : {0}%   {1}%   {2}%\n", bu_percentage, bm_percentage, bd_percentage);
 
             //mood
             if (strategyData.mood == "BULLISH")
@@ -251,6 +257,13 @@ namespace BinanceBot.Application
 
         private void DumpToLog(decimal currentClose, string decision, StrategyData strategyData)
         {
+            var bu_percentage = Math.Round((100 * (strategyData.BollingerUpper - currentClose) / strategyData.BollingerUpper), 3);
+
+            var bm_percentage = Math.Round((100 * (strategyData.BollingerMiddle - currentClose) / strategyData.BollingerMiddle), 3);
+
+            var bd_percentage = Math.Round((100 * (currentClose - strategyData.BollingerLower) / currentClose), 3);
+
+
             string timeutc530 = DateTime.Now.ToUniversalTime().AddMinutes(330).ToString();
 
             decimal percentage;
@@ -268,7 +281,7 @@ namespace BinanceBot.Application
                 percentage = 0;
             }
 
-            string debuginfo = string.Format("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}\t{7}", timeutc530, decision, currentClose, percentage, strategyData.histdata,strategyData.BollingerUpper,strategyData.BollingerMiddle,strategyData.BollingerLower);
+            string debuginfo = string.Format("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}\t{7}", timeutc530, decision, currentClose, percentage, strategyData.histdata, bu_percentage, bm_percentage, bd_percentage);
 
             File.AppendAllLines("debug.logs", new[] { debuginfo });
 
