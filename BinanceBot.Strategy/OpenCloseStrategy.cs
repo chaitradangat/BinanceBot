@@ -47,6 +47,8 @@ namespace BinanceBot.Strategy
 
         private string Smoothing;//DEMA
 
+        private decimal BollingerFactor;
+
         #endregion
 
         #region -Validator Methods for Buy Sell Decision-
@@ -346,20 +348,12 @@ namespace BinanceBot.Strategy
 
         }
 
-        /// <summary>
-        /// Function to add bollinger bias to Buy Sell Decision while opening position
-        /// </summary>
-        /// <param name="tradingPrice"></param>
-        /// <param name="bollingerUpper"></param>
-        /// <param name="bollingerMiddle"></param>
-        /// <param name="bollingerLower"></param>
-        /// <returns></returns>
         private bool IsBollingerBuy(StrategyData strategyData, decimal tradingPrice, decimal profitPercentage)
         {
             //calculate percetage scope for buy with respect to upper bollinger Band
             var buyPercentageScope = ((strategyData.BollingerUpper - tradingPrice) / strategyData.BollingerUpper) * 100;
 
-            if (buyPercentageScope >= (profitPercentage * strategyData.profitFactor))
+            if (buyPercentageScope >= (profitPercentage * BollingerFactor))
             {
                 return true;
             }
@@ -368,19 +362,13 @@ namespace BinanceBot.Strategy
                 return false;
             }
         }
-        /// <summary>
-        /// Function to add bollinger bias to Buy Sell Decision while opening position
-        /// </summary>
-        /// <param name="tradingPrice"></param>
-        /// <param name="bollingerUpper"></param>
-        /// <param name="bollingerMiddle"></param>
-        /// <param name="bollingerLower"></param>
+
         private bool IsBollingerSell(StrategyData strategyData, decimal tradingPrice, decimal profitPercentage)
         {
             //calculate percetage scope for buy with respect to upper bollinger Band
             var sellPercentageScope = ((tradingPrice - strategyData.BollingerLower) / tradingPrice) * 100;
 
-            if (sellPercentageScope >= (profitPercentage * strategyData.profitFactor))
+            if (sellPercentageScope >= (profitPercentage * BollingerFactor))
             {
                 return true;
             }
@@ -477,6 +465,8 @@ namespace BinanceBot.Strategy
             MissedPositionSignalStrength = OpenCloseStrategySettings.settings.MissedPositionSignalStrength;
 
             HeavyRiskPercentage = OpenCloseStrategySettings.settings.HeavyRiskPercentage;
+
+            BollingerFactor = OpenCloseStrategySettings.settings.BollingerFactor;
         }
 
         public void RunStrategy(List<OHLCKandle> inputkandles, RobotInput robotInput, ref StrategyData strategyData, ref SimplePosition currentPosition)
