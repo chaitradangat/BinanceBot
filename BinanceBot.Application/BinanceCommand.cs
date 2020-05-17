@@ -80,12 +80,12 @@ namespace BinanceBot.Application
 
                         if (isLive && strategyData.Output != StrategyOutput.None)
                         {
-                            PlaceOrders(robotInput.quantity, currentClose, strategyData.Output, strategyData);
+                            PlaceOrders(robotInput, strategyData);
                         }
 
                         sw.Stop();
 
-                        DumpToConsole(strategyData, currentPosition, robotInput, currentClose, sw.ElapsedMilliseconds);
+                        DumpToConsole(strategyData, currentPosition, robotInput, sw.ElapsedMilliseconds);
 
                     }
                     catch (Exception ex)
@@ -103,45 +103,45 @@ namespace BinanceBot.Application
             }
         }
 
-        public void PlaceOrders(decimal quantity, decimal currrentClose, StrategyOutput strategyOutput, StrategyData strategyData)
+        public void PlaceOrders(RobotInput robotInput, StrategyData strategyData)//(decimal quantity, decimal currrentClose, StrategyOutput strategyOutput, StrategyData strategyData)
         {
             BinancePlacedOrder placedOrder = null;
 
-            if (strategyOutput == StrategyOutput.OpenPositionWithBuy || strategyOutput == StrategyOutput.ExitPositionWithBuy ||
-                strategyOutput == StrategyOutput.BookProfitWithBuy || strategyOutput == StrategyOutput.MissedPositionBuy ||
-                strategyOutput == StrategyOutput.ExitPositionHeavyLossWithBuy)
+            if (strategyData.Output == StrategyOutput.OpenPositionWithBuy || strategyData.Output == StrategyOutput.ExitPositionWithBuy ||
+                strategyData.Output == StrategyOutput.BookProfitWithBuy || strategyData.Output == StrategyOutput.MissedPositionBuy ||
+                strategyData.Output == StrategyOutput.ExitPositionHeavyLossWithBuy)
             {
-                placedOrder = webCall.PlaceBuyOrder(quantity, -1, true);
+                placedOrder = webCall.PlaceBuyOrder(robotInput.quantity, -1, true);
             }
 
-            else if (strategyOutput == StrategyOutput.OpenPositionWithSell || strategyOutput == StrategyOutput.ExitPositionWithSell ||
-                     strategyOutput == StrategyOutput.BookProfitWithSell || strategyOutput == StrategyOutput.MissedPositionSell ||
-                     strategyOutput == StrategyOutput.ExitPositionHeavyLossWithSell)
+            else if (strategyData.Output == StrategyOutput.OpenPositionWithSell || strategyData.Output == StrategyOutput.ExitPositionWithSell ||
+                     strategyData.Output == StrategyOutput.BookProfitWithSell || strategyData.Output == StrategyOutput.MissedPositionSell ||
+                     strategyData.Output == StrategyOutput.ExitPositionHeavyLossWithSell)
             {
-                placedOrder = webCall.PlaceSellOrder(quantity, -1, true);
+                placedOrder = webCall.PlaceSellOrder(robotInput.quantity, -1, true);
             }
 
-            else if (strategyOutput == StrategyOutput.EscapeTrapWithBuy)
+            else if (strategyData.Output == StrategyOutput.EscapeTrapWithBuy)
             {
                 if (BinanceBotSettings.settings.ReOpenOnEscape)
                 {
-                    placedOrder = webCall.PlaceBuyOrder(quantity * 2, -1, true);
+                    placedOrder = webCall.PlaceBuyOrder(robotInput.quantity * 2, -1, true);
                 }
                 else
                 {
-                    placedOrder = webCall.PlaceBuyOrder(quantity, -1, true);
+                    placedOrder = webCall.PlaceBuyOrder(robotInput.quantity, -1, true);
                 }
             }
 
-            else if (strategyOutput == StrategyOutput.EscapeTrapWithSell)
+            else if (strategyData.Output == StrategyOutput.EscapeTrapWithSell)
             {
                 if (BinanceBotSettings.settings.ReOpenOnEscape)
                 {
-                    placedOrder = webCall.PlaceSellOrder(quantity * 2, -1, true);
+                    placedOrder = webCall.PlaceSellOrder(robotInput.quantity * 2, -1, true);
                 }
                 else
                 {
-                    placedOrder = webCall.PlaceSellOrder(quantity, -1, true);
+                    placedOrder = webCall.PlaceSellOrder(robotInput.quantity, -1, true);
                 }
             }
             else
@@ -149,29 +149,29 @@ namespace BinanceBot.Application
                 //no action
             }
 
-            if (placedOrder != null || strategyOutput == StrategyOutput.AvoidOpenWithSell || strategyOutput == StrategyOutput.AvoidOpenWithBuy)
+            if (placedOrder != null || strategyData.Output == StrategyOutput.AvoidOpenWithSell || strategyData.Output == StrategyOutput.AvoidOpenWithBuy)
             {
-                DumpToLog(currrentClose, strategyOutput.ToString(), strategyData);
+                DumpToLog(robotInput, strategyData);
             }
 
         }
 
-        private void DumpToConsole(StrategyData strategyData, SimplePosition order, RobotInput sInput, decimal currentClose, long cycleTime)
+        private void DumpToConsole(StrategyData strategyData, SimplePosition order, RobotInput robotInput, long cycleTime)
         {
             Console.Clear();
 
-            var bu_percentage = Math.Round((100 * (strategyData.BollingerUpper - currentClose) / strategyData.BollingerUpper), 3);
+            var bu_percentage = Math.Round((100 * (strategyData.BollingerUpper - robotInput.currentClose) / strategyData.BollingerUpper), 3);
 
-            var bm_percentage = Math.Round((100 * (strategyData.BollingerMiddle - currentClose) / strategyData.BollingerMiddle), 3);
+            var bm_percentage = Math.Round((100 * (strategyData.BollingerMiddle - robotInput.currentClose) / strategyData.BollingerMiddle), 3);
 
-            var bd_percentage = Math.Round((100 * (currentClose - strategyData.BollingerLower) / currentClose), 3);
+            var bd_percentage = Math.Round((100 * (robotInput.currentClose - strategyData.BollingerLower) / robotInput.currentClose), 3);
 
             Console.WriteLine("\n\n--------------------------------------------------------------------------");
 
             Console.WriteLine("\nMARKET DETAILS: \n");
 
             //latest price
-            Console.WriteLine("{0} : {1} \n", sInput.symbol, currentClose);
+            Console.WriteLine("{0} : {1} \n", robotInput.symbol, robotInput.currentClose);
 
             Console.WriteLine("BBAND   : {0}%   {1}%   {2}%\n", bu_percentage, bm_percentage, bd_percentage);
 
@@ -242,37 +242,37 @@ namespace BinanceBot.Application
                 Console.WriteLine("PERCENTAGE {0} \n", Math.Round(strategyData.longPercentage, 3));
             }
 
-            Console.WriteLine("ADJUSTED PROFIT LIMIT {0}% \n", sInput.reward * strategyData.profitFactor);
+            Console.WriteLine("ADJUSTED PROFIT LIMIT {0}% \n", robotInput.reward * strategyData.profitFactor);
 
-            Console.WriteLine("CURRENT PROFIT LIMIT {0}% \n", sInput.reward);
+            Console.WriteLine("CURRENT PROFIT LIMIT {0}% \n", robotInput.reward);
 
-            Console.WriteLine("CURRENT LOSS LIMIT {0}% \n", sInput.risk);
+            Console.WriteLine("CURRENT LOSS LIMIT {0}% \n", robotInput.risk);
 
-            Console.WriteLine("CURRENT LEVERAGE {0}x\n", sInput.leverage);
+            Console.WriteLine("CURRENT LEVERAGE {0}x\n", robotInput.leverage);
 
             Console.WriteLine("--------------------------------------------------------------------------\n");
 
             Console.WriteLine("Refresh Rate {0} milliseconds\n", cycleTime);
         }
 
-        private void DumpToLog(decimal currentClose, string decision, StrategyData strategyData)
+        private void DumpToLog(RobotInput robotInput, StrategyData strategyData)
         {
-            var bu_percentage = Math.Round((100 * (strategyData.BollingerUpper - currentClose) / strategyData.BollingerUpper), 3);
+            var bu_percentage = Math.Round((100 * (strategyData.BollingerUpper - robotInput.currentClose) / strategyData.BollingerUpper), 3);
 
-            var bm_percentage = Math.Round((100 * (strategyData.BollingerMiddle - currentClose) / strategyData.BollingerMiddle), 3);
+            var bm_percentage = Math.Round((100 * (strategyData.BollingerMiddle - robotInput.currentClose) / strategyData.BollingerMiddle), 3);
 
-            var bd_percentage = Math.Round((100 * (currentClose - strategyData.BollingerLower) / currentClose), 3);
+            var bd_percentage = Math.Round((100 * (robotInput.currentClose - strategyData.BollingerLower) / robotInput.currentClose), 3);
 
 
             string timeutc530 = DateTime.Now.ToUniversalTime().AddMinutes(330).ToString();
 
             decimal percentage;
 
-            if (decision.ToLower().Contains("buy"))
+            if (strategyData.Output.ToString().ToLower().Contains("buy"))
             {
                 percentage = Math.Round(strategyData.shortPercentage, 3);
             }
-            else if (decision.ToLower().Contains("sell"))
+            else if (strategyData.Output.ToString().ToLower().Contains("sell"))
             {
                 percentage = Math.Round(strategyData.longPercentage, 3);
             }
@@ -281,7 +281,23 @@ namespace BinanceBot.Application
                 percentage = 0;
             }
 
-            string debuginfo = string.Format("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}\t{7}", timeutc530, decision, currentClose, percentage, strategyData.histdata, bu_percentage, bm_percentage, bd_percentage);
+            if (strategyData.Output == StrategyOutput.AvoidOpenWithBuy)//to log only close encounters
+            {
+                if (bu_percentage < robotInput.reward * 0.90m)
+                {
+                    return;
+                }
+            }
+            if (strategyData.Output == StrategyOutput.AvoidOpenWithSell)//to log only close encounters
+            {
+                if (bd_percentage < robotInput.reward * 0.90m)
+                {
+                    return;
+                }
+            }
+
+
+            string debuginfo = string.Format("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}\t{7}", timeutc530, strategyData.Output.ToString(), robotInput.currentClose, percentage, strategyData.histdata, bu_percentage, bm_percentage, bd_percentage);
 
             File.AppendAllLines("debug.logs", new[] { debuginfo });
 
