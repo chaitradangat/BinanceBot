@@ -52,10 +52,16 @@ namespace BinanceBot.Domain
 
         public int SellCounter { get; set; }
 
+        //boll values will move to seperate indicator using this variable meanwhile
         public decimal BollingerUpper { get; set; }
 
         public decimal BollingerMiddle { get; set; }
 
         public decimal BollingerLower { get; set; }
+
+        public bool BollTopCrossed { get; set; } 
+
+        public bool BollBottomCrossed { get; set; }
+
     }
 }
