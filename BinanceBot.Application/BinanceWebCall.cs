@@ -270,7 +270,7 @@ namespace BinanceBot.Application
         /// <param name="candleCount"></param>
         /// <param name="currentClose"></param>
         /// <param name="ohlckandles"></param>
-        public void GetKLinesData(string timeframe, int candleCount, ref decimal currentClose, ref List<OHLCKandle> ohlckandles)
+        public void GetKLinesData(string timeframe, int candleCount, ref List<OHLCKandle> ohlckandles)
         {
             #region -candle interval for the request-
 
@@ -323,8 +323,6 @@ namespace BinanceBot.Application
 
             var klines = client.GetKlines(symbol, timeframe_, startTime: startTime, ct: default, futures: true);
 
-            currentClose = klines.Data.Last().Close;
-
             ohlckandles = ConvertToOHLCKandles(klines.Data.ToList());
         }
         /// <summary>
@@ -360,13 +358,13 @@ namespace BinanceBot.Application
         /// <param name="candleCount"></param>
         /// <param name="currentClose"></param>
         /// <param name="ohlckandles"></param>
-        public void GetKLinesDataCached(string timeframe, int candleCount, ref decimal currentClose, ref List<OHLCKandle> ohlckandles)
+        public void GetKLinesDataCached(string timeframe, int candleCount, ref StrategyData strategyData, ref List<OHLCKandle> ohlckandles)
         {
             //insert data in cache
             if (string.IsNullOrEmpty(timeframeCache) || timeframe != timeframeCache || kandleCache == null || kandleCache.Count == 0)
             {
                 //get all the kandles from server
-                GetKLinesData(timeframe, candleCount, ref currentClose, ref ohlckandles);
+                GetKLinesData(timeframe, candleCount, ref ohlckandles);
 
                 //synchronize cache
                 kandleCache = ohlckandles.Select(x => new OHLCKandle
@@ -504,9 +502,11 @@ namespace BinanceBot.Application
                     CloseTime = x.CloseTime
 
                 }).ToList();
-                //output values
-                currentClose = ohlckandles.Last().Close;
             }
+
+            strategyData.currentClose = ohlckandles[ohlckandles.Count - 1].Close;
+
+            strategyData.PrevClose = ohlckandles[ohlckandles.Count - 2].Close;
         }
 
         #region -timezone and server time functions-
