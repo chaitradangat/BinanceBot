@@ -52,17 +52,15 @@ namespace BinanceBot.Application
                     try
                     {
                         #region -variables refreshed every cycle-
+                        var currentPosition = new SimplePosition(robotInput.quantity);
+
                         strategyData = new StrategyData(strategyData.profitFactor);//tracking updated check for more elegant ways to write this..
+
+                        List<OHLCKandle> ohlckandles = new List<OHLCKandle>();
 
                         Stopwatch sw = new Stopwatch();
 
                         sw.Start();
-
-                        List<OHLCKandle> ohlckandles = new List<OHLCKandle>();
-
-                        var currentClose = default(decimal);
-
-                        var currentPosition = new SimplePosition(robotInput.quantity);
 
                         Thread.Sleep(pingtime);
                         #endregion
@@ -72,9 +70,7 @@ namespace BinanceBot.Application
                             webCall.GetCurrentPosition(ref currentPosition, robotInput.quantity, ref strategyData);
                         }
 
-                        webCall.GetKLinesDataCached(robotInput.timeframe, robotInput.candleCount, ref currentClose, ref ohlckandles);
-
-                        robotInput.currentClose = currentClose;
+                        webCall.GetKLinesDataCached(robotInput.timeframe, robotInput.candleCount, ref strategyData, ref ohlckandles);
 
                         openclosestrategy.RunStrategy(ohlckandles, robotInput, ref strategyData, ref currentPosition);
 
@@ -86,7 +82,6 @@ namespace BinanceBot.Application
                         sw.Stop();
 
                         DumpToConsole(strategyData, currentPosition, robotInput, sw.ElapsedMilliseconds);
-
                     }
                     catch (Exception ex)
                     {
@@ -160,19 +155,19 @@ namespace BinanceBot.Application
         {
             Console.Clear();
 
-            var bu_percentage = Math.Round((100 * (strategyData.BollingerUpper - robotInput.currentClose) / strategyData.BollingerUpper), 3);
+            var bu_percentage = Math.Round((100 * (strategyData.BollingerUpper - strategyData.currentClose) / strategyData.BollingerUpper), 3);
 
-            var bm_percentage = Math.Round((100 * (strategyData.BollingerMiddle - robotInput.currentClose) / strategyData.BollingerMiddle), 3);
+            var bm_percentage = Math.Round((100 * (strategyData.BollingerMiddle - strategyData.currentClose) / strategyData.BollingerMiddle), 3);
 
-            var bd_percentage = Math.Round((100 * (robotInput.currentClose - strategyData.BollingerLower) / robotInput.currentClose), 3);
+            var bd_percentage = Math.Round((100 * (strategyData.currentClose - strategyData.BollingerLower) / strategyData.currentClose), 3);
 
             Console.WriteLine("\n\n--------------------------------------------------------------------------");
 
             Console.WriteLine("\nMARKET DETAILS: \n");
 
             //latest price
-            Console.WriteLine("{0} : {1} \n", robotInput.symbol, robotInput.currentClose);
-            
+            Console.WriteLine("{0} : {1} \n", robotInput.symbol, strategyData.currentClose);
+
             Console.WriteLine("BBAND   : {0}%   {1}%   {2}%   {3}{4}\n", bu_percentage, bm_percentage, bd_percentage, strategyData.BollTopCrossed ? "*TOPCROSSED*" : "", strategyData.BollBottomCrossed ? "*BOTTOMCROSSED*" : "");
 
             //mood
@@ -253,11 +248,11 @@ namespace BinanceBot.Application
 
         private void DumpToLog(RobotInput robotInput, StrategyData strategyData)
         {
-            var bu_percentage = Math.Round((100 * (strategyData.BollingerUpper - robotInput.currentClose) / strategyData.BollingerUpper), 3);
+            var bu_percentage = Math.Round((100 * (strategyData.BollingerUpper - strategyData.currentClose) / strategyData.BollingerUpper), 3);
 
-            var bm_percentage = Math.Round((100 * (strategyData.BollingerMiddle - robotInput.currentClose) / strategyData.BollingerMiddle), 3);
+            var bm_percentage = Math.Round((100 * (strategyData.BollingerMiddle - strategyData.currentClose) / strategyData.BollingerMiddle), 3);
 
-            var bd_percentage = Math.Round((100 * (robotInput.currentClose - strategyData.BollingerLower) / robotInput.currentClose), 3);
+            var bd_percentage = Math.Round((100 * (strategyData.currentClose - strategyData.BollingerLower) / strategyData.currentClose), 3);
 
             string timeutc530 = DateTime.Now.ToUniversalTime().AddMinutes(330).ToString();
 
@@ -291,11 +286,11 @@ namespace BinanceBot.Application
                 }
             }
 
-
             string debuginfo = string.Format("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}\t{7}\t{8}\t{9}",
-            timeutc530, strategyData.Output.ToString(), robotInput.currentClose, percentage, strategyData.histdata,
-            bu_percentage, bm_percentage, bd_percentage, strategyData.SignalGap0, strategyData.SignalGap1
-            );
+
+            timeutc530, strategyData.Output.ToString(), strategyData.currentClose, percentage, strategyData.histdata,
+
+            bu_percentage, bm_percentage, bd_percentage, strategyData.SignalGap0, strategyData.SignalGap1);
 
             File.AppendAllLines("debug.logs", new[] { debuginfo });
 
