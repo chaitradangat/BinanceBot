@@ -172,31 +172,31 @@ namespace BinanceBot.Application
 
             //latest price
             Console.WriteLine("{0} : {1} \n", robotInput.symbol, robotInput.currentClose);
-
-            Console.WriteLine("BBAND   : {0}%   {1}%   {2}%\n", bu_percentage, bm_percentage, bd_percentage);
+            
+            Console.WriteLine("BBAND   : {0}%   {1}%   {2}%   {3}{4}\n", bu_percentage, bm_percentage, bd_percentage, strategyData.BollTopCrossed ? "*TOPCROSSED*" : "", strategyData.BollBottomCrossed ? "*BOTTOMCROSSED*" : "");
 
             //mood
             if (strategyData.mood == "BULLISH")
-            {//\u02C4
-                Console.WriteLine("MOOD    : {0}\n", "UP");
+            {
+                Console.Write("MOOD    : [{0}] ", "UP");
             }
             else if (strategyData.mood == "BEARISH")
             {
-                Console.WriteLine("MOOD    : {0}\n", "DOWN");
+                Console.Write("MOOD    : [{0}] ", "DOWN");
             }
             else
             {
-                Console.WriteLine("MOOD : {0}\n", "");
+                Console.Write("MOOD : [{0}] ", "");
             }
 
             //trend
             if (strategyData.trend == "BULLISH")
             {
-                Console.WriteLine("TREND   : {0}\n", "UP");
+                Console.WriteLine("  TREND  : [{0}]\n", "UP");
             }
             else if (strategyData.trend == "BEARISH")
             {
-                Console.WriteLine("TREND   : {0}\n", "DOWN");
+                Console.WriteLine("  TREND  : [{0}]\n", "DOWN");
             }
             else
             {
@@ -206,15 +206,11 @@ namespace BinanceBot.Application
             if (strategyData.prevOutput.ToString().ToLower().Contains("buy") && strategyData.LatestSignalStrength != 0)
             {
                 //signal
-                Console.WriteLine("DECISION : {0}  {1}%  @STRENGTH OF {2}\n", strategyData.prevOutput.ToString(),
-                    100 * strategyData.BuyCounter / strategyData.LatestSignalStrength, strategyData.LatestSignalStrength
-                    );
+                Console.WriteLine("DECISION : {0}  {1}%  @STRENGTH OF {2}\n", strategyData.prevOutput.ToString(), 100 * strategyData.BuyCounter / strategyData.LatestSignalStrength, strategyData.LatestSignalStrength);
             }
             else if (strategyData.prevOutput.ToString().ToLower().Contains("sell") && strategyData.LatestSignalStrength != 0)
             {
-                Console.WriteLine("DECISION : {0}  {1}%  @STRENGTH OF {2}\n", strategyData.prevOutput.ToString(),
-                    100 * strategyData.SellCounter / strategyData.LatestSignalStrength, strategyData.LatestSignalStrength
-                    );
+                Console.WriteLine("DECISION : {0}  {1}%  @STRENGTH OF {2}\n", strategyData.prevOutput.ToString(), 100 * strategyData.SellCounter / strategyData.LatestSignalStrength, strategyData.LatestSignalStrength);
             }
             else
             {
@@ -262,7 +258,6 @@ namespace BinanceBot.Application
             var bm_percentage = Math.Round((100 * (strategyData.BollingerMiddle - robotInput.currentClose) / strategyData.BollingerMiddle), 3);
 
             var bd_percentage = Math.Round((100 * (robotInput.currentClose - strategyData.BollingerLower) / robotInput.currentClose), 3);
-
 
             string timeutc530 = DateTime.Now.ToUniversalTime().AddMinutes(330).ToString();
 
