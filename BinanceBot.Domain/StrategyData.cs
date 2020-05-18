@@ -63,5 +63,8 @@ namespace BinanceBot.Domain
 
         public bool BollBottomCrossed { get; set; }
 
+        public int SignalGap1 { get; set; }
+
+        public int SignalGap2 { get; set; }
     }
 }
