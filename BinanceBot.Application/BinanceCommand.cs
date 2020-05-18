@@ -144,7 +144,12 @@ namespace BinanceBot.Application
                 //no action
             }
 
-            if (placedOrder != null || strategyData.Output == StrategyOutput.AvoidOpenWithSell || strategyData.Output == StrategyOutput.AvoidOpenWithBuy)
+            if (placedOrder != null 
+                || strategyData.Output == StrategyOutput.AvoidOpenWithSell || strategyData.Output == StrategyOutput.AvoidOpenWithBuy 
+                || strategyData.Output == StrategyOutput.AvoidLowSignalGapBuy || strategyData.Output == StrategyOutput.AvoidLowSignalGapSell
+                || strategyData.Output == StrategyOutput.AvoidOpenWithBuyOnRedKandle || strategyData.Output == StrategyOutput.AvoidOpenWithSellOnGreenKandle
+                || strategyData.Output == StrategyOutput.AvoidEscapeWithSell || strategyData.Output == StrategyOutput.AvoidEscapeWithBuy
+                )
             {
                 DumpToLog(robotInput, strategyData);
             }
