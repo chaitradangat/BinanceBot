@@ -283,21 +283,24 @@ namespace BinanceBot.Application
 
             if (strategyData.Output == StrategyOutput.AvoidOpenWithBuy)//to log only close encounters
             {
-                if (bu_percentage < robotInput.reward * 0.90m)
+                if (bu_percentage < robotInput.reward * 0.90m || strategyData.BollTopCrossed)
                 {
                     return;
                 }
             }
             if (strategyData.Output == StrategyOutput.AvoidOpenWithSell)//to log only close encounters
             {
-                if (bd_percentage < robotInput.reward * 0.90m)
+                if (bd_percentage < robotInput.reward * 0.90m || strategyData.BollBottomCrossed)
                 {
                     return;
                 }
             }
 
 
-            string debuginfo = string.Format("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}\t{7}", timeutc530, strategyData.Output.ToString(), robotInput.currentClose, percentage, strategyData.histdata, bu_percentage, bm_percentage, bd_percentage);
+            string debuginfo = string.Format("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}\t{7}\t{8}\t{9}",
+            timeutc530, strategyData.Output.ToString(), robotInput.currentClose, percentage, strategyData.histdata,
+            bu_percentage, bm_percentage, bd_percentage, strategyData.SignalGap0, strategyData.SignalGap1
+            );
 
             File.AppendAllLines("debug.logs", new[] { debuginfo });
 
