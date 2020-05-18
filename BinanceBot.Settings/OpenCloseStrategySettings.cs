@@ -169,5 +169,17 @@ namespace BinanceBot.Settings
                 this["BollingerFactor"] = value;
             }
         }
+        [ConfigurationProperty("SignalGap", IsRequired = true)]
+        public int SignalGap
+        {
+            get
+            {
+                return Convert.ToInt32(this["SignalGap"]);
+            }
+            set
+            {
+                this["SignalGap"] = value;
+            }
+        }
     }
 }
