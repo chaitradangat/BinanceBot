@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text;
 
 namespace BinanceBot.Domain
 {
@@ -25,6 +26,9 @@ namespace BinanceBot.Domain
             this.prevOutput = StrategyOutput.None;
         }
 
+        public decimal PrevClose { get; set; }
+
+        public decimal currentClose { get; set; }
 
         public bool isBuy { get; set; }
 
