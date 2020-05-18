@@ -504,6 +504,8 @@ namespace BinanceBot.Application
                 }).ToList();
             }
 
+            strategyData.currentOpen = ohlckandles[ohlckandles.Count - 1].Open;
+
             strategyData.currentClose = ohlckandles[ohlckandles.Count - 1].Close;
 
             strategyData.PrevClose = ohlckandles[ohlckandles.Count - 2].Close;
