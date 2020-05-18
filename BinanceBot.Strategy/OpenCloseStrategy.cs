@@ -47,7 +47,9 @@ namespace BinanceBot.Strategy
 
         private string Smoothing;//DEMA
 
-        private decimal BollingerFactor;
+        private decimal BollingerFactor;//1.1
+
+        private int RequiredSignalGap;//4
 
         #endregion
 
@@ -348,12 +350,18 @@ namespace BinanceBot.Strategy
 
         }
 
-        private bool IsBollingerBuy(StrategyData strategyData, decimal tradingPrice, decimal profitPercentage)
+        private bool IsBollingerBuy(StrategyData strategyData, RobotInput robotInput)
         {
-            //calculate percetage scope for buy with respect to upper bollinger Band
-            var buyPercentageScope = ((strategyData.BollingerUpper - tradingPrice) / strategyData.BollingerUpper) * 100;
+            //top crossed recently so chances of loss higher with buy
+            if (strategyData.BollTopCrossed)
+            {
+                return false;
+            }
 
-            if (buyPercentageScope >= (profitPercentage * BollingerFactor))
+            //calculate percetage scope for buy with respect to upper bollinger Band
+            var buyPercentageScope = ((strategyData.BollingerUpper - robotInput.currentClose) / strategyData.BollingerUpper) * 100;
+
+            if (buyPercentageScope >= (robotInput.reward * BollingerFactor))
             {
                 return true;
             }
@@ -363,12 +371,18 @@ namespace BinanceBot.Strategy
             }
         }
 
-        private bool IsBollingerSell(StrategyData strategyData, decimal tradingPrice, decimal profitPercentage)
+        private bool IsBollingerSell(StrategyData strategyData, RobotInput robotInput)
         {
-            //calculate percetage scope for buy with respect to upper bollinger Band
-            var sellPercentageScope = ((tradingPrice - strategyData.BollingerLower) / tradingPrice) * 100;
+            //bottom crossed recently so chances of loss higer with sell
+            if (strategyData.BollBottomCrossed)
+            {
+                return false;
+            }
 
-            if (sellPercentageScope >= (profitPercentage * BollingerFactor))
+            //calculate percetage scope for buy with respect to upper bollinger Band
+            var sellPercentageScope = ((robotInput.currentClose - strategyData.BollingerLower) / robotInput.currentClose) * 100;
+
+            if (sellPercentageScope >= (robotInput.reward * BollingerFactor))
             {
                 return true;
             }
@@ -377,6 +391,12 @@ namespace BinanceBot.Strategy
                 return false;
             }
         }
+
+        private bool IsSignalGapValid(StrategyData strategyData)
+        {
+            return strategyData.SignalGap1 > RequiredSignalGap;
+        }
+
         #endregion
 
         #region -utility functions-
@@ -429,7 +449,83 @@ namespace BinanceBot.Strategy
                 decisionperiod = -1;
             }
         }
+
+        private void UpdateSignalData(ref StrategyData strategyData, List<bool> xlong, List<bool> xshort)
+        {
+            //historical data
+            strategyData.histdata = "";
+            for (int i = 0; i < xlong.Count; i++)
+            {
+                if (xlong[i])
+                {
+                    strategyData.histdata += " B" + (xlong.Count - i - 1).ToString();
+                }
+                else if (xshort[i])
+                {
+                    strategyData.histdata += " S" + (xlong.Count - i - 1).ToString();
+                }
+                else
+                {
+                    // meh :\
+                }
+            }
+
+            var histDataSplit = Convert.ToString(strategyData.histdata).Split(' ');
+
+            var histDataInt = histDataSplit.Skip(histDataSplit.Length - 3).Take(3);
+
+            var val0 = Convert.ToInt32(histDataInt.ElementAt(0).Replace("B", "").Replace("S", ""));
+
+            var val1 = Convert.ToInt32(histDataInt.ElementAt(1).Replace("B", "").Replace("S", ""));
+
+            var val2 = Convert.ToInt32(histDataInt.ElementAt(2).Replace("B", "").Replace("S", ""));
+
+            strategyData.SignalGap0 = val0 - val1;
+
+            strategyData.SignalGap1 = val1 - val2;
+        }
         #endregion
+
+        #region -indicator functions-
+
+        private void UpdateBollingerData(List<OHLCKandle> kandles, ref StrategyData strategyData)
+        {
+            PineScriptFunction fn = new PineScriptFunction();
+
+            //make a copy of original data
+            var kcopy = kandles.Select(x => new OHLCKandle
+            {
+                Close = x.Close,
+                CloseTime = x.CloseTime,
+                Open = x.Open,
+                OpenTime = x.OpenTime,
+                High = x.High,
+                Low = x.Low
+            }).ToList();
+
+            var kcopyopenseries = kcopy.Select(x => (decimal)x.Open).ToList();
+
+            //start bollinger bands data
+            var bollingerData = fn.bollinger(kcopy, 20);
+
+            strategyData.BollingerUpper = bollingerData.Last().High;
+
+            strategyData.BollingerMiddle = bollingerData.Last().Close;
+
+            strategyData.BollingerLower = bollingerData.Last().Low;
+
+            var pricecrossunder = fn.crossunder(kcopyopenseries, bollingerData.Select(x => x.High).ToList());
+
+            var pricecrossover = fn.crossover(kcopyopenseries, bollingerData.Select(x => x.Low).ToList());
+
+            strategyData.BollTopCrossed = pricecrossunder.Skip(pricecrossunder.Count - 7).Take(7).Contains(true);
+
+            strategyData.BollBottomCrossed = pricecrossover.Skip(pricecrossover.Count - 7).Take(7).Contains(true);
+            //end bollinger bands data
+        }
+
+        #endregion
+
 
         public OpenCloseStrategy()
         {
@@ -466,23 +562,18 @@ namespace BinanceBot.Strategy
 
             HeavyRiskPercentage = OpenCloseStrategySettings.settings.HeavyRiskPercentage;
 
+            //set variables to avoid wrong trades
             BollingerFactor = OpenCloseStrategySettings.settings.BollingerFactor;
+
+            RequiredSignalGap = OpenCloseStrategySettings.settings.SignalGap;
         }
 
         public void RunStrategy(List<OHLCKandle> inputkandles, RobotInput robotInput, ref StrategyData strategyData, ref SimplePosition currentPosition)
         {
             PineScriptFunction fn = new PineScriptFunction();
 
-            //make a copy of original data
-            var kcopy = inputkandles.Select(x => new OHLCKandle
-            {
-                Close = x.Close,
-                CloseTime = x.CloseTime,
-                Open = x.Open,
-                OpenTime = x.OpenTime,
-                High = x.High,
-                Low = x.Low
-            }).ToList();
+            //update bollinger parameters
+            UpdateBollingerData(inputkandles, ref strategyData);
 
             //convert to higher timeframe
             var largekandles = fn.converttohighertimeframe(inputkandles, KandleMultiplier);//3
@@ -507,14 +598,13 @@ namespace BinanceBot.Strategy
 
             var closeseriesmma = inputkandles.Select(x => x.Close).ToList();
 
-
             //map higher timeframe values to lower timeframe values
             var altkandles = fn.superimposekandles(largekandles, inputkandles);
 
             var closeSeriesAlt = altkandles.Select(x => x.Close).ToList();
 
             var openSeriesAlt = altkandles.Select(x => x.Open).ToList();
-
+            //end map higher timeframe values to lower timeframe values
 
             //trend and mood calculation-
             strategyData.trend = closeSeriesAlt.Last() > openSeriesAlt.Last() ? "BULLISH" : "BEARISH";
@@ -522,7 +612,7 @@ namespace BinanceBot.Strategy
             strategyData.mood = closeseriesmma.Last() > openSeriesAlt.Last() ? "BULLISH" : "BEARISH";
 
 
-            //buy sell signal
+            //start buy sell signal
             var xlong = fn.crossover(closeSeriesAlt, openSeriesAlt);
 
             var xshort = fn.crossunder(closeSeriesAlt, openSeriesAlt);
@@ -530,34 +620,9 @@ namespace BinanceBot.Strategy
             strategyData.isBuy = xlong.Last();
 
             strategyData.isSell = xshort.Last();
+            //end buy sell signal
 
-
-            //bollinger bands data
-            var bollingerData = fn.bollinger(kcopy, 20);
-
-            strategyData.BollingerUpper = bollingerData.Last().High;
-
-            strategyData.BollingerMiddle = bollingerData.Last().Close;
-
-            strategyData.BollingerLower = bollingerData.Last().Low;
-
-            //historical data
-            strategyData.histdata = "";
-            for (int i = 0; i < xlong.Count; i++)
-            {
-                if (xlong[i])
-                {
-                    strategyData.histdata += " B" + (xlong.Count - i - 1).ToString();
-                }
-                else if (xshort[i])
-                {
-                    strategyData.histdata += " S" + (xlong.Count - i - 1).ToString();
-                }
-                else
-                {
-                    // meh :\
-                }
-            }
+            UpdateSignalData(ref strategyData, xlong, xshort);
 
             MakeBuySellDecision(ref strategyData, ref currentPosition, robotInput);
 
@@ -579,24 +644,30 @@ namespace BinanceBot.Strategy
             {
                 if (strategyData.isBuy)
                 {
-                    if (IsBollingerBuy(strategyData, roboInput.currentClose, roboInput.reward))
-                    {
-                        sOutput = StrategyOutput.OpenPositionWithBuy;
-                    }
-                    else
+                    sOutput = StrategyOutput.OpenPositionWithBuy;
+
+                    if (!IsBollingerBuy(strategyData, roboInput))
                     {
                         sOutput = StrategyOutput.AvoidOpenWithBuy;
+                    }
+
+                    if (!IsSignalGapValid(strategyData))
+                    {
+                        sOutput = StrategyOutput.AvoidLowSignalGapBuy;
                     }
                 }
                 if (strategyData.isSell)
                 {
-                    if (IsBollingerSell(strategyData, roboInput.currentClose, roboInput.reward))
-                    {
-                        sOutput = StrategyOutput.OpenPositionWithSell;
-                    }
-                    else
+                    sOutput = StrategyOutput.OpenPositionWithSell;
+
+                    if (!IsBollingerSell(strategyData, roboInput))
                     {
                         sOutput = StrategyOutput.AvoidOpenWithSell;
+                    }
+
+                    if (!IsSignalGapValid(strategyData))
+                    {
+                        sOutput = StrategyOutput.AvoidLowSignalGapSell;
                     }
                 }
             }
@@ -616,10 +687,20 @@ namespace BinanceBot.Strategy
                 if (position.PositionType == "BUY")
                 {
                     sOutput = StrategyOutput.ExitPositionWithSell;
+
+                    if (!IsSignalGapValid(strategyData))
+                    {
+                        sOutput = StrategyOutput.AvoidLowSignalGapSell;
+                    }
                 }
                 if (position.PositionType == "SELL")
                 {
                     sOutput = StrategyOutput.ExitPositionWithBuy;
+
+                    if (!IsSignalGapValid(strategyData))
+                    {
+                        sOutput = StrategyOutput.AvoidLowSignalGapBuy;
+                    }
                 }
             }
             else if (BookProfit(position, strategyData, roboInput.reward))
@@ -638,10 +719,20 @@ namespace BinanceBot.Strategy
                 if (position.PositionType == "BUY")
                 {
                     sOutput = StrategyOutput.EscapeTrapWithSell;
+
+                    if (!IsSignalGapValid(strategyData))
+                    {
+                        sOutput = StrategyOutput.AvoidLowSignalGapSell;
+                    }
                 }
                 if (position.PositionType == "SELL")
                 {
                     sOutput = StrategyOutput.EscapeTrapWithBuy;
+
+                    if (!IsSignalGapValid(strategyData))
+                    {
+                        sOutput = StrategyOutput.AvoidLowSignalGapBuy;
+                    }
                 }
             }
             else if (OpenMissedPosition(position, strategyData) && GrabMissedPosition)
@@ -654,24 +745,28 @@ namespace BinanceBot.Strategy
 
                 if (decisiontype == "B")
                 {
-                    if (IsBollingerBuy(strategyData, roboInput.currentClose, roboInput.reward))
-                    {
-                        sOutput = StrategyOutput.MissedPositionBuy;
-                    }
-                    else
+                    sOutput = StrategyOutput.MissedPositionBuy;
+
+                    if (!IsBollingerBuy(strategyData, roboInput))
                     {
                         sOutput = StrategyOutput.AvoidOpenWithBuy;
+                    }
+                    if (!IsSignalGapValid(strategyData))
+                    {
+                        sOutput = StrategyOutput.AvoidLowSignalGapBuy;
                     }
                 }
                 if (decisiontype == "S")
                 {
-                    if (IsBollingerSell(strategyData, roboInput.currentClose, roboInput.reward))
-                    {
-                        sOutput = StrategyOutput.MissedPositionSell;
-                    }
-                    else
+                    sOutput = StrategyOutput.MissedPositionSell;
+
+                    if (!IsBollingerSell(strategyData, roboInput))
                     {
                         sOutput = StrategyOutput.AvoidOpenWithSell;
+                    }
+                    if (!IsSignalGapValid(strategyData))
+                    {
+                        sOutput = StrategyOutput.AvoidLowSignalGapSell;
                     }
                 }
             }
