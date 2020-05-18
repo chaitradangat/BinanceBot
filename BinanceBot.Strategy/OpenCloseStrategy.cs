@@ -359,7 +359,7 @@ namespace BinanceBot.Strategy
             }
 
             //calculate percetage scope for buy with respect to upper bollinger Band
-            var buyPercentageScope = ((strategyData.BollingerUpper - robotInput.currentClose) / strategyData.BollingerUpper) * 100;
+            var buyPercentageScope = ((strategyData.BollingerUpper - strategyData.currentClose) / strategyData.BollingerUpper) * 100;
 
             if (buyPercentageScope >= (robotInput.reward * BollingerFactor))
             {
@@ -380,7 +380,7 @@ namespace BinanceBot.Strategy
             }
 
             //calculate percetage scope for buy with respect to upper bollinger Band
-            var sellPercentageScope = ((robotInput.currentClose - strategyData.BollingerLower) / robotInput.currentClose) * 100;
+            var sellPercentageScope = ((strategyData.currentClose - strategyData.BollingerLower) / strategyData.currentClose) * 100;
 
             if (sellPercentageScope >= (robotInput.reward * BollingerFactor))
             {
@@ -638,7 +638,7 @@ namespace BinanceBot.Strategy
         {
             var sOutput = StrategyOutput.None;
 
-            CalculatePercentageChange(position, roboInput.currentClose, roboInput.leverage, roboInput.decreaseOnNegative, ref strategyData);
+            CalculatePercentageChange(position, strategyData.currentClose, roboInput.leverage, roboInput.decreaseOnNegative, ref strategyData);
 
             if (OpenPosition(position, strategyData, roboInput.signalStrength))
             {
