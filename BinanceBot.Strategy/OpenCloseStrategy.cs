@@ -326,28 +326,27 @@ namespace BinanceBot.Strategy
             return false;
         }
 
-        private void CalculatePercentageChange(SimplePosition order, decimal currentClose, decimal leverage, decimal decreaseOnNegative, ref StrategyData strategyData)
+        private void CalculatePercentageChange(SimplePosition order,RobotInput robotInput,ref StrategyData strategyData)//(SimplePosition order, decimal currentClose, decimal leverage, decimal decreaseOnNegative, ref StrategyData strategyData)
         {
             if (order.PositionID != -1)
             {
-                strategyData.shortPercentage = leverage * ((order.EntryPrice - currentClose) / order.EntryPrice) * 100;
+                strategyData.shortPercentage = robotInput.leverage * ((order.EntryPrice - strategyData.currentClose) / order.EntryPrice) * 100;
 
-                strategyData.longPercentage = leverage * ((currentClose - order.EntryPrice) / order.EntryPrice) * 100;
+                strategyData.longPercentage = robotInput.leverage * ((strategyData.currentClose - order.EntryPrice) / order.EntryPrice) * 100;
 
                 if (strategyData.shortPercentage < 0 && order.PositionType == "SELL")
                 {
-                    strategyData.profitFactor = decreaseOnNegative;
+                    strategyData.profitFactor = robotInput.decreaseOnNegative;
                 }
                 else if (strategyData.longPercentage < 0 && order.PositionType == "BUY")
                 {
-                    strategyData.profitFactor = decreaseOnNegative;
+                    strategyData.profitFactor = robotInput.decreaseOnNegative;
                 }
                 else
                 {
                     //meh :\
                 }
             }
-
         }
 
         private bool IsBollingerBuy(StrategyData strategyData, RobotInput robotInput)
@@ -572,7 +571,6 @@ namespace BinanceBot.Strategy
         {
             PineScriptFunction fn = new PineScriptFunction();
 
-            //update bollinger parameters
             UpdateBollingerData(inputkandles, ref strategyData);
 
             //convert to higher timeframe
@@ -595,7 +593,6 @@ namespace BinanceBot.Strategy
                 inputkandles = fn.smma(inputkandles, 8);
             }
 
-
             var closeseriesmma = inputkandles.Select(x => x.Close).ToList();
 
             //map higher timeframe values to lower timeframe values
@@ -610,7 +607,6 @@ namespace BinanceBot.Strategy
             strategyData.trend = closeSeriesAlt.Last() > openSeriesAlt.Last() ? "BULLISH" : "BEARISH";
 
             strategyData.mood = closeseriesmma.Last() > openSeriesAlt.Last() ? "BULLISH" : "BEARISH";
-
 
             //start buy sell signal
             var xlong = fn.crossover(closeSeriesAlt, openSeriesAlt);
@@ -638,7 +634,7 @@ namespace BinanceBot.Strategy
         {
             var sOutput = StrategyOutput.None;
 
-            CalculatePercentageChange(position, strategyData.currentClose, roboInput.leverage, roboInput.decreaseOnNegative, ref strategyData);
+            CalculatePercentageChange(position, roboInput, ref strategyData);
 
             if (OpenPosition(position, strategyData, roboInput.signalStrength))
             {
