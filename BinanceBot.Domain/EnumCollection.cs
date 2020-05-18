@@ -22,6 +22,10 @@ namespace BinanceBot.Domain
         AvoidOpenWithSell,
         AvoidLowSignalGapBuy,
         AvoidLowSignalGapSell,
+        AvoidOpenWithBuyOnRedKandle,
+        AvoidOpenWithSellOnGreenKandle,
+        AvoidEscapeWithSell,
+        AvoidEscapeWithBuy,
         None
     }
 }
