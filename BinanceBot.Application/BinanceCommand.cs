@@ -103,7 +103,7 @@ namespace BinanceBot.Application
             }
         }
 
-        public void PlaceOrders(RobotInput robotInput, StrategyData strategyData)//(decimal quantity, decimal currrentClose, StrategyOutput strategyOutput, StrategyData strategyData)
+        public void PlaceOrders(RobotInput robotInput, StrategyData strategyData)
         {
             BinancePlacedOrder placedOrder = null;
 
