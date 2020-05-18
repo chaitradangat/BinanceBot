@@ -26,7 +26,5 @@ namespace BinanceBot.Domain
         public int signalStrength { get; set; }
 
         public decimal quantity { get; set; }
-
-        public decimal currentClose { get; set; }
     }
 }
