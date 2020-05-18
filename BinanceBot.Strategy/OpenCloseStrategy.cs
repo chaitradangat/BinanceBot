@@ -411,7 +411,21 @@ namespace BinanceBot.Strategy
             return false;
         }
 
-        
+        private bool IsValidExit(StrategyData strategyData,StrategyOutput strategyOutput)
+        {
+            if (strategyData.ToString().ToLower().Contains("sell") && strategyData.trend == "BEARISH")
+            {
+                return true;
+            }
+
+            if (strategyData.ToString().ToLower().Contains("buy") && strategyData.trend == "BULLISH")
+            {
+                return true;
+            }
+
+            return false;
+        }
+
         #endregion
 
         #region -utility functions-
@@ -795,6 +809,12 @@ namespace BinanceBot.Strategy
                 if (position.PositionType == "BUY")
                 {
                     sOutput = StrategyOutput.EscapeTrapWithSell;
+                    
+                    //this should be the first function to be called
+                    if (!IsValidExit(strategyData,sOutput))
+                    {
+                        sOutput = StrategyOutput.AvoidEscapeWithSell;
+                    }
 
                     if (!IsSignalGapValid(strategyData))
                     {
@@ -804,6 +824,12 @@ namespace BinanceBot.Strategy
                 if (position.PositionType == "SELL")
                 {
                     sOutput = StrategyOutput.EscapeTrapWithBuy;
+
+                    //this should be the first function to be called
+                    if (!IsValidExit(strategyData, sOutput))
+                    {
+                        sOutput = StrategyOutput.AvoidEscapeWithBuy;
+                    }
 
                     if (!IsSignalGapValid(strategyData))
                     {
