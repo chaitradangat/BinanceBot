@@ -417,14 +417,20 @@ namespace BinanceBot.Strategy
 
         private bool IsValidKandleToCloseTrade(StrategyData strategyData,StrategyOutput strategyOutput)
         {
-            if (strategyOutput.ToString().ToLower().Contains("sell") && strategyData.trend == "BEARISH")
+            if (strategyOutput.ToString().ToLower().Contains("buy"))
             {
-                return true;
+                if (strategyData.currentClose > strategyData.currentOpen)
+                {
+                    return true;
+                }
             }
 
-            if (strategyOutput.ToString().ToLower().Contains("buy") && strategyData.trend == "BULLISH")
+            if (strategyOutput.ToString().ToLower().Contains("sell"))
             {
-                return true;
+                if (strategyData.currentClose < strategyData.currentOpen)
+                {
+                    return true;
+                }
             }
 
             return false;
