@@ -526,6 +526,21 @@ namespace BinanceBot.Strategy
             strategyData.SignalGap1 = val1 - val2;
         }
 
+        private List<OHLCKandle> GetSmoothData(List<OHLCKandle> kandles,int lookback,string smoothing)
+        {
+            PineScriptFunction fn = new PineScriptFunction();
+
+            if (smoothing.ToUpper() == "DEMA")
+            {
+                kandles = fn.dema(kandles, 8);
+            }
+            else
+            {
+                kandles = fn.smma(kandles, 8);   
+            }
+
+            return kandles;
+        }
 
         #endregion
 
@@ -620,24 +635,13 @@ namespace BinanceBot.Strategy
             //convert to higher timeframe
             var largekandles = fn.converttohighertimeframe(inputkandles, KandleMultiplier);//3
 
-            if (Smoothing.ToUpper() == "DEMA")
-            {
-                //higher timeframe candles with dema values
-                largekandles = fn.dema(largekandles, 8);
+            //higher timeframe candles with smoothened values
+            largekandles = GetSmoothData(largekandles, 8, Smoothing);
 
-                //lower timeframe candles with dema values
-                inputkandles = fn.dema(inputkandles, 8);
-            }
-            else
-            {
-                //higher timeframe candles with smma values
-                largekandles = fn.smma(largekandles, 8);
+            //lower timeframe candles with smoothened values
+            inputkandles = GetSmoothData(inputkandles, 8, Smoothing);
 
-                //lower timeframe candles with smma values
-                inputkandles = fn.smma(inputkandles, 8);
-            }
-
-            var closeseriesmma = inputkandles.Select(x => x.Close).ToList();
+            var inputcloseseriesmoothed = inputkandles.Select(x => x.Close).ToList();
 
             //map higher timeframe values to lower timeframe values
             var altkandles = fn.superimposekandles(largekandles, inputkandles);
@@ -650,7 +654,7 @@ namespace BinanceBot.Strategy
             //trend and mood calculation-
             strategyData.trend = closeSeriesAlt.Last() > openSeriesAlt.Last() ? "BULLISH" : "BEARISH";
 
-            strategyData.mood = closeseriesmma.Last() > openSeriesAlt.Last() ? "BULLISH" : "BEARISH";
+            strategyData.mood = inputcloseseriesmoothed.Last() > openSeriesAlt.Last() ? "BULLISH" : "BEARISH";
 
             //start buy sell signal
             var xlong = fn.crossover(closeSeriesAlt, openSeriesAlt);
