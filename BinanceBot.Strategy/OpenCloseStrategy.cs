@@ -398,12 +398,16 @@ namespace BinanceBot.Strategy
 
         private bool IsValidKandleToOpenTrade(StrategyData strategyData,StrategyOutput strategyOutput)
         {
-            if (strategyOutput.ToString().ToLower().Contains("buy") && strategyData.currentClose > strategyData.currentOpen)
+            if (strategyOutput.ToString().ToLower().Contains("buy") && 
+                strategyData.currentClose > strategyData.currentOpen && 
+                strategyData.currentClose > strategyData.PrevOpen)
             {
                 return true;
             }
 
-            if (strategyOutput.ToString().ToLower().Contains("sell") && strategyData.currentClose < strategyData.currentOpen)
+            if (strategyOutput.ToString().ToLower().Contains("sell") && 
+                strategyData.currentClose < strategyData.currentOpen && 
+                strategyData.currentClose < strategyData.PrevOpen)
             {
                 return true;
             }
