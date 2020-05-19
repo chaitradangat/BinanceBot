@@ -396,7 +396,7 @@ namespace BinanceBot.Strategy
             return strategyData.SignalGap1 > RequiredSignalGap;
         }
 
-        private bool IsValidTrade(StrategyData strategyData,StrategyOutput strategyOutput)
+        private bool IsValidKandleToOpenTrade(StrategyData strategyData,StrategyOutput strategyOutput)
         {
             if (strategyOutput.ToString().ToLower().Contains("buy") && strategyData.currentClose > strategyData.currentOpen)
             {
@@ -411,7 +411,7 @@ namespace BinanceBot.Strategy
             return false;
         }
 
-        private bool IsValidExit(StrategyData strategyData,StrategyOutput strategyOutput)
+        private bool IsValidKandleToExit(StrategyData strategyData,StrategyOutput strategyOutput)
         {
             if (strategyData.ToString().ToLower().Contains("sell") && strategyData.trend == "BEARISH")
             {
@@ -673,7 +673,7 @@ namespace BinanceBot.Strategy
                     sOutput = StrategyOutput.OpenPositionWithBuy;
 
                     //this must always be the first validator to be called
-                    if (!IsValidTrade(strategyData,sOutput))
+                    if (!IsValidKandleToOpenTrade(strategyData,sOutput))
                     {
                         sOutput = StrategyOutput.AvoidOpenWithBuyOnRedKandle;
                     }
@@ -693,7 +693,7 @@ namespace BinanceBot.Strategy
                     sOutput = StrategyOutput.OpenPositionWithSell;
 
                     //this must always be the first validator to be called
-                    if (!IsValidTrade(strategyData, sOutput))
+                    if (!IsValidKandleToOpenTrade(strategyData, sOutput))
                     {
                         sOutput = StrategyOutput.AvoidOpenWithSellOnGreenKandle;
                     }
@@ -723,7 +723,7 @@ namespace BinanceBot.Strategy
                     sOutput = StrategyOutput.MissedPositionBuy;
 
                     //this must always be the first validator to be called
-                    if (!IsValidTrade(strategyData, sOutput))
+                    if (!IsValidKandleToOpenTrade(strategyData, sOutput))
                     {
                         sOutput = StrategyOutput.AvoidOpenWithBuyOnRedKandle;
                     }
@@ -742,7 +742,7 @@ namespace BinanceBot.Strategy
                     sOutput = StrategyOutput.MissedPositionSell;
 
                     //this must always be the first validator to be called
-                    if (!IsValidTrade(strategyData, sOutput))
+                    if (!IsValidKandleToOpenTrade(strategyData, sOutput))
                     {
                         sOutput = StrategyOutput.AvoidOpenWithSellOnGreenKandle;
                     }
@@ -811,7 +811,7 @@ namespace BinanceBot.Strategy
                     sOutput = StrategyOutput.EscapeTrapWithSell;
                     
                     //this should be the first function to be called
-                    if (!IsValidExit(strategyData,sOutput))
+                    if (!IsValidKandleToExit(strategyData,sOutput))
                     {
                         sOutput = StrategyOutput.AvoidEscapeWithSell;
                     }
@@ -826,7 +826,7 @@ namespace BinanceBot.Strategy
                     sOutput = StrategyOutput.EscapeTrapWithBuy;
 
                     //this should be the first function to be called
-                    if (!IsValidExit(strategyData, sOutput))
+                    if (!IsValidKandleToExit(strategyData, sOutput))
                     {
                         sOutput = StrategyOutput.AvoidEscapeWithBuy;
                     }
