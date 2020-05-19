@@ -10,6 +10,8 @@ using BinanceBot.Domain;
 
 using BinanceBot.Settings;
 
+using BinanceBot.Validator;
+
 namespace BinanceBot.Strategy
 {
     public class OpenCloseStrategy
@@ -326,7 +328,7 @@ namespace BinanceBot.Strategy
             return false;
         }
 
-        private void CalculatePercentageChange(SimplePosition order,RobotInput robotInput,ref StrategyData strategyData)//(SimplePosition order, decimal currentClose, decimal leverage, decimal decreaseOnNegative, ref StrategyData strategyData)
+        private void CalculatePercentageChange(SimplePosition order, RobotInput robotInput, ref StrategyData strategyData)//(SimplePosition order, decimal currentClose, decimal leverage, decimal decreaseOnNegative, ref StrategyData strategyData)
         {
             if (order.PositionID != -1)
             {
@@ -396,17 +398,17 @@ namespace BinanceBot.Strategy
             return strategyData.SignalGap1 > RequiredSignalGap;
         }
 
-        private bool IsValidKandleToOpenTrade(StrategyData strategyData,StrategyOutput strategyOutput)
+        private bool IsValidKandleToOpenTrade(StrategyData strategyData, StrategyOutput strategyOutput)
         {
-            if (strategyOutput.ToString().ToLower().Contains("buy") && 
-                strategyData.currentClose > strategyData.currentOpen && 
+            if (strategyOutput.ToString().ToLower().Contains("buy") &&
+                strategyData.currentClose > strategyData.currentOpen &&
                 strategyData.currentClose > strategyData.PrevOpen)
             {
                 return true;
             }
 
-            if (strategyOutput.ToString().ToLower().Contains("sell") && 
-                strategyData.currentClose < strategyData.currentOpen && 
+            if (strategyOutput.ToString().ToLower().Contains("sell") &&
+                strategyData.currentClose < strategyData.currentOpen &&
                 strategyData.currentClose < strategyData.PrevOpen)
             {
                 return true;
@@ -415,7 +417,7 @@ namespace BinanceBot.Strategy
             return false;
         }
 
-        private bool IsValidKandleToCloseTrade(StrategyData strategyData,StrategyOutput strategyOutput)
+        private bool IsValidKandleToCloseTrade(StrategyData strategyData, StrategyOutput strategyOutput)
         {
             if (strategyOutput.ToString().ToLower().Contains("buy"))
             {
@@ -523,16 +525,18 @@ namespace BinanceBot.Strategy
 
             strategyData.SignalGap1 = val1 - val2;
         }
+
+
         #endregion
 
         #region -indicator functions-
 
-        private void UpdateBollingerData(List<OHLCKandle> kandles, ref StrategyData strategyData)
+        private void UpdateBollingerData(ref StrategyData strategyData)
         {
             PineScriptFunction fn = new PineScriptFunction();
 
             //make a copy of original data
-            var kcopy = kandles.Select(x => new OHLCKandle
+            var kcopy = strategyData.kandles.Select(x => new OHLCKandle
             {
                 Close = x.Close,
                 CloseTime = x.CloseTime,
@@ -544,7 +548,9 @@ namespace BinanceBot.Strategy
 
             var kcopyopenseries = kcopy.Select(x => (decimal)x.Open).ToList();
 
-            //start bollinger bands data
+            var kcopycloseseries = kcopy.Select(x => (decimal)x.Close).ToList();
+
+            ////start bollinger bands data
             var bollingerData = fn.bollinger(kcopy, 20);
 
             strategyData.BollingerUpper = bollingerData.Last().High;
@@ -555,7 +561,7 @@ namespace BinanceBot.Strategy
 
             var pricecrossunder = fn.crossunder(kcopyopenseries, bollingerData.Select(x => x.High).ToList());
 
-            var pricecrossover = fn.crossover(kcopyopenseries, bollingerData.Select(x => x.Low).ToList());
+            var pricecrossover = fn.crossover(kcopycloseseries, bollingerData.Select(x => x.Low).ToList());
 
             strategyData.BollTopCrossed = pricecrossunder.Skip(pricecrossunder.Count - 7).Take(7).Contains(true);
 
@@ -611,8 +617,6 @@ namespace BinanceBot.Strategy
         {
             PineScriptFunction fn = new PineScriptFunction();
 
-            UpdateBollingerData(inputkandles, ref strategyData);
-
             //convert to higher timeframe
             var largekandles = fn.converttohighertimeframe(inputkandles, KandleMultiplier);//3
 
@@ -658,6 +662,8 @@ namespace BinanceBot.Strategy
             strategyData.isSell = xshort.Last();
             //end buy sell signal
 
+            UpdateBollingerData(ref strategyData);
+
             UpdateSignalData(ref strategyData, xlong, xshort);
 
             MakeBuySellDecision(ref strategyData, ref currentPosition, robotInput);
@@ -683,7 +689,7 @@ namespace BinanceBot.Strategy
                     sOutput = StrategyOutput.OpenPositionWithBuy;
 
                     //this must always be the first validator to be called
-                    if (!IsValidKandleToOpenTrade(strategyData,sOutput))
+                    if (!IsValidKandleToOpenTrade(strategyData, sOutput))
                     {
                         sOutput = StrategyOutput.AvoidOpenWithBuyOnRedKandle;
                     }
@@ -819,9 +825,9 @@ namespace BinanceBot.Strategy
                 if (position.PositionType == "BUY")
                 {
                     sOutput = StrategyOutput.EscapeTrapWithSell;
-                    
+
                     //this should be the first function to be called
-                    if (!IsValidKandleToCloseTrade(strategyData,sOutput))
+                    if (!IsValidKandleToCloseTrade(strategyData, sOutput))
                     {
                         sOutput = StrategyOutput.AvoidEscapeWithSell;
                     }
@@ -847,7 +853,7 @@ namespace BinanceBot.Strategy
                     }
                 }
             }
-            
+
             else
             {
                 sOutput = StrategyOutput.None;
