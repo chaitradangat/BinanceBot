@@ -415,7 +415,7 @@ namespace BinanceBot.Strategy
             return false;
         }
 
-        private bool IsValidKandleToExit(StrategyData strategyData,StrategyOutput strategyOutput)
+        private bool IsValidKandleToCloseTrade(StrategyData strategyData,StrategyOutput strategyOutput)
         {
             if (strategyOutput.ToString().ToLower().Contains("sell") && strategyData.trend == "BEARISH")
             {
@@ -815,7 +815,7 @@ namespace BinanceBot.Strategy
                     sOutput = StrategyOutput.EscapeTrapWithSell;
                     
                     //this should be the first function to be called
-                    if (!IsValidKandleToExit(strategyData,sOutput))
+                    if (!IsValidKandleToCloseTrade(strategyData,sOutput))
                     {
                         sOutput = StrategyOutput.AvoidEscapeWithSell;
                     }
@@ -830,7 +830,7 @@ namespace BinanceBot.Strategy
                     sOutput = StrategyOutput.EscapeTrapWithBuy;
 
                     //this should be the first function to be called
-                    if (!IsValidKandleToExit(strategyData, sOutput))
+                    if (!IsValidKandleToCloseTrade(strategyData, sOutput))
                     {
                         sOutput = StrategyOutput.AvoidEscapeWithBuy;
                     }
