@@ -413,12 +413,12 @@ namespace BinanceBot.Strategy
 
         private bool IsValidKandleToExit(StrategyData strategyData,StrategyOutput strategyOutput)
         {
-            if (strategyData.ToString().ToLower().Contains("sell") && strategyData.trend == "BEARISH")
+            if (strategyOutput.ToString().ToLower().Contains("sell") && strategyData.trend == "BEARISH")
             {
                 return true;
             }
 
-            if (strategyData.ToString().ToLower().Contains("buy") && strategyData.trend == "BULLISH")
+            if (strategyOutput.ToString().ToLower().Contains("buy") && strategyData.trend == "BULLISH")
             {
                 return true;
             }
