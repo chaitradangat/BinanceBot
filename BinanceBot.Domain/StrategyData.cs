@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Text;
 
 namespace BinanceBot.Domain
@@ -25,6 +26,9 @@ namespace BinanceBot.Domain
 
             this.prevOutput = StrategyOutput.None;
         }
+
+        //this is a copy of kandles which will be pristine or if read should not be modified in any part of kode
+        public List<OHLCKandle> kandles { get; set; }
 
         public decimal PrevOpen { get; set; }
 
