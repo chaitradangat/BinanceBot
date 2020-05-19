@@ -504,6 +504,8 @@ namespace BinanceBot.Application
                 }).ToList();
             }
 
+
+            //save values in strategydata variable
             strategyData.currentOpen = ohlckandles[ohlckandles.Count - 1].Open;
 
             strategyData.currentClose = ohlckandles[ohlckandles.Count - 1].Close;
@@ -511,6 +513,19 @@ namespace BinanceBot.Application
             strategyData.PrevOpen = ohlckandles[ohlckandles.Count - 2].Open;
 
             strategyData.PrevClose = ohlckandles[ohlckandles.Count - 2].Close;
+
+            strategyData.kandles = 
+
+            ohlckandles.Select(x => new OHLCKandle
+            {
+                Close = x.Close,
+                CloseTime = x.CloseTime,
+                High = x.High,
+                Low = x.Low,
+                Open = x.Open,
+                OpenTime = x.OpenTime
+
+            }).ToList();
         }
 
         #region -timezone and server time functions-
