@@ -26,9 +26,11 @@ namespace BinanceBot.Domain
             this.prevOutput = StrategyOutput.None;
         }
 
-        public decimal currentOpen { get; set; }
+        public decimal PrevOpen { get; set; }
 
         public decimal PrevClose { get; set; }
+
+        public decimal currentOpen { get; set; }
 
         public decimal currentClose { get; set; }
 
