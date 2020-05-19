@@ -28,6 +28,8 @@ namespace BinanceBot.Domain
         AvoidEscapeWithBuy,
         Buy,
         Sell,
+        Open,
+        Exit,
         None
     }
 }
