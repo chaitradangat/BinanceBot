@@ -26,6 +26,8 @@ namespace BinanceBot.Domain
         AvoidOpenWithSellOnGreenKandle,
         AvoidEscapeWithSell,
         AvoidEscapeWithBuy,
+        AvoidBuyNoEntryPoint,
+        AvoidSellNoEntryPoint,
         Buy,
         Sell,
         Open,
