@@ -471,7 +471,8 @@ namespace BinanceBot.Strategy
 
         private void ValidateBookProfit(StrategyData strategyData, StrategyOutput decision, ref StrategyOutput sOutput)
         {
-
+            //this logic will be done later.
+            return;
         }
 
         private void ValidateEscapeTrap(StrategyData strategyData, StrategyOutput decision, ref StrategyOutput sOutput)
@@ -600,11 +601,11 @@ namespace BinanceBot.Strategy
 
             if (smoothing.ToUpper() == "DEMA")
             {
-                kandles = fn.dema(kandles, 8);
+                kandles = fn.dema(kandles, lookback);
             }
             else
             {
-                kandles = fn.smma(kandles, 8);   
+                kandles = fn.smma(kandles, lookback);   
             }
 
             return kandles;
