@@ -10,8 +10,6 @@ using BinanceBot.Domain;
 
 using BinanceBot.Settings;
 
-using BinanceBot.Validator;
-
 namespace BinanceBot.Strategy
 {
     public class OpenCloseStrategy
