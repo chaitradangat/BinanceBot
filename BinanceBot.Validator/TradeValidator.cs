@@ -67,7 +67,9 @@ namespace BinanceBot.Validator
         /// <returns></returns>
         public bool IsSignalGapValid(StrategyData strategyData)
         {
-            return strategyData.SignalGap1 > RequiredSignalGap;
+            var lastSignalGap =  Convert.ToInt32(strategyData.histdata.Split(' ').Last().Replace("B", "").Replace("S", ""));
+
+            return strategyData.SignalGap1 > RequiredSignalGap || lastSignalGap >= RequiredSignalGap;
         }
 
         /// <summary>
