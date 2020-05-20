@@ -353,7 +353,7 @@ namespace BinanceBot.Strategy
             }
         }
 
-
+        //validations for the decisions made 
         private void ValidateOpenPosition(StrategyData strategyData, StrategyOutput decision ,ref StrategyOutput sOutput)
         {
             if (decision == StrategyOutput.Buy)
