@@ -72,7 +72,7 @@ namespace BinanceBot.Application
 
                         webCall.GetKLinesDataCached(robotInput.timeframe, robotInput.candleCount, ref strategyData, ref ohlckandles);
 
-                        openclosestrategy.RunStrategy(ohlckandles, robotInput, ref strategyData, ref currentPosition);
+                        openclosestrategy.RunStrategy(ohlckandles, robotInput, currentPosition, ref strategyData);
 
                         if (isLive && strategyData.Output != StrategyOutput.None)
                         {
