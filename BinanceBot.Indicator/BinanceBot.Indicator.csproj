@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\BinanceBot.Domain\BinanceBot.Domain.csproj" />
+    <ProjectReference Include="..\BinanceBot.Settings\BinanceBot.Settings.csproj" />
+    <ProjectReference Include="..\PineScriptPort\PineScriptPort.csproj" />
+  </ItemGroup>
+
+</Project>
