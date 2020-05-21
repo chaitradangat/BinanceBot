@@ -585,6 +585,7 @@ namespace BinanceBot.Strategy
             validator = new TradeValidator();
         }
 
+        //method to take decision
         public void Decide(ref StrategyData strategyData, SimplePosition position, RobotInput roboInput)
         {
             var sOutput = StrategyOutput.None;
