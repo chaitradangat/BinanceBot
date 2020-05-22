@@ -19,9 +19,9 @@ namespace BinanceBot.Application
 {
     public class BinanceCommand
     {
-        private BinanceWebCall webCall;
+        private readonly BinanceWebCall webCall;
 
-        private int pingtime;
+        private readonly int pingtime;
 
         public BinanceCommand(string ApiKey, string ApiSecret)
         {
