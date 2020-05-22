@@ -4,7 +4,7 @@ using System.Text;
 
 namespace BinanceBot.Domain
 {
-    public enum StrategyOutput
+    public enum StrategyDecision
     {
         OpenPositionWithBuy,
         OpenPositionWithSell,

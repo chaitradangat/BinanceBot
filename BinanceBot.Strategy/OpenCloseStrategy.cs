@@ -15,7 +15,7 @@ namespace BinanceBot.Strategy
     public class OpenCloseStrategy
     {
         //strategy variables 
-        OpenCloseStrategyDecision strategyDecision;
+        private OpenCloseStrategyDecision strategyDecision;
 
         private int KandleMultiplier; //3
 
@@ -166,7 +166,7 @@ namespace BinanceBot.Strategy
 
             strategyDecision.Decide(ref strategyData, currentPosition, robotInput);
 
-            if (strategyData.Output != StrategyOutput.None)
+            if (strategyData.Decision != StrategyDecision.None)
             {
                 strategyDecision.ResetCounters();
 

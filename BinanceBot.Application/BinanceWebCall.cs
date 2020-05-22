@@ -730,28 +730,28 @@ namespace BinanceBot.Application
         //method to place orders
         public void PlaceOrders(RobotInput robotInput, StrategyData strategyData, bool isLive)
         {
-            if (!isLive || strategyData.Output == StrategyOutput.None)
+            if (!isLive || strategyData.Decision == StrategyDecision.None)
             {
                 return;
             }
 
             BinancePlacedOrder placedOrder = null;
 
-            if (strategyData.Output == StrategyOutput.OpenPositionWithBuy || strategyData.Output == StrategyOutput.ExitPositionWithBuy ||
-                strategyData.Output == StrategyOutput.BookProfitWithBuy || strategyData.Output == StrategyOutput.MissedPositionBuy ||
-                strategyData.Output == StrategyOutput.ExitPositionHeavyLossWithBuy)
+            if (strategyData.Decision == StrategyDecision.OpenPositionWithBuy || strategyData.Decision == StrategyDecision.ExitPositionWithBuy ||
+                strategyData.Decision == StrategyDecision.BookProfitWithBuy || strategyData.Decision == StrategyDecision.MissedPositionBuy ||
+                strategyData.Decision == StrategyDecision.ExitPositionHeavyLossWithBuy)
             {
                 placedOrder = PlaceBuyOrder(robotInput.quantity, -1, true);
             }
 
-            else if (strategyData.Output == StrategyOutput.OpenPositionWithSell || strategyData.Output == StrategyOutput.ExitPositionWithSell ||
-                     strategyData.Output == StrategyOutput.BookProfitWithSell || strategyData.Output == StrategyOutput.MissedPositionSell ||
-                     strategyData.Output == StrategyOutput.ExitPositionHeavyLossWithSell)
+            else if (strategyData.Decision == StrategyDecision.OpenPositionWithSell || strategyData.Decision == StrategyDecision.ExitPositionWithSell ||
+                     strategyData.Decision == StrategyDecision.BookProfitWithSell || strategyData.Decision == StrategyDecision.MissedPositionSell ||
+                     strategyData.Decision == StrategyDecision.ExitPositionHeavyLossWithSell)
             {
                 placedOrder = PlaceSellOrder(robotInput.quantity, -1, true);
             }
 
-            else if (strategyData.Output == StrategyOutput.EscapeTrapWithBuy)
+            else if (strategyData.Decision == StrategyDecision.EscapeTrapWithBuy)
             {
                 if (BinanceBotSettings.settings.ReOpenOnEscape)
                 {
@@ -763,7 +763,7 @@ namespace BinanceBot.Application
                 }
             }
 
-            else if (strategyData.Output == StrategyOutput.EscapeTrapWithSell)
+            else if (strategyData.Decision == StrategyDecision.EscapeTrapWithSell)
             {
                 if (BinanceBotSettings.settings.ReOpenOnEscape)
                 {
@@ -780,10 +780,10 @@ namespace BinanceBot.Application
             }
 
             if (placedOrder != null
-                || strategyData.Output == StrategyOutput.AvoidOpenWithSell || strategyData.Output == StrategyOutput.AvoidOpenWithBuy
-                || strategyData.Output == StrategyOutput.AvoidLowSignalGapBuy || strategyData.Output == StrategyOutput.AvoidLowSignalGapSell
-                || strategyData.Output == StrategyOutput.AvoidOpenWithBuyOnRedKandle || strategyData.Output == StrategyOutput.AvoidOpenWithSellOnGreenKandle
-                || strategyData.Output == StrategyOutput.AvoidEscapeWithSell || strategyData.Output == StrategyOutput.AvoidEscapeWithBuy
+                || strategyData.Decision == StrategyDecision.AvoidOpenWithSell || strategyData.Decision == StrategyDecision.AvoidOpenWithBuy
+                || strategyData.Decision == StrategyDecision.AvoidLowSignalGapBuy || strategyData.Decision == StrategyDecision.AvoidLowSignalGapSell
+                || strategyData.Decision == StrategyDecision.AvoidOpenWithBuyOnRedKandle || strategyData.Decision == StrategyDecision.AvoidOpenWithSellOnGreenKandle
+                || strategyData.Decision == StrategyDecision.AvoidEscapeWithSell || strategyData.Decision == StrategyDecision.AvoidEscapeWithBuy
                 )
             {
                 DumpToLog(robotInput, strategyData);
@@ -803,11 +803,11 @@ namespace BinanceBot.Application
 
             decimal percentage;
 
-            if (strategyData.Output.ToString().ToLower().Contains("buy"))
+            if (strategyData.Decision.ToString().ToLower().Contains("buy"))
             {
                 percentage = Math.Round(strategyData.shortPercentage, 3);
             }
-            else if (strategyData.Output.ToString().ToLower().Contains("sell"))
+            else if (strategyData.Decision.ToString().ToLower().Contains("sell"))
             {
                 percentage = Math.Round(strategyData.longPercentage, 3);
             }
@@ -816,14 +816,14 @@ namespace BinanceBot.Application
                 percentage = 0;
             }
 
-            if (strategyData.Output == StrategyOutput.AvoidOpenWithBuy)//to log only close encounters
+            if (strategyData.Decision == StrategyDecision.AvoidOpenWithBuy)//to log only close encounters
             {
                 if (bu_percentage < robotInput.reward * 0.90m || strategyData.BollTopCrossed)
                 {
                     return;
                 }
             }
-            if (strategyData.Output == StrategyOutput.AvoidOpenWithSell)//to log only close encounters
+            if (strategyData.Decision == StrategyDecision.AvoidOpenWithSell)//to log only close encounters
             {
                 if (bd_percentage < robotInput.reward * 0.90m || strategyData.BollBottomCrossed)
                 {
@@ -833,7 +833,7 @@ namespace BinanceBot.Application
 
             string debuginfo = string.Format("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}\t{7}\t{8}\t{9}",
 
-            timeutc530, strategyData.Output.ToString(), strategyData.currentClose, percentage, strategyData.histdata,
+            timeutc530, strategyData.Decision.ToString(), strategyData.currentClose, percentage, strategyData.histdata,
 
             bu_percentage, bm_percentage, bd_percentage, strategyData.SignalGap0, strategyData.SignalGap1);
 
