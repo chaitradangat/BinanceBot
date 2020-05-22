@@ -1,5 +1,7 @@
 ﻿using System;
+
 using System.Collections.Generic;
+
 using System.Text;
 
 namespace BinanceBot.Domain
@@ -74,6 +76,9 @@ namespace BinanceBot.Domain
         public bool BollTopCrossed { get; set; } 
 
         public bool BollBottomCrossed { get; set; }
+
+        public bool BollMiddleCrossed { get; set; }
+        //boll values end
 
         public int SignalGap0 { get; set; }
 
