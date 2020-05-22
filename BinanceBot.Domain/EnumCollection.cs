@@ -29,7 +29,7 @@ namespace BinanceBot.Domain
         AvoidBuyNoEntryPoint,
         AvoidSellNoEntryPoint,
         AvoidInvalidBollingerOpenBuy,
-        AvoidINvalidBollingerOpenSell,
+        AvoidInvalidBollingerOpenSell,
         Buy,
         Sell,
         Open,
