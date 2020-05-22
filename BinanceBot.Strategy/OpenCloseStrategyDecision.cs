@@ -369,7 +369,7 @@ namespace BinanceBot.Strategy
 
                 if (!validator.IsTradeValidOnBollinger(strategyData, StrategyDecision.Buy))
                 {
-                    sOutput = StrategyDecision.AvoidOpenWithBuy;
+                    sOutput = StrategyDecision.AvoidInvalidBollingerOpenBuy;
                 }
 
                 if (!validator.IsSignalGapValid(strategyData))
@@ -387,7 +387,7 @@ namespace BinanceBot.Strategy
 
                 if (!validator.IsTradeValidOnBollinger(strategyData, StrategyDecision.Sell))
                 {
-                    sOutput = StrategyDecision.AvoidOpenWithSell;
+                    sOutput = StrategyDecision.AvoidInvalidBollingerOpenSell;
                 }
 
                 if (!validator.IsSignalGapValid(strategyData))
@@ -414,7 +414,7 @@ namespace BinanceBot.Strategy
 
                 if (!validator.IsTradeValidOnBollinger(strategyData, StrategyDecision.Buy))
                 {
-                    sOutput = StrategyDecision.AvoidOpenWithBuy;
+                    sOutput = StrategyDecision.AvoidInvalidBollingerOpenBuy;
                 }
 
                 if (!validator.IsSignalGapValid(strategyData))
@@ -438,7 +438,7 @@ namespace BinanceBot.Strategy
 
                 if (!validator.IsTradeValidOnBollinger(strategyData, StrategyDecision.Sell))
                 {
-                    sOutput = StrategyDecision.AvoidOpenWithSell;
+                    sOutput = StrategyDecision.AvoidInvalidBollingerOpenSell;
                 }
 
                 if (!validator.IsSignalGapValid(strategyData))
