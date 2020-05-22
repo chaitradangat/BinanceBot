@@ -24,6 +24,12 @@ namespace BinanceBot.Indicator
 
         public decimal BollingerLower { get; set; }
 
+        public decimal BollingerUpperPercentage { get; set; }
+
+        public decimal BollingerMiddlePercentage { get; set; }
+
+        public decimal BollingerLowerPercentage { get; set; }
+
         public bool BollTopCrossed { get; set; }
 
         public bool BollBottomCrossed { get; set; }
@@ -55,6 +61,8 @@ namespace BinanceBot.Indicator
         {
             PineScriptFunction fn = new PineScriptFunction();
 
+            var close = kandles.Last().Close;
+
             var openseries = kandles.Select(x => (decimal)x.Open).ToList();
 
             var closeseries = kandles.Select(x => (decimal)x.Close).ToList();
@@ -66,6 +74,12 @@ namespace BinanceBot.Indicator
             this.BollingerMiddle = BollingerData.Last().Close;
 
             this.BollingerLower = BollingerData.Last().Low;
+
+            this.BollingerUpperPercentage = Math.Round((100 * (this.BollingerUpper - close) / this.BollingerUpper), 3);
+
+            this.BollingerMiddlePercentage = Math.Round((100 * (this.BollingerMiddle - close) / this.BollingerMiddle), 3);
+
+            this.BollingerLowerPercentage = Math.Round((100 * (close - this.BollingerLower) / close), 3);
 
             var pricecrosstopband = fn.crossunder(openseries, BollingerData.Select(x => x.High).ToList());
 
