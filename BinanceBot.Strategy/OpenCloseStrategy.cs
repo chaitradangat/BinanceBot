@@ -8,6 +8,8 @@ using PineScriptPort;
 
 using BinanceBot.Domain;
 
+using BinanceBot.Indicator;
+
 using BinanceBot.Settings;
 
 namespace BinanceBot.Strategy
@@ -86,40 +88,19 @@ namespace BinanceBot.Strategy
 
         private void UpdateBollingerData(ref StrategyData strategyData)
         {
-            PineScriptFunction fn = new PineScriptFunction();
+            BollingerBands bBands = new BollingerBands(strategyData.kandles, 7);
 
-            //make a copy of original data
-            var kcopy = strategyData.kandles.Select(x => new OHLCKandle
-            {
-                Close = x.Close,
-                CloseTime = x.CloseTime,
-                Open = x.Open,
-                OpenTime = x.OpenTime,
-                High = x.High,
-                Low = x.Low
-            }).ToList();
+            strategyData.BollingerUpper = bBands.BollingerUpper;
 
-            var kcopyopenseries = kcopy.Select(x => (decimal)x.Open).ToList();
+            strategyData.BollingerMiddle = bBands.BollingerMiddle;
 
-            var kcopycloseseries = kcopy.Select(x => (decimal)x.Close).ToList();
+            strategyData.BollingerLower = bBands.BollingerLower;
 
-            ////start bollinger bands data
-            var bollingerData = fn.bollinger(kcopy, 20);
+            strategyData.BollTopCrossed = bBands.BollTopCrossed;
 
-            strategyData.BollingerUpper = bollingerData.Last().High;
+            strategyData.BollBottomCrossed = bBands.BollBottomCrossed;
 
-            strategyData.BollingerMiddle = bollingerData.Last().Close;
-
-            strategyData.BollingerLower = bollingerData.Last().Low;
-
-            var pricecrossunder = fn.crossunder(kcopyopenseries, bollingerData.Select(x => x.High).ToList());
-
-            var pricecrossover = fn.crossover(kcopycloseseries, bollingerData.Select(x => x.Low).ToList());
-
-            strategyData.BollTopCrossed = pricecrossunder.Skip(pricecrossunder.Count - 7).Take(7).Contains(true);
-
-            strategyData.BollBottomCrossed = pricecrossover.Skip(pricecrossover.Count - 7).Take(7).Contains(true);
-            //end bollinger bands data
+            strategyData.BollMiddleCrossed = bBands.BollMiddleCrossed;
         }
 
         public void RunStrategy(List<OHLCKandle> inputkandles, RobotInput robotInput, SimplePosition currentPosition, ref StrategyData strategyData)
