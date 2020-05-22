@@ -784,6 +784,7 @@ namespace BinanceBot.Application
                 || strategyData.Decision == StrategyDecision.AvoidLowSignalGapBuy || strategyData.Decision == StrategyDecision.AvoidLowSignalGapSell
                 || strategyData.Decision == StrategyDecision.AvoidOpenWithBuyOnRedKandle || strategyData.Decision == StrategyDecision.AvoidOpenWithSellOnGreenKandle
                 || strategyData.Decision == StrategyDecision.AvoidEscapeWithSell || strategyData.Decision == StrategyDecision.AvoidEscapeWithBuy
+                || strategyData.Decision == StrategyDecision.AvoidInvalidBollingerOpenBuy || strategyData.Decision == StrategyDecision.AvoidInvalidBollingerOpenSell
                 )
             {
                 DumpToLog(robotInput, strategyData);
@@ -816,6 +817,8 @@ namespace BinanceBot.Application
                 percentage = 0;
             }
 
+            //code commented to avoid scope creep and log all events even if log file overflows!
+            /*
             if (strategyData.Decision == StrategyDecision.AvoidOpenWithBuy)//to log only close encounters
             {
                 if (bu_percentage < robotInput.reward * 0.90m || strategyData.BollTopCrossed)
@@ -830,6 +833,7 @@ namespace BinanceBot.Application
                     return;
                 }
             }
+            */
 
             string debuginfo = string.Format("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}\t{7}\t{8}\t{9}",
 
