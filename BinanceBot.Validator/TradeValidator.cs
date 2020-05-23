@@ -1,7 +1,7 @@
 ﻿using System;
-
+using System.Collections.Generic;
 using System.Linq;
-
+using System.Runtime.CompilerServices;
 using BinanceBot.Domain;
 
 using BinanceBot.Settings;
@@ -19,6 +19,7 @@ namespace BinanceBot.Validator
 
         private decimal BollingerFactor;
 
+        private HashSet<string> ValidationList;
         public TradeValidator()
         {
             RequiredSignalGap = OpenCloseStrategySettings.settings.SignalGap;
@@ -34,7 +35,7 @@ namespace BinanceBot.Validator
         /// <summary>
         /// Validate for consecutive dropping or rising kandles
         /// </summary>
-        public bool KandlesAreConsistent(StrategyData strategyData, StrategyDecision decision, int lookback)
+        public bool KandlesAreConsistent(StrategyData strategyData, StrategyDecision decision, int lookback, [CallerMemberName]string CallingDecision = "")
         {
             if (decision != StrategyDecision.Buy && decision != StrategyDecision.Sell)
             {
@@ -65,9 +66,9 @@ namespace BinanceBot.Validator
         /// </summary>
         /// <param name="strategyData"></param>
         /// <returns></returns>
-        public bool IsSignalGapValid(StrategyData strategyData)
+        public bool IsSignalGapValid(StrategyData strategyData, [CallerMemberName]string CallingDecision = "")
         {
-            var lastSignalGap =  Convert.ToInt32(strategyData.histdata.Split(' ').Last().Replace("B", "").Replace("S", ""));
+            var lastSignalGap = Convert.ToInt32(strategyData.histdata.Split(' ').Last().Replace("B", "").Replace("S", ""));
 
             return strategyData.SignalGap1 > RequiredSignalGap || lastSignalGap >= RequiredSignalGap;
         }
@@ -78,7 +79,7 @@ namespace BinanceBot.Validator
         /// <param name="strategyData"></param>
         /// <param name="decision"></param>
         /// <returns></returns>
-        public bool IsTradeValidOnBollinger(StrategyData strategyData, StrategyDecision decision)
+        public bool IsTradeValidOnBollinger(StrategyData strategyData, StrategyDecision decision, [CallerMemberName]string CallingDecision = "")
         {
             if (decision != StrategyDecision.Buy || decision != StrategyDecision.Sell)
             {
@@ -148,7 +149,7 @@ namespace BinanceBot.Validator
         /// <param name="strategyData"></param>
         /// <param name="decision"></param>
         /// <returns></returns>
-        public bool IsTradeOnRightKandle(StrategyData strategyData, StrategyDecision decision, StrategyDecision positiondecision)
+        public bool IsTradeOnRightKandle(StrategyData strategyData, StrategyDecision decision, StrategyDecision positiondecision, [CallerMemberName]string CallingDecision = "")
         {
             if (decision != StrategyDecision.Buy && decision != StrategyDecision.Sell && positiondecision != StrategyDecision.Open && positiondecision != StrategyDecision.Exit)
             {
@@ -192,6 +193,23 @@ namespace BinanceBot.Validator
             return false;
         }
 
-        
+        /// <summary>
+        /// Checks if validation is required for "StrategyDecision.TradeDecision"
+        /// </summary>
+        /// <param name="CallingDecision"></param>
+        /// <param name="TradeDecision"></param>
+        /// <returns></returns>
+        private bool IsValidationRequired(string CallingDecision, [CallerMemberName]string TradeDecision = "")
+        {
+            if (ValidationList.Contains(string.Format("{0}.{1}", CallingDecision, TradeDecision)))
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
     }
 }
