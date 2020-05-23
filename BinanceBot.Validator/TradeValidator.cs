@@ -13,10 +13,12 @@ namespace BinanceBot.Validator
     /// </summary>
     public class TradeValidator
     {
-        private HashSet<string> ValidationList;
-        public TradeValidator()
+        private List<string> ValidationRules;
+        public TradeValidator(string ValidationRuleSet)
         {
-            
+            ValidationRules = new List<string>(ValidationRuleSet.Split(','));
+
+            ValidationRules.RemoveAll(x => string.IsNullOrWhiteSpace(x));
         }
 
         //functions must be factorised further to provide avoid enumeration values directly
@@ -191,7 +193,7 @@ namespace BinanceBot.Validator
         /// <returns></returns>
         private bool IsValidationRequired(string CallingDecision, [CallerMemberName]string TradeDecision = "")
         {
-            if (ValidationList.Contains(string.Format("{0}.{1}", CallingDecision, TradeDecision)))
+            if (ValidationRules.Contains(string.Format("{0}.{1}", CallingDecision, TradeDecision)))
             {
                 return true;
             }

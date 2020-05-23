@@ -181,16 +181,16 @@ namespace BinanceBot.Settings
                 this["SignalGap"] = value;
             }
         }
-        [ConfigurationProperty("ValidationList", IsRequired = true)]
-        public string ValidationList
+        [ConfigurationProperty("ValidationRuleSet", IsRequired = true)]
+        public string ValidationRuleSet
         {
             get
             {
-                return Convert.ToString(this["ValidationList"]);
+                return Convert.ToString(this["ValidationRuleSet"]);
             }
             set
             {
-                this["ValidationList"] = value;
+                this["ValidationRuleSet"] = value;
             }
         }
 
