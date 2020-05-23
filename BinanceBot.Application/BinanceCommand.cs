@@ -114,7 +114,11 @@ namespace BinanceBot.Application
             //latest price
             Console.WriteLine("{0} : {1} \n", robotInput.symbol, strategyData.currentClose);
 
-            Console.WriteLine("BBAND   : {0}%   {1}%   {2}%   {3}{4}\n", bu_percentage, bm_percentage, bd_percentage, strategyData.BollTopCrossed ? "*TOPCROSSED*" : "", strategyData.BollBottomCrossed ? "*BOTTOMCROSSED*" : "");
+            Console.WriteLine("BBAND   : {0}%   {1}%   {2}%   {3}{4}{5}\n", 
+                bu_percentage, bm_percentage, bd_percentage, 
+                strategyData.BollTopCrossed ? "*TOPCROSSED*" : "", 
+                strategyData.BollBottomCrossed ? "*BOTTOMCROSSED*" : "", 
+                strategyData.BollMiddleCrossed ? "*MIDDLECROSSED*" : "");
 
             //mood
             if (strategyData.mood == "BULLISH")
