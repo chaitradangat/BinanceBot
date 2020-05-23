@@ -36,6 +36,7 @@ namespace BinanceBot.Strategy
         private int MissedPositionStartCandleIndex; //3
         private int MissedPositionEndCandleIndex; //5
         private int MissedPositionSignalStrength; //200
+        private int ConsistentKandlesLookBack; //3
 
         //validation vars
         private decimal BollingerFactor;//1.1
@@ -402,7 +403,7 @@ namespace BinanceBot.Strategy
         {
             if (decision == StrategyDecision.Buy)
             {
-                if (!validator.KandlesAreConsistent(strategyData, StrategyDecision.Buy, 3))
+                if (!validator.KandlesAreConsistent(strategyData, StrategyDecision.Buy, ConsistentKandlesLookBack))
                 {
                     sOutput = StrategyDecision.AvoidBuyNoEntryPoint;
                 }
@@ -427,7 +428,7 @@ namespace BinanceBot.Strategy
             {
                 //validators
 
-                if (!validator.KandlesAreConsistent(strategyData, StrategyDecision.Sell, 3))
+                if (!validator.KandlesAreConsistent(strategyData, StrategyDecision.Sell, ConsistentKandlesLookBack))
                 {
                     sOutput = StrategyDecision.AvoidSellNoEntryPoint;
                 }
@@ -579,6 +580,8 @@ namespace BinanceBot.Strategy
             BollingerFactor = OpenCloseStrategySettings.settings.BollingerFactor;
 
             RequiredSignalGap = OpenCloseStrategySettings.settings.SignalGap;
+
+            ConsistentKandlesLookBack = OpenCloseStrategySettings.settings.ConsistentKandlesLookBack;
 
             validator = new TradeValidator(ValidationRuleSet);
         }

@@ -23,6 +23,9 @@ namespace BinanceBot.Strategy
 
         private string Smoothing;//DEMA
 
+        private int BollingerCrossLookBack;
+
+
         //ctor
         public OpenCloseStrategy()
         {
@@ -32,6 +35,8 @@ namespace BinanceBot.Strategy
             KandleMultiplier = OpenCloseStrategySettings.settings.KandleMultiplier;
 
             Smoothing = OpenCloseStrategySettings.settings.Smoothing;
+
+            BollingerCrossLookBack = OpenCloseStrategySettings.settings.BollingerCrossLookBack;
         }
 
         //utility functions
@@ -88,7 +93,7 @@ namespace BinanceBot.Strategy
 
         private void UpdateBollingerData(ref StrategyData strategyData)
         {
-            BollingerBands bBands = new BollingerBands(strategyData.kandles, 7);
+            BollingerBands bBands = new BollingerBands(strategyData.kandles, BollingerCrossLookBack);
 
             strategyData.BollingerUpper = bBands.BollingerUpper;
 
