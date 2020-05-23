@@ -372,7 +372,7 @@ namespace BinanceBot.Strategy
                     sOutput = StrategyDecision.AvoidInvalidBollingerOpenBuy;
                 }
 
-                if (!validator.IsSignalGapValid(strategyData))
+                if (!validator.IsSignalGapValid(strategyData, RequiredSignalGap))
                 {
                     sOutput = StrategyDecision.AvoidLowSignalGapBuy;
                 }
@@ -390,7 +390,7 @@ namespace BinanceBot.Strategy
                     sOutput = StrategyDecision.AvoidInvalidBollingerOpenSell;
                 }
 
-                if (!validator.IsSignalGapValid(strategyData))
+                if (!validator.IsSignalGapValid(strategyData, RequiredSignalGap))
                 {
                     sOutput = StrategyDecision.AvoidLowSignalGapSell;
                 }
@@ -417,7 +417,7 @@ namespace BinanceBot.Strategy
                     sOutput = StrategyDecision.AvoidInvalidBollingerOpenBuy;
                 }
 
-                if (!validator.IsSignalGapValid(strategyData))
+                if (!validator.IsSignalGapValid(strategyData, RequiredSignalGap))
                 {
                     sOutput = StrategyDecision.AvoidLowSignalGapBuy;
                 }
@@ -441,7 +441,7 @@ namespace BinanceBot.Strategy
                     sOutput = StrategyDecision.AvoidInvalidBollingerOpenSell;
                 }
 
-                if (!validator.IsSignalGapValid(strategyData))
+                if (!validator.IsSignalGapValid(strategyData, RequiredSignalGap))
                 {
                     sOutput = StrategyDecision.AvoidLowSignalGapSell;
                 }
@@ -458,14 +458,14 @@ namespace BinanceBot.Strategy
         {
             if (decision == StrategyDecision.Sell)
             {
-                if (!validator.IsSignalGapValid(strategyData))
+                if (!validator.IsSignalGapValid(strategyData, RequiredSignalGap))
                 {
                     sOutput = StrategyDecision.AvoidLowSignalGapSell;
                 }
             }
             if (decision == StrategyDecision.Buy)
             {
-                if (!validator.IsSignalGapValid(strategyData))
+                if (!validator.IsSignalGapValid(strategyData, RequiredSignalGap))
                 {
                     sOutput = StrategyDecision.AvoidLowSignalGapBuy;
                 }
@@ -488,7 +488,7 @@ namespace BinanceBot.Strategy
                     sOutput = StrategyDecision.AvoidEscapeWithSell;
                 }
 
-                if (!validator.IsSignalGapValid(strategyData))
+                if (!validator.IsSignalGapValid(strategyData, RequiredSignalGap))
                 {
                     sOutput = StrategyDecision.AvoidLowSignalGapSell;
                 }
@@ -501,7 +501,7 @@ namespace BinanceBot.Strategy
                     sOutput = StrategyDecision.AvoidEscapeWithBuy;
                 }
 
-                if (!validator.IsSignalGapValid(strategyData))
+                if (!validator.IsSignalGapValid(strategyData, RequiredSignalGap))
                 {
                     sOutput = StrategyDecision.AvoidLowSignalGapBuy;
                 }
@@ -577,7 +577,7 @@ namespace BinanceBot.Strategy
 
             HeavyRiskPercentage = OpenCloseStrategySettings.settings.HeavyRiskPercentage;
 
-            //set variables to avoid wrong trades
+            //set variables to avoid wrong trades (trade validation)
             BollingerFactor = OpenCloseStrategySettings.settings.BollingerFactor;
 
             RequiredSignalGap = OpenCloseStrategySettings.settings.SignalGap;

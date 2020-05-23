@@ -13,8 +13,6 @@ namespace BinanceBot.Validator
     /// </summary>
     public class TradeValidator
     {
-        private int RequiredSignalGap;
-
         private decimal Reward;
 
         private decimal BollingerFactor;
@@ -22,8 +20,6 @@ namespace BinanceBot.Validator
         private HashSet<string> ValidationList;
         public TradeValidator()
         {
-            RequiredSignalGap = OpenCloseStrategySettings.settings.SignalGap;
-
             Reward = BinanceBotSettings.settings.RewardPercentage;
 
             BollingerFactor = OpenCloseStrategySettings.settings.BollingerFactor;
@@ -66,7 +62,7 @@ namespace BinanceBot.Validator
         /// </summary>
         /// <param name="strategyData"></param>
         /// <returns></returns>
-        public bool IsSignalGapValid(StrategyData strategyData, [CallerMemberName]string CallingDecision = "")
+        public bool IsSignalGapValid(StrategyData strategyData,int RequiredSignalGap, [CallerMemberName]string CallingDecision = "")
         {
             var lastSignalGap = Convert.ToInt32(strategyData.histdata.Split(' ').Last().Replace("B", "").Replace("S", ""));
 
