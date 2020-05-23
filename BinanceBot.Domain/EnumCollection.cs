@@ -4,7 +4,7 @@ using System.Text;
 
 namespace BinanceBot.Domain
 {
-    public enum StrategyOutput
+    public enum StrategyDecision
     {
         OpenPositionWithBuy,
         OpenPositionWithSell,
@@ -28,6 +28,8 @@ namespace BinanceBot.Domain
         AvoidEscapeWithBuy,
         AvoidBuyNoEntryPoint,
         AvoidSellNoEntryPoint,
+        AvoidInvalidBollingerOpenBuy,
+        AvoidINvalidBollingerOpenSell,
         Buy,
         Sell,
         Open,
