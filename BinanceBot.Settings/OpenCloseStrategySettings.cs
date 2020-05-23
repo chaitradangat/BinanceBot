@@ -195,5 +195,32 @@ namespace BinanceBot.Settings
             }
         }
 
+
+        [ConfigurationProperty("BollingerCrossLookBack", IsRequired = true)]
+        public int BollingerCrossLookBack
+        {
+            get
+            {
+                return Convert.ToInt32(this["BollingerCrossLookBack"]);
+            }
+            set
+            {
+                this["BollingerCrossLookBack"] = value;
+            }
+        }
+
+        [ConfigurationProperty("ConsistentKandlesLookBack", IsRequired = true)]
+        public int ConsistentKandlesLookBack
+        {
+            get
+            {
+                return Convert.ToInt32(this["ConsistentKandlesLookBack"]);
+            }
+            set
+            {
+                this["ConsistentKandlesLookBack"] = value;
+            }
+        }
+
     }
 }
