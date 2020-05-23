@@ -13,16 +13,10 @@ namespace BinanceBot.Validator
     /// </summary>
     public class TradeValidator
     {
-        private decimal Reward;
-
-        private decimal BollingerFactor;
-
         private HashSet<string> ValidationList;
         public TradeValidator()
         {
-            Reward = BinanceBotSettings.settings.RewardPercentage;
-
-            BollingerFactor = OpenCloseStrategySettings.settings.BollingerFactor;
+            
         }
 
         //functions must be factorised further to provide avoid enumeration values directly
@@ -62,7 +56,7 @@ namespace BinanceBot.Validator
         /// </summary>
         /// <param name="strategyData"></param>
         /// <returns></returns>
-        public bool IsSignalGapValid(StrategyData strategyData,int RequiredSignalGap, [CallerMemberName]string CallingDecision = "")
+        public bool IsSignalGapValid(StrategyData strategyData, int RequiredSignalGap, [CallerMemberName]string CallingDecision = "")
         {
             var lastSignalGap = Convert.ToInt32(strategyData.histdata.Split(' ').Last().Replace("B", "").Replace("S", ""));
 
@@ -75,7 +69,7 @@ namespace BinanceBot.Validator
         /// <param name="strategyData"></param>
         /// <param name="decision"></param>
         /// <returns></returns>
-        public bool IsTradeValidOnBollinger(StrategyData strategyData, StrategyDecision decision, [CallerMemberName]string CallingDecision = "")
+        public bool IsTradeValidOnBollinger(StrategyData strategyData, StrategyDecision decision, decimal BollingerFactor, decimal Reward, [CallerMemberName]string CallingDecision = "")
         {
             if (decision != StrategyDecision.Buy || decision != StrategyDecision.Sell)
             {

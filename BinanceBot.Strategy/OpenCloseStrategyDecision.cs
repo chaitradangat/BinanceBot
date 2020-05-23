@@ -18,31 +18,26 @@ namespace BinanceBot.Strategy
         TradeValidator validator;
 
         #region -variables of strategy configuration-
-
-        private int KandleMultiplier; //3
-
+        //exit vars
+        private bool ExitImmediate;//false
         private int ExitSignalStrength; //15
+        private decimal HeavyRiskPercentage;//15
 
-
+        //escape vars
         private bool EscapeTraps; //true
         private int EscapeTrapCandleIdx; //3
         private int EscapeTrapSignalStrength; //300
 
-
+        //missed position vars
         private bool GrabMissedPosition; //true
         private int MissedPositionStartCandleIndex; //3
         private int MissedPositionEndCandleIndex; //5
         private int MissedPositionSignalStrength; //200
 
-        private bool ExitImmediate;//false
-
-        private decimal HeavyRiskPercentage;//15
-
-        private string Smoothing;//DEMA
-
+        //validation vars
         private decimal BollingerFactor;//1.1
-
         private int RequiredSignalGap;//4
+
 
         #endregion
 
@@ -357,7 +352,7 @@ namespace BinanceBot.Strategy
         }
 
         //validations for the decisions made 
-        private void ValidateOpenPosition(StrategyData strategyData, StrategyDecision decision, ref StrategyDecision sOutput)
+        private void ValidateOpenPosition(RobotInput roboInput,StrategyData strategyData, StrategyDecision decision, ref StrategyDecision sOutput)
         {
             if (decision == StrategyDecision.Buy)
             {
@@ -367,7 +362,7 @@ namespace BinanceBot.Strategy
                     sOutput = StrategyDecision.AvoidOpenWithBuyOnRedKandle;
                 }
 
-                if (!validator.IsTradeValidOnBollinger(strategyData, StrategyDecision.Buy))
+                if (!validator.IsTradeValidOnBollinger(strategyData, StrategyDecision.Buy, BollingerFactor, roboInput.reward))
                 {
                     sOutput = StrategyDecision.AvoidInvalidBollingerOpenBuy;
                 }
@@ -385,7 +380,7 @@ namespace BinanceBot.Strategy
                     sOutput = StrategyDecision.AvoidOpenWithSellOnGreenKandle;
                 }
 
-                if (!validator.IsTradeValidOnBollinger(strategyData, StrategyDecision.Sell))
+                if (!validator.IsTradeValidOnBollinger(strategyData, StrategyDecision.Sell, BollingerFactor, roboInput.reward))
                 {
                     sOutput = StrategyDecision.AvoidInvalidBollingerOpenSell;
                 }
@@ -397,7 +392,7 @@ namespace BinanceBot.Strategy
             }
         }
 
-        private void ValidateOpenMissedPosition(StrategyData strategyData, StrategyDecision decision, ref StrategyDecision sOutput)
+        private void ValidateOpenMissedPosition(RobotInput roboInput,StrategyData strategyData, StrategyDecision decision, ref StrategyDecision sOutput)
         {
             if (decision == StrategyDecision.Buy)
             {
@@ -412,7 +407,7 @@ namespace BinanceBot.Strategy
                     sOutput = StrategyDecision.AvoidOpenWithBuyOnRedKandle;
                 }
 
-                if (!validator.IsTradeValidOnBollinger(strategyData, StrategyDecision.Buy))
+                if (!validator.IsTradeValidOnBollinger(strategyData, StrategyDecision.Buy, BollingerFactor, roboInput.reward))
                 {
                     sOutput = StrategyDecision.AvoidInvalidBollingerOpenBuy;
                 }
@@ -436,7 +431,7 @@ namespace BinanceBot.Strategy
                     sOutput = StrategyDecision.AvoidOpenWithSellOnGreenKandle;
                 }
 
-                if (!validator.IsTradeValidOnBollinger(strategyData, StrategyDecision.Sell))
+                if (!validator.IsTradeValidOnBollinger(strategyData, StrategyDecision.Sell, BollingerFactor, roboInput.reward))
                 {
                     sOutput = StrategyDecision.AvoidInvalidBollingerOpenSell;
                 }
@@ -448,13 +443,13 @@ namespace BinanceBot.Strategy
             }
         }
 
-        private void ValidateExitPositionHeavyLoss(StrategyData strategyData, StrategyDecision decision, ref StrategyDecision sOutput)
+        private void ValidateExitPositionHeavyLoss(RobotInput roboInput,StrategyData strategyData, StrategyDecision decision, ref StrategyDecision sOutput)
         {
             //this logic will be done later.
             return;
         }
 
-        private void ValidateExitPosition(StrategyData strategyData, StrategyDecision decision, ref StrategyDecision sOutput)
+        private void ValidateExitPosition(RobotInput roboInput,StrategyData strategyData, StrategyDecision decision, ref StrategyDecision sOutput)
         {
             if (decision == StrategyDecision.Sell)
             {
@@ -472,13 +467,13 @@ namespace BinanceBot.Strategy
             }
         }
 
-        private void ValidateBookProfit(StrategyData strategyData, StrategyDecision decision, ref StrategyDecision sOutput)
+        private void ValidateBookProfit(RobotInput roboInput,StrategyData strategyData, StrategyDecision decision, ref StrategyDecision sOutput)
         {
             //this logic will be done later.
             return;
         }
 
-        private void ValidateEscapeTrap(StrategyData strategyData, StrategyDecision decision, ref StrategyDecision sOutput)
+        private void ValidateEscapeTrap(RobotInput roboInput,StrategyData strategyData, StrategyDecision decision, ref StrategyDecision sOutput)
         {
             if (decision == StrategyDecision.Sell)
             {
@@ -550,14 +545,12 @@ namespace BinanceBot.Strategy
 
             prevOutput = StrategyDecision.None;
 
-            //set strategy variables
-            KandleMultiplier = OpenCloseStrategySettings.settings.KandleMultiplier;
 
+            //set strategy variables
             ExitSignalStrength = OpenCloseStrategySettings.settings.ExitSignalStrength;
 
             ExitImmediate = OpenCloseStrategySettings.settings.ExitImmediate;
 
-            Smoothing = OpenCloseStrategySettings.settings.Smoothing;
 
             //set escape strategy variables
             EscapeTraps = OpenCloseStrategySettings.settings.EscapeTraps;
@@ -598,13 +591,13 @@ namespace BinanceBot.Strategy
                 {
                     sOutput = StrategyDecision.OpenPositionWithBuy;
 
-                    ValidateOpenPosition(strategyData, StrategyDecision.Buy, ref sOutput);
+                    ValidateOpenPosition(roboInput, strategyData, StrategyDecision.Buy, ref sOutput);
                 }
                 if (strategyData.isSell)
                 {
                     sOutput = StrategyDecision.OpenPositionWithSell;
 
-                    ValidateOpenPosition(strategyData, StrategyDecision.Sell, ref sOutput);
+                    ValidateOpenPosition(roboInput, strategyData, StrategyDecision.Sell, ref sOutput);
                 }
             }
 
@@ -621,14 +614,14 @@ namespace BinanceBot.Strategy
                     sOutput = StrategyDecision.MissedPositionBuy;
 
                     //validators
-                    ValidateOpenMissedPosition(strategyData, StrategyDecision.Buy, ref sOutput);
+                    ValidateOpenMissedPosition(roboInput, strategyData, StrategyDecision.Buy, ref sOutput);
                 }
                 if (signaldecision == StrategyDecision.Sell)
                 {
                     sOutput = StrategyDecision.MissedPositionSell;
 
                     //validators
-                    ValidateOpenMissedPosition(strategyData, StrategyDecision.Sell, ref sOutput);
+                    ValidateOpenMissedPosition(roboInput, strategyData, StrategyDecision.Sell, ref sOutput);
                 }
             }
 
@@ -638,13 +631,13 @@ namespace BinanceBot.Strategy
                 {
                     sOutput = StrategyDecision.ExitPositionHeavyLossWithSell;
 
-                    ValidateExitPositionHeavyLoss(strategyData, StrategyDecision.Sell, ref sOutput);
+                    ValidateExitPositionHeavyLoss(roboInput, strategyData, StrategyDecision.Sell, ref sOutput);
                 }
                 if (position.PositionType == "SELL")
                 {
                     sOutput = StrategyDecision.ExitPositionHeavyLossWithBuy;
 
-                    ValidateExitPositionHeavyLoss(strategyData, StrategyDecision.Buy, ref sOutput);
+                    ValidateExitPositionHeavyLoss(roboInput, strategyData, StrategyDecision.Buy, ref sOutput);
                 }
             }
 
@@ -654,13 +647,13 @@ namespace BinanceBot.Strategy
                 {
                     sOutput = StrategyDecision.ExitPositionWithSell;
 
-                    ValidateExitPosition(strategyData, StrategyDecision.Sell, ref sOutput);
+                    ValidateExitPosition(roboInput, strategyData, StrategyDecision.Sell, ref sOutput);
                 }
                 if (position.PositionType == "SELL")
                 {
                     sOutput = StrategyDecision.ExitPositionWithBuy;
 
-                    ValidateExitPosition(strategyData, StrategyDecision.Buy, ref sOutput);
+                    ValidateExitPosition(roboInput, strategyData, StrategyDecision.Buy, ref sOutput);
                 }
             }
 
@@ -670,13 +663,13 @@ namespace BinanceBot.Strategy
                 {
                     sOutput = StrategyDecision.BookProfitWithSell;
 
-                    ValidateBookProfit(strategyData, StrategyDecision.Sell, ref sOutput);
+                    ValidateBookProfit(roboInput, strategyData, StrategyDecision.Sell, ref sOutput);
                 }
                 if (position.PositionType == "SELL")
                 {
                     sOutput = StrategyDecision.BookProfitWithBuy;
 
-                    ValidateBookProfit(strategyData, StrategyDecision.Buy, ref sOutput);
+                    ValidateBookProfit(roboInput, strategyData, StrategyDecision.Buy, ref sOutput);
                 }
             }
 
@@ -687,13 +680,13 @@ namespace BinanceBot.Strategy
                     sOutput = StrategyDecision.EscapeTrapWithSell;
 
                     //validators
-                    ValidateEscapeTrap(strategyData, StrategyDecision.Sell, ref sOutput);
+                    ValidateEscapeTrap(roboInput, strategyData, StrategyDecision.Sell, ref sOutput);
                 }
                 if (position.PositionType == "SELL")
                 {
                     sOutput = StrategyDecision.EscapeTrapWithBuy;
 
-                    ValidateEscapeTrap(strategyData, StrategyDecision.Buy, ref sOutput);
+                    ValidateEscapeTrap(roboInput, strategyData, StrategyDecision.Buy, ref sOutput);
                 }
             }
 
