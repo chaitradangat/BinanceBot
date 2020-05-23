@@ -21,14 +21,16 @@ namespace BinanceBot.Validator
             ValidationRules.RemoveAll(x => string.IsNullOrWhiteSpace(x));
         }
 
-        //functions must be factorised further to provide avoid enumeration values directly
-
-
         /// <summary>
         /// Validate for consecutive dropping or rising kandles
         /// </summary>
         public bool KandlesAreConsistent(StrategyData strategyData, StrategyDecision decision, int lookback, [CallerMemberName]string CallingDecision = "")
         {
+            if (!ValidationRequired(CallingDecision))
+            {
+                return true;
+            }
+
             if (decision != StrategyDecision.Buy && decision != StrategyDecision.Sell)
             {
                 //invalid value for decision
@@ -60,6 +62,11 @@ namespace BinanceBot.Validator
         /// <returns></returns>
         public bool IsSignalGapValid(StrategyData strategyData, int RequiredSignalGap, [CallerMemberName]string CallingDecision = "")
         {
+            if (!ValidationRequired(CallingDecision))
+            {
+                return true;
+            }
+
             var lastSignalGap = Convert.ToInt32(strategyData.histdata.Split(' ').Last().Replace("B", "").Replace("S", ""));
 
             return strategyData.SignalGap1 > RequiredSignalGap || lastSignalGap >= RequiredSignalGap;
@@ -73,6 +80,11 @@ namespace BinanceBot.Validator
         /// <returns></returns>
         public bool IsTradeValidOnBollinger(StrategyData strategyData, StrategyDecision decision, decimal BollingerFactor, decimal Reward, [CallerMemberName]string CallingDecision = "")
         {
+            if (!ValidationRequired(CallingDecision))
+            {
+                return true;
+            }
+
             if (decision != StrategyDecision.Buy || decision != StrategyDecision.Sell)
             {
                 //invalid decision input
@@ -143,6 +155,11 @@ namespace BinanceBot.Validator
         /// <returns></returns>
         public bool IsTradeOnRightKandle(StrategyData strategyData, StrategyDecision decision, StrategyDecision positiondecision, [CallerMemberName]string CallingDecision = "")
         {
+            if (!ValidationRequired(CallingDecision))
+            {
+                return true;
+            }
+
             if (decision != StrategyDecision.Buy && decision != StrategyDecision.Sell && positiondecision != StrategyDecision.Open && positiondecision != StrategyDecision.Exit)
             {
                 return false;
@@ -191,7 +208,7 @@ namespace BinanceBot.Validator
         /// <param name="CallingDecision"></param>
         /// <param name="TradeDecision"></param>
         /// <returns></returns>
-        private bool IsValidationRequired(string CallingDecision, [CallerMemberName]string TradeDecision = "")
+        private bool ValidationRequired(string CallingDecision, [CallerMemberName]string TradeDecision = "")
         {
             if (ValidationRules.Contains(string.Format("{0}.{1}", CallingDecision, TradeDecision)))
             {

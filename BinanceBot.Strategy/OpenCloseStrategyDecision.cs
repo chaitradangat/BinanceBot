@@ -18,6 +18,9 @@ namespace BinanceBot.Strategy
         TradeValidator validator;
 
         #region -variables of strategy configuration-
+        //ruleset
+        private string ValidationRuleSet;
+
         //exit vars
         private bool ExitImmediate;//false
         private int ExitSignalStrength; //15
@@ -37,7 +40,6 @@ namespace BinanceBot.Strategy
         //validation vars
         private decimal BollingerFactor;//1.1
         private int RequiredSignalGap;//4
-
 
         #endregion
 
@@ -351,6 +353,10 @@ namespace BinanceBot.Strategy
             }
         }
 
+        #endregion
+
+        #region -Validator Methods-
+
         //validations for the decisions made 
         private void ValidateOpenPosition(RobotInput roboInput,StrategyData strategyData, StrategyDecision decision, ref StrategyDecision sOutput)
         {
@@ -503,8 +509,6 @@ namespace BinanceBot.Strategy
             }
         }
 
-
-
         #endregion
 
         #region -Utility Functions-
@@ -545,12 +549,13 @@ namespace BinanceBot.Strategy
 
             prevOutput = StrategyDecision.None;
 
+            //ruleset
+            ValidationRuleSet = OpenCloseStrategySettings.settings.ValidationRuleSet;
 
             //set strategy variables
             ExitSignalStrength = OpenCloseStrategySettings.settings.ExitSignalStrength;
 
             ExitImmediate = OpenCloseStrategySettings.settings.ExitImmediate;
-
 
             //set escape strategy variables
             EscapeTraps = OpenCloseStrategySettings.settings.EscapeTraps;
@@ -575,7 +580,7 @@ namespace BinanceBot.Strategy
 
             RequiredSignalGap = OpenCloseStrategySettings.settings.SignalGap;
 
-            validator = new TradeValidator();
+            validator = new TradeValidator(ValidationRuleSet);
         }
 
         //method to take decision
