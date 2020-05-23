@@ -186,7 +186,8 @@ namespace BinanceBot.Settings
         {
             get
             {
-                return Convert.ToString(this["ValidationRuleSet"]);
+                //sanitize the input ruleset for garbage charachters
+                return Convert.ToString(this["ValidationRuleSet"]).Replace(" ", "").Replace("\t", "").Replace("\r\n", "");
             }
             set
             {
