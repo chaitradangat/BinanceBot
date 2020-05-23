@@ -181,5 +181,18 @@ namespace BinanceBot.Settings
                 this["SignalGap"] = value;
             }
         }
+        [ConfigurationProperty("ValidationList", IsRequired = true)]
+        public string ValidationList
+        {
+            get
+            {
+                return Convert.ToString(this["ValidationList"]);
+            }
+            set
+            {
+                this["ValidationList"] = value;
+            }
+        }
+
     }
 }
