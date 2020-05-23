@@ -1,5 +1,7 @@
 ﻿using System;
+
 using System.Collections.Generic;
+
 using System.Text;
 
 namespace BinanceBot.Domain
@@ -13,18 +15,18 @@ namespace BinanceBot.Domain
         {
             this.profitFactor = (decimal)1;
 
-            this.Output = StrategyOutput.None;
+            this.Decision = StrategyDecision.None;
 
-            this.prevOutput = StrategyOutput.None;
+            this.prevOutput = StrategyDecision.None;
         }
 
         public StrategyData(decimal profitFactor)
         {
             this.profitFactor = profitFactor;
 
-            this.Output = StrategyOutput.None;
+            this.Decision = StrategyDecision.None;
 
-            this.prevOutput = StrategyOutput.None;
+            this.prevOutput = StrategyDecision.None;
         }
 
         //this is a copy of kandles which will be pristine or if read should not be modified in any part of kode
@@ -54,9 +56,9 @@ namespace BinanceBot.Domain
 
         public decimal profitFactor { get; set; }
 
-        public StrategyOutput prevOutput { get; set; }
+        public StrategyDecision prevOutput { get; set; }
 
-        public StrategyOutput Output { get; set; }
+        public StrategyDecision Decision { get; set; }
 
         public int LatestSignalStrength { get; set; }
 
@@ -74,6 +76,9 @@ namespace BinanceBot.Domain
         public bool BollTopCrossed { get; set; } 
 
         public bool BollBottomCrossed { get; set; }
+
+        public bool BollMiddleCrossed { get; set; }
+        //boll values end
 
         public int SignalGap0 { get; set; }
 

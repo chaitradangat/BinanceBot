@@ -2,12 +2,16 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Linq;
+using System.IO;
+
 
 using Binance.Net;
 using Binance.Net.Objects;
 using CryptoExchange.Net.Authentication;
 
 using BinanceBot.Domain;
+
+using BinanceBot.Settings;
 
 namespace BinanceBot.Application
 {
@@ -264,6 +268,91 @@ namespace BinanceBot.Application
             }
         }
         /// <summary>
+        /// Get all Positions for the given symbol 
+        /// </summary>
+        /// <param name="robotInput"></param>
+        /// <param name="strategyData"></param>
+        /// <param name="position"></param>
+        /// <param name="isLive"></param>
+        public void GetCurrentPosition(RobotInput robotInput, ref StrategyData strategyData, ref SimplePosition position, bool isLive)
+        {
+            if (!isLive)
+            {
+                return;
+            }
+        getpositions:
+
+            position = new SimplePosition
+            {
+                PositionID = -1,
+
+                PositionType = "",
+
+                EntryPrice = -1,
+
+                Quantity = robotInput.quantity,
+
+                Trend = "",
+
+                Mood = ""
+            };
+
+            var positions = client.GetPositions(default, true);
+
+            var currentPosition = positions.Data.Where(x => x.symbol == symbol && x.positionSide == "BOTH").Single();
+
+            if (currentPosition.entryPrice != 0)
+            {
+                if (currentPosition.entryPrice > currentPosition.markPrice && currentPosition.unRealizedProfit > 0)
+                {
+                    position.EntryPrice = currentPosition.entryPrice;
+                    position.PositionID = 999;
+                    position.PositionType = "SELL";
+                    position.Quantity = robotInput.quantity;
+                }
+                else if (currentPosition.entryPrice < currentPosition.markPrice && currentPosition.unRealizedProfit < 0)
+                {
+                    position.EntryPrice = currentPosition.entryPrice;
+                    position.PositionID = 999;
+                    position.PositionType = "SELL";
+                    position.Quantity = robotInput.quantity;
+                }
+                else if (currentPosition.entryPrice < currentPosition.markPrice && currentPosition.unRealizedProfit > 0)
+                {
+                    position.EntryPrice = currentPosition.entryPrice;
+                    position.PositionID = 999;
+                    position.PositionType = "BUY";
+                    position.Quantity = robotInput.quantity;
+                }
+                else if (currentPosition.entryPrice > currentPosition.markPrice && currentPosition.unRealizedProfit < 0)
+                {
+                    position.EntryPrice = currentPosition.entryPrice;
+                    position.PositionID = 999;
+                    position.PositionType = "BUY";
+                    position.Quantity = robotInput.quantity;
+                }
+                else
+                {
+                    Thread.Sleep(1000);
+                    goto getpositions;
+                }
+            }
+            else
+            {
+
+                strategyData.profitFactor = 1;
+
+                position.PositionID = -1;
+
+                position.PositionType = "";
+
+                position.EntryPrice = -1;
+
+                position.Quantity = robotInput.quantity;
+            }
+        }
+
+        /// <summary>
         /// Get Candle Data From the Servers
         /// </summary>
         /// <param name="timeframe"></param>
@@ -514,7 +603,7 @@ namespace BinanceBot.Application
 
             strategyData.PrevClose = ohlckandles[ohlckandles.Count - 2].Close;
 
-            strategyData.kandles = 
+            strategyData.kandles =
 
             ohlckandles.Select(x => new OHLCKandle
             {
@@ -638,5 +727,123 @@ namespace BinanceBot.Application
         }
         #endregion
 
+        //method to place orders
+        public void PlaceOrders(RobotInput robotInput, StrategyData strategyData, bool isLive)
+        {
+            if (!isLive || strategyData.Decision == StrategyDecision.None)
+            {
+                return;
+            }
+
+            BinancePlacedOrder placedOrder = null;
+
+            if (strategyData.Decision == StrategyDecision.OpenPositionWithBuy || strategyData.Decision == StrategyDecision.ExitPositionWithBuy ||
+                strategyData.Decision == StrategyDecision.BookProfitWithBuy || strategyData.Decision == StrategyDecision.MissedPositionBuy ||
+                strategyData.Decision == StrategyDecision.ExitPositionHeavyLossWithBuy)
+            {
+                placedOrder = PlaceBuyOrder(robotInput.quantity, -1, true);
+            }
+
+            else if (strategyData.Decision == StrategyDecision.OpenPositionWithSell || strategyData.Decision == StrategyDecision.ExitPositionWithSell ||
+                     strategyData.Decision == StrategyDecision.BookProfitWithSell || strategyData.Decision == StrategyDecision.MissedPositionSell ||
+                     strategyData.Decision == StrategyDecision.ExitPositionHeavyLossWithSell)
+            {
+                placedOrder = PlaceSellOrder(robotInput.quantity, -1, true);
+            }
+
+            else if (strategyData.Decision == StrategyDecision.EscapeTrapWithBuy)
+            {
+                if (BinanceBotSettings.settings.ReOpenOnEscape)
+                {
+                    placedOrder = PlaceBuyOrder(robotInput.quantity * 2, -1, true);
+                }
+                else
+                {
+                    placedOrder = PlaceBuyOrder(robotInput.quantity, -1, true);
+                }
+            }
+
+            else if (strategyData.Decision == StrategyDecision.EscapeTrapWithSell)
+            {
+                if (BinanceBotSettings.settings.ReOpenOnEscape)
+                {
+                    placedOrder = PlaceSellOrder(robotInput.quantity * 2, -1, true);
+                }
+                else
+                {
+                    placedOrder = PlaceSellOrder(robotInput.quantity, -1, true);
+                }
+            }
+            else
+            {
+                //no action
+            }
+
+            if (placedOrder != null
+                || strategyData.Decision == StrategyDecision.AvoidOpenWithSell || strategyData.Decision == StrategyDecision.AvoidOpenWithBuy
+                || strategyData.Decision == StrategyDecision.AvoidLowSignalGapBuy || strategyData.Decision == StrategyDecision.AvoidLowSignalGapSell
+                || strategyData.Decision == StrategyDecision.AvoidOpenWithBuyOnRedKandle || strategyData.Decision == StrategyDecision.AvoidOpenWithSellOnGreenKandle
+                || strategyData.Decision == StrategyDecision.AvoidEscapeWithSell || strategyData.Decision == StrategyDecision.AvoidEscapeWithBuy
+                || strategyData.Decision == StrategyDecision.AvoidInvalidBollingerOpenBuy || strategyData.Decision == StrategyDecision.AvoidInvalidBollingerOpenSell
+                )
+            {
+                DumpToLog(robotInput, strategyData);
+            }
+
+        }
+
+        private void DumpToLog(RobotInput robotInput, StrategyData strategyData)
+        {
+            var bu_percentage = Math.Round((100 * (strategyData.BollingerUpper - strategyData.currentClose) / strategyData.BollingerUpper), 3);
+
+            var bm_percentage = Math.Round((100 * (strategyData.BollingerMiddle - strategyData.currentClose) / strategyData.BollingerMiddle), 3);
+
+            var bd_percentage = Math.Round((100 * (strategyData.currentClose - strategyData.BollingerLower) / strategyData.currentClose), 3);
+
+            string timeutc530 = DateTime.Now.ToUniversalTime().AddMinutes(330).ToString();
+
+            decimal percentage;
+
+            if (strategyData.Decision.ToString().ToLower().Contains("buy"))
+            {
+                percentage = Math.Round(strategyData.shortPercentage, 3);
+            }
+            else if (strategyData.Decision.ToString().ToLower().Contains("sell"))
+            {
+                percentage = Math.Round(strategyData.longPercentage, 3);
+            }
+            else
+            {
+                percentage = 0;
+            }
+
+            //code commented to avoid scope creep and log all events even if log file overflows!
+            /*
+            if (strategyData.Decision == StrategyDecision.AvoidOpenWithBuy)//to log only close encounters
+            {
+                if (bu_percentage < robotInput.reward * 0.90m || strategyData.BollTopCrossed)
+                {
+                    return;
+                }
+            }
+            if (strategyData.Decision == StrategyDecision.AvoidOpenWithSell)//to log only close encounters
+            {
+                if (bd_percentage < robotInput.reward * 0.90m || strategyData.BollBottomCrossed)
+                {
+                    return;
+                }
+            }
+            */
+
+            string debuginfo = string.Format("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}\t{7}\t{8}\t{9}",
+
+            timeutc530, strategyData.Decision.ToString(), strategyData.currentClose, percentage, strategyData.histdata,
+
+            bu_percentage, bm_percentage, bd_percentage, strategyData.SignalGap0, strategyData.SignalGap1);
+
+            File.AppendAllLines("debug.logs", new[] { debuginfo });
+
+            File.AppendAllLines("Logs\\debug.txt", new[] { debuginfo });
+        }
     }
 }

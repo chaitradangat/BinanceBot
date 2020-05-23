@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
@@ -6,9 +6,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\BinanceBot.Domain\BinanceBot.Domain.csproj" />
-    <ProjectReference Include="..\BinanceBot.Indicator\BinanceBot.Indicator.csproj" />
     <ProjectReference Include="..\BinanceBot.Settings\BinanceBot.Settings.csproj" />
-    <ProjectReference Include="..\BinanceBot.Validator\BinanceBot.Validator.csproj" />
     <ProjectReference Include="..\PineScriptPort\PineScriptPort.csproj" />
   </ItemGroup>
 

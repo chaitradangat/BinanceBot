@@ -1,7 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 using BinanceBot.Domain;
 
 using BinanceBot.Settings;
@@ -19,6 +19,7 @@ namespace BinanceBot.Validator
 
         private decimal BollingerFactor;
 
+        private HashSet<string> ValidationList;
         public TradeValidator()
         {
             RequiredSignalGap = OpenCloseStrategySettings.settings.SignalGap;
@@ -34,9 +35,9 @@ namespace BinanceBot.Validator
         /// <summary>
         /// Validate for consecutive dropping or rising kandles
         /// </summary>
-        public bool KandlesAreConsistent(StrategyData strategyData, StrategyOutput decision, int lookback)
+        public bool KandlesAreConsistent(StrategyData strategyData, StrategyDecision decision, int lookback, [CallerMemberName]string CallingDecision = "")
         {
-            if (decision != StrategyOutput.Buy && decision != StrategyOutput.Sell)
+            if (decision != StrategyDecision.Buy && decision != StrategyDecision.Sell)
             {
                 //invalid value for decision
                 return false;
@@ -46,12 +47,12 @@ namespace BinanceBot.Validator
 
             for (int i = 0; i < kandleslice.Count() - 1; i++)
             {
-                if (kandleslice.ElementAt(i).Open > kandleslice.ElementAt(i + 1).Open && decision == StrategyOutput.Buy)
+                if (kandleslice.ElementAt(i).Open > kandleslice.ElementAt(i + 1).Open && decision == StrategyDecision.Buy)
                 {
                     return false;
                 }
 
-                if (kandleslice.ElementAt(i).Open < kandleslice.ElementAt(i + 1).Open && decision == StrategyOutput.Sell)
+                if (kandleslice.ElementAt(i).Open < kandleslice.ElementAt(i + 1).Open && decision == StrategyDecision.Sell)
                 {
                     return false;
                 }
@@ -65,9 +66,11 @@ namespace BinanceBot.Validator
         /// </summary>
         /// <param name="strategyData"></param>
         /// <returns></returns>
-        public bool IsSignalGapValid(StrategyData strategyData)
+        public bool IsSignalGapValid(StrategyData strategyData, [CallerMemberName]string CallingDecision = "")
         {
-            return strategyData.SignalGap1 > RequiredSignalGap;
+            var lastSignalGap = Convert.ToInt32(strategyData.histdata.Split(' ').Last().Replace("B", "").Replace("S", ""));
+
+            return strategyData.SignalGap1 > RequiredSignalGap || lastSignalGap >= RequiredSignalGap;
         }
 
         /// <summary>
@@ -76,9 +79,9 @@ namespace BinanceBot.Validator
         /// <param name="strategyData"></param>
         /// <param name="decision"></param>
         /// <returns></returns>
-        public bool IsTradeValidOnBollinger(StrategyData strategyData, StrategyOutput decision)
+        public bool IsTradeValidOnBollinger(StrategyData strategyData, StrategyDecision decision, [CallerMemberName]string CallingDecision = "")
         {
-            if (decision != StrategyOutput.Buy || decision != StrategyOutput.Sell)
+            if (decision != StrategyDecision.Buy || decision != StrategyDecision.Sell)
             {
                 //invalid decision input
                 return false;
@@ -93,7 +96,7 @@ namespace BinanceBot.Validator
             //calculate deviation of price from middle bollinger band
             var deviationFromMiddle = (Math.Abs(strategyData.currentClose - strategyData.BollingerMiddle) / strategyData.BollingerMiddle) * 100;
 
-            if (decision == StrategyOutput.Buy)
+            if (decision == StrategyDecision.Buy)
             {
                 //top crossed recently so chances of loss higher with buy
                 if (strategyData.BollTopCrossed)
@@ -115,7 +118,7 @@ namespace BinanceBot.Validator
                 return false;
             }
 
-            if (decision == StrategyOutput.Sell)
+            if (decision == StrategyDecision.Sell)
             {
                 //bottom crossed recently so chances of loss higer with sell
                 if (strategyData.BollBottomCrossed)
@@ -146,14 +149,14 @@ namespace BinanceBot.Validator
         /// <param name="strategyData"></param>
         /// <param name="decision"></param>
         /// <returns></returns>
-        public bool IsTradeOnRightKandle(StrategyData strategyData, StrategyOutput decision, StrategyOutput positiondecision)
+        public bool IsTradeOnRightKandle(StrategyData strategyData, StrategyDecision decision, StrategyDecision positiondecision, [CallerMemberName]string CallingDecision = "")
         {
-            if (decision != StrategyOutput.Buy && decision != StrategyOutput.Sell && positiondecision != StrategyOutput.Open && positiondecision != StrategyOutput.Exit)
+            if (decision != StrategyDecision.Buy && decision != StrategyDecision.Sell && positiondecision != StrategyDecision.Open && positiondecision != StrategyDecision.Exit)
             {
                 return false;
             }
 
-            if (decision == StrategyOutput.Buy && positiondecision == StrategyOutput.Open)
+            if (decision == StrategyDecision.Buy && positiondecision == StrategyDecision.Open)
             {
                 //buy on green
                 if (strategyData.currentClose > strategyData.currentOpen && strategyData.currentClose > strategyData.PrevOpen)
@@ -162,7 +165,7 @@ namespace BinanceBot.Validator
                 }
             }
 
-            if (decision == StrategyOutput.Sell && positiondecision == StrategyOutput.Open)
+            if (decision == StrategyDecision.Sell && positiondecision == StrategyDecision.Open)
             {
                 //sell on red
                 if (strategyData.currentClose < strategyData.currentOpen && strategyData.currentClose < strategyData.PrevOpen)
@@ -171,7 +174,7 @@ namespace BinanceBot.Validator
                 }
             }
 
-            if (decision == StrategyOutput.Buy && positiondecision == StrategyOutput.Exit)
+            if (decision == StrategyDecision.Buy && positiondecision == StrategyDecision.Exit)
             {
                 if (strategyData.currentClose > strategyData.currentOpen)
                 {
@@ -179,7 +182,7 @@ namespace BinanceBot.Validator
                 }
             }
 
-            if (decision == StrategyOutput.Sell && positiondecision == StrategyOutput.Exit)
+            if (decision == StrategyDecision.Sell && positiondecision == StrategyDecision.Exit)
             {
                 if (strategyData.currentClose < strategyData.currentOpen)
                 {
@@ -190,6 +193,23 @@ namespace BinanceBot.Validator
             return false;
         }
 
-        
+        /// <summary>
+        /// Checks if validation is required for "StrategyDecision.TradeDecision"
+        /// </summary>
+        /// <param name="CallingDecision"></param>
+        /// <param name="TradeDecision"></param>
+        /// <returns></returns>
+        private bool IsValidationRequired(string CallingDecision, [CallerMemberName]string TradeDecision = "")
+        {
+            if (ValidationList.Contains(string.Format("{0}.{1}", CallingDecision, TradeDecision)))
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
     }
 }

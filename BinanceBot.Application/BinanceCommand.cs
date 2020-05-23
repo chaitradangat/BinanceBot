@@ -19,9 +19,9 @@ namespace BinanceBot.Application
 {
     public class BinanceCommand
     {
-        private BinanceWebCall webCall;
+        private readonly BinanceWebCall webCall;
 
-        private int pingtime;
+        private readonly int pingtime;
 
         public BinanceCommand(string ApiKey, string ApiSecret)
         {
@@ -51,6 +51,10 @@ namespace BinanceBot.Application
                 {
                     try
                     {
+                        Stopwatch sw = new Stopwatch();
+
+                        sw.Start();
+
                         #region -variables refreshed every cycle-
                         var currentPosition = new SimplePosition(robotInput.quantity);
 
@@ -58,29 +62,24 @@ namespace BinanceBot.Application
 
                         List<OHLCKandle> ohlckandles = new List<OHLCKandle>();
 
-                        Stopwatch sw = new Stopwatch();
-
-                        sw.Start();
-
                         Thread.Sleep(pingtime);
                         #endregion
 
-                        if (isLive)
-                        {
-                            webCall.GetCurrentPosition(ref currentPosition, robotInput.quantity, ref strategyData);
-                        }
+                        //get open positions from server
+                        webCall.GetCurrentPosition(robotInput, ref strategyData, ref currentPosition, isLive);
 
+                        //get kandles from server
                         webCall.GetKLinesDataCached(robotInput.timeframe, robotInput.candleCount, ref strategyData, ref ohlckandles);
 
-                        openclosestrategy.RunStrategy(ohlckandles, robotInput, ref strategyData, ref currentPosition);
+                        //run strategy over the kandles
+                        openclosestrategy.RunStrategy(ohlckandles, robotInput, currentPosition, ref strategyData);
 
-                        if (isLive && strategyData.Output != StrategyOutput.None)
-                        {
-                            PlaceOrders(robotInput, strategyData);
-                        }
+                        //place orders based on strategy output
+                        webCall.PlaceOrders(robotInput, strategyData, isLive);
 
                         sw.Stop();
 
+                        //display data to UI
                         DumpToConsole(strategyData, currentPosition, robotInput, sw.ElapsedMilliseconds);
                     }
                     catch (Exception ex)
@@ -96,64 +95,6 @@ namespace BinanceBot.Application
                     }
                 }
             }
-        }
-
-        public void PlaceOrders(RobotInput robotInput, StrategyData strategyData)
-        {
-            BinancePlacedOrder placedOrder = null;
-
-            if (strategyData.Output == StrategyOutput.OpenPositionWithBuy || strategyData.Output == StrategyOutput.ExitPositionWithBuy ||
-                strategyData.Output == StrategyOutput.BookProfitWithBuy || strategyData.Output == StrategyOutput.MissedPositionBuy ||
-                strategyData.Output == StrategyOutput.ExitPositionHeavyLossWithBuy)
-            {
-                placedOrder = webCall.PlaceBuyOrder(robotInput.quantity, -1, true);
-            }
-
-            else if (strategyData.Output == StrategyOutput.OpenPositionWithSell || strategyData.Output == StrategyOutput.ExitPositionWithSell ||
-                     strategyData.Output == StrategyOutput.BookProfitWithSell || strategyData.Output == StrategyOutput.MissedPositionSell ||
-                     strategyData.Output == StrategyOutput.ExitPositionHeavyLossWithSell)
-            {
-                placedOrder = webCall.PlaceSellOrder(robotInput.quantity, -1, true);
-            }
-
-            else if (strategyData.Output == StrategyOutput.EscapeTrapWithBuy)
-            {
-                if (BinanceBotSettings.settings.ReOpenOnEscape)
-                {
-                    placedOrder = webCall.PlaceBuyOrder(robotInput.quantity * 2, -1, true);
-                }
-                else
-                {
-                    placedOrder = webCall.PlaceBuyOrder(robotInput.quantity, -1, true);
-                }
-            }
-
-            else if (strategyData.Output == StrategyOutput.EscapeTrapWithSell)
-            {
-                if (BinanceBotSettings.settings.ReOpenOnEscape)
-                {
-                    placedOrder = webCall.PlaceSellOrder(robotInput.quantity * 2, -1, true);
-                }
-                else
-                {
-                    placedOrder = webCall.PlaceSellOrder(robotInput.quantity, -1, true);
-                }
-            }
-            else
-            {
-                //no action
-            }
-
-            if (placedOrder != null 
-                || strategyData.Output == StrategyOutput.AvoidOpenWithSell || strategyData.Output == StrategyOutput.AvoidOpenWithBuy 
-                || strategyData.Output == StrategyOutput.AvoidLowSignalGapBuy || strategyData.Output == StrategyOutput.AvoidLowSignalGapSell
-                || strategyData.Output == StrategyOutput.AvoidOpenWithBuyOnRedKandle || strategyData.Output == StrategyOutput.AvoidOpenWithSellOnGreenKandle
-                || strategyData.Output == StrategyOutput.AvoidEscapeWithSell || strategyData.Output == StrategyOutput.AvoidEscapeWithBuy
-                )
-            {
-                DumpToLog(robotInput, strategyData);
-            }
-
         }
 
         private void DumpToConsole(StrategyData strategyData, SimplePosition order, RobotInput robotInput, long cycleTime)
@@ -250,57 +191,5 @@ namespace BinanceBot.Application
 
             Console.WriteLine("Refresh Rate {0} milliseconds\n", cycleTime);
         }
-
-        private void DumpToLog(RobotInput robotInput, StrategyData strategyData)
-        {
-            var bu_percentage = Math.Round((100 * (strategyData.BollingerUpper - strategyData.currentClose) / strategyData.BollingerUpper), 3);
-
-            var bm_percentage = Math.Round((100 * (strategyData.BollingerMiddle - strategyData.currentClose) / strategyData.BollingerMiddle), 3);
-
-            var bd_percentage = Math.Round((100 * (strategyData.currentClose - strategyData.BollingerLower) / strategyData.currentClose), 3);
-
-            string timeutc530 = DateTime.Now.ToUniversalTime().AddMinutes(330).ToString();
-
-            decimal percentage;
-
-            if (strategyData.Output.ToString().ToLower().Contains("buy"))
-            {
-                percentage = Math.Round(strategyData.shortPercentage, 3);
-            }
-            else if (strategyData.Output.ToString().ToLower().Contains("sell"))
-            {
-                percentage = Math.Round(strategyData.longPercentage, 3);
-            }
-            else
-            {
-                percentage = 0;
-            }
-
-            if (strategyData.Output == StrategyOutput.AvoidOpenWithBuy)//to log only close encounters
-            {
-                if (bu_percentage < robotInput.reward * 0.90m || strategyData.BollTopCrossed)
-                {
-                    return;
-                }
-            }
-            if (strategyData.Output == StrategyOutput.AvoidOpenWithSell)//to log only close encounters
-            {
-                if (bd_percentage < robotInput.reward * 0.90m || strategyData.BollBottomCrossed)
-                {
-                    return;
-                }
-            }
-
-            string debuginfo = string.Format("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}\t{7}\t{8}\t{9}",
-
-            timeutc530, strategyData.Output.ToString(), strategyData.currentClose, percentage, strategyData.histdata,
-
-            bu_percentage, bm_percentage, bd_percentage, strategyData.SignalGap0, strategyData.SignalGap1);
-
-            File.AppendAllLines("debug.logs", new[] { debuginfo });
-
-            File.AppendAllLines("Logs\\debug.txt", new[] { debuginfo });
-        }
-
     }
 }
