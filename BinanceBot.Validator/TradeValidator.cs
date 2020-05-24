@@ -194,6 +194,40 @@ namespace BinanceBot.Validator
             return false;
         }
 
+        public bool IsTradeMatchTrend(StrategyData strategyData,StrategyDecision decision, [CallerMemberName]string CallingDecision = "")
+        {
+            if (!ValidationRequired(CallingDecision))
+            {
+                return true;
+            }
+
+            if (decision != StrategyDecision.Buy && decision != StrategyDecision.Sell)
+            {
+                //invalid decision input
+                return false;
+            }
+
+            if (decision == StrategyDecision.Buy)
+            {
+                if (strategyData.trend != "BULLISH" && strategyData.mood != "BULLISH")
+                {
+                    return false;
+                }
+            }
+
+            if (decision == StrategyDecision.Sell)
+            {
+                if (strategyData.trend != "BEARISH" && strategyData.mood != "BEARISH")
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+
+
         /// <summary>
         /// Checks if validation is required for "StrategyDecision.TradeDecision"
         /// </summary>
