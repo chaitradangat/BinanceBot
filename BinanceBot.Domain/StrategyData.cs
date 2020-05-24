@@ -29,6 +29,8 @@ namespace BinanceBot.Domain
             this.Decision = StrategyDecision.None;
 
             this.prevOutput = StrategyDecision.None;
+
+            this.AvoidReasons = new HashSet<StrategyDecision>();
         }
 
         //this is a copy of kandles which will be pristine or if read should not be modified in any part of kode

@@ -798,6 +798,8 @@ namespace BinanceBot.Application
 
             decimal percentage;
 
+            var avoidReasons = "";
+
             if (strategyData.Decision.ToString().ToLower().Contains("buy"))
             {
                 percentage = Math.Round(strategyData.shortPercentage, 3);
@@ -811,13 +813,23 @@ namespace BinanceBot.Application
                 percentage = 0;
             }
 
-            string debuginfo = string.Format("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}\t{7}\t{8}\t{9}",
+            if (strategyData.AvoidReasons != null && strategyData.AvoidReasons.Count > 0)
+            {
+                foreach (var AvoidReason in strategyData.AvoidReasons)
+                {
+                    avoidReasons += AvoidReason.ToString() + "\t";
+                }
+            }
+
+            strategyData.AvoidReasons.Clear();//this is un-necessary please verify later
+
+            string debuginfo = string.Format("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}\t{7}\t{8}\t{9}\t{10}",
 
             timeutc530, strategyData.Decision.ToString(), strategyData.currentClose, percentage, strategyData.histdata,
 
-            strategyData.BollingerUpperPercentage, strategyData.BollingerMiddlePercentage, strategyData.BollingerLowerPercentage, 
-            
-            strategyData.SignalGap0, strategyData.SignalGap1);
+            strategyData.BollingerUpperPercentage, strategyData.BollingerMiddlePercentage, strategyData.BollingerLowerPercentage,
+
+            strategyData.SignalGap0, strategyData.SignalGap1, avoidReasons);
 
             File.AppendAllLines("debug.logs", new[] { debuginfo });
 
