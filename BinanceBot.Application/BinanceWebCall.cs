@@ -779,17 +779,16 @@ namespace BinanceBot.Application
                 //no action
             }
 
-            if (placedOrder != null
-                || strategyData.Decision == StrategyDecision.AvoidOpenWithSell || strategyData.Decision == StrategyDecision.AvoidOpenWithBuy
-                || strategyData.Decision == StrategyDecision.AvoidLowSignalGapBuy || strategyData.Decision == StrategyDecision.AvoidLowSignalGapSell
-                || strategyData.Decision == StrategyDecision.AvoidOpenWithBuyOnRedKandle || strategyData.Decision == StrategyDecision.AvoidOpenWithSellOnGreenKandle
-                || strategyData.Decision == StrategyDecision.AvoidEscapeWithSell || strategyData.Decision == StrategyDecision.AvoidEscapeWithBuy
-                || strategyData.Decision == StrategyDecision.AvoidInvalidBollingerOpenBuy || strategyData.Decision == StrategyDecision.AvoidInvalidBollingerOpenSell
-                )
+            if (placedOrder != null || strategyData.Decision.ToString().ToLower().Contains("avoid"))
+            /*|| strategyData.Decision == StrategyDecision.AvoidOpenWithSell || strategyData.Decision == StrategyDecision.AvoidOpenWithBuy
+            || strategyData.Decision == StrategyDecision.AvoidLowSignalGapBuy || strategyData.Decision == StrategyDecision.AvoidLowSignalGapSell
+            || strategyData.Decision == StrategyDecision.AvoidOpenWithBuyOnRedKandle || strategyData.Decision == StrategyDecision.AvoidOpenWithSellOnGreenKandle
+            || strategyData.Decision == StrategyDecision.AvoidEscapeWithSell || strategyData.Decision == StrategyDecision.AvoidEscapeWithBuy
+            || strategyData.Decision == StrategyDecision.AvoidInvalidBollingerOpenBuy || strategyData.Decision == StrategyDecision.AvoidInvalidBollingerOpenSell
+            || strategyData.Decision == StrategyDecision.AvoidEscapeBuyOppositeTrend || strategyData.Decision == StrategyDecision.AvoidEscapeSellOppositeTrend */
             {
                 DumpToLog(robotInput, strategyData);
             }
-
         }
 
         private void DumpToLog(RobotInput robotInput, StrategyData strategyData)
