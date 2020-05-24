@@ -91,15 +91,6 @@ namespace BinanceBot.Validator
                 return false;
             }
 
-            //calculate percetage scope for buy with respect to upper bollinger Band
-            var buyPercentageScope = ((strategyData.BollingerUpper - strategyData.currentClose) / strategyData.BollingerUpper) * 100;
-
-            //calculate percetage scope for buy with respect to upper bollinger Band
-            var sellPercentageScope = ((strategyData.currentClose - strategyData.BollingerLower) / strategyData.currentClose) * 100;
-
-            //calculate deviation of price from middle bollinger band
-            var deviationFromMiddle = (Math.Abs(strategyData.currentClose - strategyData.BollingerMiddle) / strategyData.BollingerMiddle) * 100;
-
             if (decision == StrategyDecision.Buy)
             {
                 //top crossed recently so chances of loss higher with buy
@@ -108,13 +99,13 @@ namespace BinanceBot.Validator
                     return false;
                 }
 
-                //no buy trades from below the middle bollinger by 0.10%
-                if (strategyData.BollingerMiddle > strategyData.currentClose && deviationFromMiddle > 0.10m)
+                //no buy trades from below the middle bollinger by 0.10% #this is a reversal zone
+                if (strategyData.BollingerMiddle > strategyData.currentClose && Math.Abs(strategyData.BollingerMiddlePercentage) <= 0.10m)
                 {
                     return false;
                 }
 
-                if (buyPercentageScope >= (Reward * BollingerFactor))
+                if (strategyData.BollingerUpperPercentage >= (Reward * BollingerFactor))
                 {
                     return true;
                 }
@@ -130,12 +121,13 @@ namespace BinanceBot.Validator
                     return false;
                 }
 
-                if (strategyData.BollingerMiddle < strategyData.currentClose && deviationFromMiddle > 0.10m)
+                //no sell trades from above the middle bollinger by 0.10% #this is a reversal zone
+                if (strategyData.BollingerMiddle < strategyData.currentClose && Math.Abs(strategyData.BollingerMiddlePercentage) <= 0.10m)
                 {
                     return false;
                 }
 
-                if (sellPercentageScope >= (Reward * BollingerFactor))
+                if (strategyData.BollingerLowerPercentage >= (Reward * BollingerFactor))
                 {
                     return true;
                 }
