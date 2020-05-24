@@ -85,7 +85,7 @@ namespace BinanceBot.Validator
                 return true;
             }
 
-            if (decision != StrategyDecision.Buy || decision != StrategyDecision.Sell)
+            if (decision != StrategyDecision.Buy && decision != StrategyDecision.Sell)
             {
                 //invalid decision input
                 return false;
