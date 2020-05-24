@@ -73,6 +73,12 @@ namespace BinanceBot.Domain
 
         public decimal BollingerLower { get; set; }
 
+        public decimal BollingerUpperPercentage { get; set; }
+
+        public decimal BollingerMiddlePercentage { get; set; }
+
+        public decimal BollingerLowerPercentage { get; set; }
+
         public bool BollTopCrossed { get; set; } 
 
         public bool BollBottomCrossed { get; set; }
