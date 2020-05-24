@@ -12,8 +12,4 @@
     <ProjectReference Include="..\PineScriptPort\PineScriptPort.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="StrategiesTxt\" />
-  </ItemGroup>
-
 </Project>
