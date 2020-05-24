@@ -23,6 +23,8 @@ namespace BinanceBot.Application
 
         private readonly int pingtime;
 
+        private decimal BollingerFactor;
+
         public BinanceCommand(string ApiKey, string ApiSecret)
         {
             webCall = new BinanceWebCall();
@@ -30,6 +32,8 @@ namespace BinanceBot.Application
             webCall.AddAuthenticationInformation(ApiKey, ApiSecret);
 
             pingtime = BinanceBotSettings.settings.PingTimer;
+
+            BollingerFactor = OpenCloseStrategySettings.settings.BollingerFactor;
         }
 
         public void StartRoBot(RobotInput robotInput, bool isLive)
@@ -108,13 +112,14 @@ namespace BinanceBot.Application
             //latest price
             Console.WriteLine("{0} : {1} \n", robotInput.symbol, strategyData.currentClose);
 
-            Console.WriteLine("BBAND   : {0}%   {1}%   {2}%   {3}{4}{5}\n", 
-                strategyData.BollingerUpperPercentage, 
-                strategyData.BollingerMiddlePercentage, 
-                strategyData.BollingerLowerPercentage, 
-                strategyData.BollTopCrossed ? "*TOPCROSSED*" : "", 
-                strategyData.BollBottomCrossed ? "*BOTTOMCROSSED*" : "", 
-                strategyData.BollMiddleCrossed ? "*MIDDLECROSSED*" : "");
+            Console.WriteLine("BBAND   : {0}%   {1}%   {2}%  {3}{4}{5}\n",
+                strategyData.BollingerUpperPercentage,
+                strategyData.BollingerMiddlePercentage,
+                strategyData.BollingerLowerPercentage,
+                strategyData.BollTopCrossed ? "*TOPCROSSED*" : "",
+                strategyData.BollBottomCrossed ? "*BOTTOMCROSSED*" : "",
+                strategyData.BollMiddleCrossed ? "*MIDDLECROSSED*" : ""
+                );
 
             //mood
             if (strategyData.mood == "BULLISH")
@@ -179,13 +184,15 @@ namespace BinanceBot.Application
                 Console.WriteLine("PERCENTAGE {0} \n", Math.Round(strategyData.longPercentage, 3));
             }
 
-            Console.WriteLine("ADJUSTED PROFIT LIMIT {0}% \n", robotInput.reward * strategyData.profitFactor);
 
-            Console.WriteLine("CURRENT PROFIT LIMIT {0}% \n", robotInput.reward);
 
-            Console.WriteLine("CURRENT LOSS LIMIT {0}% \n", robotInput.risk);
+            Console.WriteLine("LIMITS > ADJPROFIT *{0}%*  PROFIT *{1}%*  LOSS *{2}%* BOLL *{3}%*\n", 
+            robotInput.reward * strategyData.profitFactor,
+            robotInput.reward,
+            robotInput.risk,
+            Math.Round(robotInput.reward * BollingerFactor, 3));
 
-            Console.WriteLine("CURRENT LEVERAGE {0}x\n", robotInput.leverage);
+            Console.WriteLine("LEVERAGE {0}x\n", robotInput.leverage);
 
             Console.WriteLine("--------------------------------------------------------------------------\n");
 
