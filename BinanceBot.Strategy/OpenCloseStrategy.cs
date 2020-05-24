@@ -101,6 +101,12 @@ namespace BinanceBot.Strategy
 
             strategyData.BollingerLower = bBands.BollingerLower;
 
+            strategyData.BollingerUpperPercentage = bBands.BollingerUpperPercentage;
+
+            strategyData.BollingerMiddlePercentage = bBands.BollingerMiddlePercentage;
+
+            strategyData.BollingerLowerPercentage = bBands.BollingerLowerPercentage;
+
             strategyData.BollTopCrossed = bBands.BollTopCrossed;
 
             strategyData.BollBottomCrossed = bBands.BollBottomCrossed;
