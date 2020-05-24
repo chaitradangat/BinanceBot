@@ -365,17 +365,17 @@ namespace BinanceBot.Strategy
                 //validators
                 if (!validator.IsTradeOnRightKandle(strategyData, StrategyDecision.Buy, StrategyDecision.Open))
                 {
-                    sOutput = StrategyDecision.AvoidOpenWithBuyOnRedKandle;
+                    sOutput = StrategyDecision.AvoidOpenWithBuyOnRedKandle; strategyData.AvoidReasons.Add(StrategyDecision.AvoidOpenWithBuyOnRedKandle);
                 }
 
                 if (!validator.IsTradeValidOnBollinger(strategyData, StrategyDecision.Buy, BollingerFactor, roboInput.reward))
                 {
-                    sOutput = StrategyDecision.AvoidInvalidBollingerOpenBuy;
+                    sOutput = StrategyDecision.AvoidInvalidBollingerOpenBuy; strategyData.AvoidReasons.Add(StrategyDecision.AvoidInvalidBollingerOpenBuy);
                 }
 
                 if (!validator.IsSignalGapValid(strategyData, RequiredSignalGap))
                 {
-                    sOutput = StrategyDecision.AvoidLowSignalGapBuy;
+                    sOutput = StrategyDecision.AvoidLowSignalGapBuy; strategyData.AvoidReasons.Add(StrategyDecision.AvoidLowSignalGapBuy);
                 }
             }
             if (decision == StrategyDecision.Sell)
@@ -383,17 +383,17 @@ namespace BinanceBot.Strategy
                 //validators
                 if (!validator.IsTradeOnRightKandle(strategyData, StrategyDecision.Sell, StrategyDecision.Open))
                 {
-                    sOutput = StrategyDecision.AvoidOpenWithSellOnGreenKandle;
+                    sOutput = StrategyDecision.AvoidOpenWithSellOnGreenKandle; strategyData.AvoidReasons.Add(StrategyDecision.AvoidOpenWithSellOnGreenKandle);
                 }
 
                 if (!validator.IsTradeValidOnBollinger(strategyData, StrategyDecision.Sell, BollingerFactor, roboInput.reward))
                 {
-                    sOutput = StrategyDecision.AvoidInvalidBollingerOpenSell;
+                    sOutput = StrategyDecision.AvoidInvalidBollingerOpenSell; strategyData.AvoidReasons.Add(StrategyDecision.AvoidInvalidBollingerOpenSell);
                 }
 
                 if (!validator.IsSignalGapValid(strategyData, RequiredSignalGap))
                 {
-                    sOutput = StrategyDecision.AvoidLowSignalGapSell;
+                    sOutput = StrategyDecision.AvoidLowSignalGapSell; strategyData.AvoidReasons.Add(StrategyDecision.AvoidLowSignalGapSell);
                 }
             }
         }
@@ -404,23 +404,23 @@ namespace BinanceBot.Strategy
             {
                 if (!validator.KandlesAreConsistent(strategyData, StrategyDecision.Buy, ConsistentKandlesLookBack))
                 {
-                    sOutput = StrategyDecision.AvoidBuyNoEntryPoint;
+                    sOutput = StrategyDecision.AvoidBuyNoEntryPoint; strategyData.AvoidReasons.Add(StrategyDecision.AvoidBuyNoEntryPoint);
                 }
 
                 //validators
                 if (!validator.IsTradeOnRightKandle(strategyData, StrategyDecision.Buy, StrategyDecision.Open))
                 {
-                    sOutput = StrategyDecision.AvoidOpenWithBuyOnRedKandle;
+                    sOutput = StrategyDecision.AvoidOpenWithBuyOnRedKandle; strategyData.AvoidReasons.Add(StrategyDecision.AvoidOpenWithBuyOnRedKandle);
                 }
 
                 if (!validator.IsTradeValidOnBollinger(strategyData, StrategyDecision.Buy, BollingerFactor, roboInput.reward))
                 {
-                    sOutput = StrategyDecision.AvoidInvalidBollingerOpenBuy;
+                    sOutput = StrategyDecision.AvoidInvalidBollingerOpenBuy; strategyData.AvoidReasons.Add(StrategyDecision.AvoidInvalidBollingerOpenBuy);
                 }
 
                 if (!validator.IsSignalGapValid(strategyData, RequiredSignalGap))
                 {
-                    sOutput = StrategyDecision.AvoidLowSignalGapBuy;
+                    sOutput = StrategyDecision.AvoidLowSignalGapBuy; strategyData.AvoidReasons.Add(StrategyDecision.AvoidLowSignalGapBuy);
                 }
             }
             if (decision == StrategyDecision.Sell)
@@ -429,22 +429,22 @@ namespace BinanceBot.Strategy
 
                 if (!validator.KandlesAreConsistent(strategyData, StrategyDecision.Sell, ConsistentKandlesLookBack))
                 {
-                    sOutput = StrategyDecision.AvoidSellNoEntryPoint;
+                    sOutput = StrategyDecision.AvoidSellNoEntryPoint; strategyData.AvoidReasons.Add(StrategyDecision.AvoidSellNoEntryPoint);
                 }
 
                 if (!validator.IsTradeOnRightKandle(strategyData, StrategyDecision.Sell, StrategyDecision.Open))
                 {
-                    sOutput = StrategyDecision.AvoidOpenWithSellOnGreenKandle;
+                    sOutput = StrategyDecision.AvoidOpenWithSellOnGreenKandle; strategyData.AvoidReasons.Add(StrategyDecision.AvoidOpenWithSellOnGreenKandle);
                 }
 
                 if (!validator.IsTradeValidOnBollinger(strategyData, StrategyDecision.Sell, BollingerFactor, roboInput.reward))
                 {
-                    sOutput = StrategyDecision.AvoidInvalidBollingerOpenSell;
+                    sOutput = StrategyDecision.AvoidInvalidBollingerOpenSell; strategyData.AvoidReasons.Add(StrategyDecision.AvoidInvalidBollingerOpenSell);
                 }
 
                 if (!validator.IsSignalGapValid(strategyData, RequiredSignalGap))
                 {
-                    sOutput = StrategyDecision.AvoidLowSignalGapSell;
+                    sOutput = StrategyDecision.AvoidLowSignalGapSell; strategyData.AvoidReasons.Add(StrategyDecision.AvoidLowSignalGapSell);
                 }
             }
         }
@@ -461,14 +461,14 @@ namespace BinanceBot.Strategy
             {
                 if (!validator.IsSignalGapValid(strategyData, RequiredSignalGap))
                 {
-                    sOutput = StrategyDecision.AvoidLowSignalGapSell;
+                    sOutput = StrategyDecision.AvoidLowSignalGapSell; strategyData.AvoidReasons.Add(StrategyDecision.AvoidLowSignalGapSell);
                 }
             }
             if (decision == StrategyDecision.Buy)
             {
                 if (!validator.IsSignalGapValid(strategyData, RequiredSignalGap))
                 {
-                    sOutput = StrategyDecision.AvoidLowSignalGapBuy;
+                    sOutput = StrategyDecision.AvoidLowSignalGapBuy; strategyData.AvoidReasons.Add(StrategyDecision.AvoidLowSignalGapBuy);
                 }
             }
         }
@@ -486,12 +486,12 @@ namespace BinanceBot.Strategy
                 //validators
                 if (!validator.IsTradeOnRightKandle(strategyData, StrategyDecision.Sell, StrategyDecision.Exit))
                 {
-                    sOutput = StrategyDecision.AvoidEscapeWithSell;
+                    sOutput = StrategyDecision.AvoidEscapeWithSell; strategyData.AvoidReasons.Add(StrategyDecision.AvoidEscapeWithSell);
                 }
 
                 if (!validator.IsSignalGapValid(strategyData, RequiredSignalGap))
                 {
-                    sOutput = StrategyDecision.AvoidLowSignalGapSell;
+                    sOutput = StrategyDecision.AvoidLowSignalGapSell; strategyData.AvoidReasons.Add(StrategyDecision.AvoidLowSignalGapSell);
                 }
             }
             if (decision == StrategyDecision.Buy)
@@ -499,12 +499,12 @@ namespace BinanceBot.Strategy
                 //validators
                 if (!validator.IsTradeOnRightKandle(strategyData, StrategyDecision.Buy, StrategyDecision.Exit))
                 {
-                    sOutput = StrategyDecision.AvoidEscapeWithBuy;
+                    sOutput = StrategyDecision.AvoidEscapeWithBuy; strategyData.AvoidReasons.Add(StrategyDecision.AvoidEscapeWithBuy);
                 }
 
                 if (!validator.IsSignalGapValid(strategyData, RequiredSignalGap))
                 {
-                    sOutput = StrategyDecision.AvoidLowSignalGapBuy;
+                    sOutput = StrategyDecision.AvoidLowSignalGapBuy; strategyData.AvoidReasons.Add(StrategyDecision.AvoidLowSignalGapBuy);
                 }
             }
         }
