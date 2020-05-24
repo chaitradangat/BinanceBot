@@ -101,12 +101,6 @@ namespace BinanceBot.Application
         {
             Console.Clear();
 
-            var bu_percentage = Math.Round((100 * (strategyData.BollingerUpper - strategyData.currentClose) / strategyData.BollingerUpper), 3);
-
-            var bm_percentage = Math.Round((100 * (strategyData.BollingerMiddle - strategyData.currentClose) / strategyData.BollingerMiddle), 3);
-
-            var bd_percentage = Math.Round((100 * (strategyData.currentClose - strategyData.BollingerLower) / strategyData.currentClose), 3);
-
             Console.WriteLine("\n\n--------------------------------------------------------------------------");
 
             Console.WriteLine("\nMARKET DETAILS: \n");
@@ -115,7 +109,9 @@ namespace BinanceBot.Application
             Console.WriteLine("{0} : {1} \n", robotInput.symbol, strategyData.currentClose);
 
             Console.WriteLine("BBAND   : {0}%   {1}%   {2}%   {3}{4}{5}\n", 
-                bu_percentage, bm_percentage, bd_percentage, 
+                strategyData.BollingerUpperPercentage, 
+                strategyData.BollingerMiddlePercentage, 
+                strategyData.BollingerLowerPercentage, 
                 strategyData.BollTopCrossed ? "*TOPCROSSED*" : "", 
                 strategyData.BollBottomCrossed ? "*BOTTOMCROSSED*" : "", 
                 strategyData.BollMiddleCrossed ? "*MIDDLECROSSED*" : "");
