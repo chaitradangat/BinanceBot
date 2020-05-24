@@ -794,12 +794,6 @@ namespace BinanceBot.Application
 
         private void DumpToLog(RobotInput robotInput, StrategyData strategyData)
         {
-            var bu_percentage = Math.Round((100 * (strategyData.BollingerUpper - strategyData.currentClose) / strategyData.BollingerUpper), 3);
-
-            var bm_percentage = Math.Round((100 * (strategyData.BollingerMiddle - strategyData.currentClose) / strategyData.BollingerMiddle), 3);
-
-            var bd_percentage = Math.Round((100 * (strategyData.currentClose - strategyData.BollingerLower) / strategyData.currentClose), 3);
-
             string timeutc530 = DateTime.Now.ToUniversalTime().AddMinutes(330).ToString();
 
             decimal percentage;
@@ -817,29 +811,13 @@ namespace BinanceBot.Application
                 percentage = 0;
             }
 
-            //code commented to avoid scope creep and log all events even if log file overflows!
-            /*
-            if (strategyData.Decision == StrategyDecision.AvoidOpenWithBuy)//to log only close encounters
-            {
-                if (bu_percentage < robotInput.reward * 0.90m || strategyData.BollTopCrossed)
-                {
-                    return;
-                }
-            }
-            if (strategyData.Decision == StrategyDecision.AvoidOpenWithSell)//to log only close encounters
-            {
-                if (bd_percentage < robotInput.reward * 0.90m || strategyData.BollBottomCrossed)
-                {
-                    return;
-                }
-            }
-            */
-
             string debuginfo = string.Format("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}\t{7}\t{8}\t{9}",
 
             timeutc530, strategyData.Decision.ToString(), strategyData.currentClose, percentage, strategyData.histdata,
 
-            bu_percentage, bm_percentage, bd_percentage, strategyData.SignalGap0, strategyData.SignalGap1);
+            strategyData.BollingerUpperPercentage, strategyData.BollingerMiddlePercentage, strategyData.BollingerLowerPercentage, 
+            
+            strategyData.SignalGap0, strategyData.SignalGap1);
 
             File.AppendAllLines("debug.logs", new[] { debuginfo });
 
