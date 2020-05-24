@@ -25,6 +25,8 @@ namespace BinanceBot.Application
 
         private decimal BollingerFactor;
 
+        private string LastAvoidReason;
+
         public BinanceCommand(string ApiKey, string ApiSecret)
         {
             webCall = new BinanceWebCall();
@@ -34,6 +36,8 @@ namespace BinanceBot.Application
             pingtime = BinanceBotSettings.settings.PingTimer;
 
             BollingerFactor = OpenCloseStrategySettings.settings.BollingerFactor;
+
+            LastAvoidReason = "";
         }
 
         public void StartRoBot(RobotInput robotInput, bool isLive)
@@ -163,7 +167,18 @@ namespace BinanceBot.Application
                 Console.WriteLine("DECISION : {0}\n", "NO DECISION");
             }
 
-            Console.WriteLine("HISTORY : {0}", strategyData.histdata);
+            Console.WriteLine("SIGNALHISTORY : {0}\n", strategyData.histdata);
+
+            if (strategyData.AvoidReasons != null && strategyData.AvoidReasons.Count > 0)
+            {
+                LastAvoidReason = "";
+                foreach (var AvoidReason in strategyData.AvoidReasons)
+                {
+                    LastAvoidReason += AvoidReason.ToString() + "\t";
+                }
+            }
+
+            Console.WriteLine("AVOIDHISTORY : {0}", LastAvoidReason);
 
             Console.WriteLine("\n--------------------------------------------------------------------------");
 
@@ -197,6 +212,10 @@ namespace BinanceBot.Application
             Console.WriteLine("--------------------------------------------------------------------------\n");
 
             Console.WriteLine("Refresh Rate {0} milliseconds\n", cycleTime);
+
+
+            
+
         }
     }
 }
