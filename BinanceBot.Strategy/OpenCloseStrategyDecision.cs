@@ -493,6 +493,11 @@ namespace BinanceBot.Strategy
                 {
                     sOutput = StrategyDecision.AvoidLowSignalGapSell; strategyData.AvoidReasons.Add(StrategyDecision.AvoidLowSignalGapSell);
                 }
+
+                if (!validator.IsTradeMatchTrend(strategyData,decision))
+                {
+                    sOutput = StrategyDecision.AvoidEscapeSellOppositeTrend; strategyData.AvoidReasons.Add(StrategyDecision.AvoidEscapeSellOppositeTrend);
+                }
             }
             if (decision == StrategyDecision.Buy)
             {
@@ -505,6 +510,11 @@ namespace BinanceBot.Strategy
                 if (!validator.IsSignalGapValid(strategyData, RequiredSignalGap))
                 {
                     sOutput = StrategyDecision.AvoidLowSignalGapBuy; strategyData.AvoidReasons.Add(StrategyDecision.AvoidLowSignalGapBuy);
+                }
+
+                if (!validator.IsTradeMatchTrend(strategyData,decision))
+                {
+                    sOutput = StrategyDecision.AvoidEscapeBuyOppositeTrend; strategyData.AvoidReasons.Add(StrategyDecision.AvoidEscapeBuyOppositeTrend);
                 }
             }
         }
