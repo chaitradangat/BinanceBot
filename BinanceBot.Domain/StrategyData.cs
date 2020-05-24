@@ -18,6 +18,8 @@ namespace BinanceBot.Domain
             this.Decision = StrategyDecision.None;
 
             this.prevOutput = StrategyDecision.None;
+
+            this.AvoidReasons = new HashSet<StrategyDecision>();
         }
 
         public StrategyData(decimal profitFactor)
@@ -89,5 +91,7 @@ namespace BinanceBot.Domain
         public int SignalGap0 { get; set; }
 
         public int SignalGap1 { get; set; }
+
+        public HashSet<StrategyDecision> AvoidReasons { get; set; }
     }
 }
