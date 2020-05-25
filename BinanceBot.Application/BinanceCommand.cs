@@ -167,7 +167,7 @@ namespace BinanceBot.Application
                 Console.WriteLine("DECISION : {0}\n", "NO DECISION");
             }
 
-            Console.WriteLine("SIGNALHISTORY : {0}\n", strategyData.histdata);
+            Console.WriteLine("SGNLHISTORY : {0}\n", strategyData.histdata);
 
             if (strategyData.AvoidReasons != null && strategyData.AvoidReasons.Count > 0)
             {
@@ -178,7 +178,7 @@ namespace BinanceBot.Application
                 }
             }
 
-            Console.WriteLine("AVOIDHISTORY : {0}", LastAvoidReason);
+            Console.WriteLine("SKIPHISTORY : {0}", LastAvoidReason);
 
             Console.WriteLine("\n--------------------------------------------------------------------------");
 
@@ -201,8 +201,8 @@ namespace BinanceBot.Application
 
 
 
-            Console.WriteLine("LIMITS > ADJPROFIT *{0}%*  PROFIT *{1}%*  LOSS *{2}%* BOLL *{3}%*\n", 
-            robotInput.reward * strategyData.profitFactor,
+            Console.WriteLine("LIMITS > ADJPROFIT *{0}%*  PROFIT *{1}%*  LOSS *{2}%* BOLL *{3}%*\n",
+            Math.Round(robotInput.reward * strategyData.profitFactor, 3),
             robotInput.reward,
             robotInput.risk,
             Math.Round(robotInput.reward * BollingerFactor, 3));
@@ -214,7 +214,7 @@ namespace BinanceBot.Application
             Console.WriteLine("Refresh Rate {0} milliseconds\n", cycleTime);
 
 
-            
+
 
         }
     }
