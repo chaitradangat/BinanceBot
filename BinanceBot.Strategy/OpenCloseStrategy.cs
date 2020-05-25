@@ -73,6 +73,8 @@ namespace BinanceBot.Strategy
             strategyData.SignalGap0 = val0 - val1;
 
             strategyData.SignalGap1 = val1 - val2;
+
+            strategyData.SignalQuality = val2;
         }
 
         private List<OHLCKandle> GetSmoothData(List<OHLCKandle> kandles, int lookback, string smoothing)
