@@ -194,8 +194,6 @@ namespace BinanceBot.Settings
                 this["ValidationRuleSet"] = value;
             }
         }
-
-
         [ConfigurationProperty("BollingerCrossLookBack", IsRequired = true)]
         public int BollingerCrossLookBack
         {
@@ -208,7 +206,6 @@ namespace BinanceBot.Settings
                 this["BollingerCrossLookBack"] = value;
             }
         }
-
         [ConfigurationProperty("ConsistentKandlesLookBack", IsRequired = true)]
         public int ConsistentKandlesLookBack
         {
@@ -221,6 +218,17 @@ namespace BinanceBot.Settings
                 this["ConsistentKandlesLookBack"] = value;
             }
         }
-
+        [ConfigurationProperty("RequiredSignalQuality", IsRequired = true)]
+        public int RequiredSignalQuality
+        {
+            get
+            {
+                return Convert.ToInt32(this["RequiredSignalQuality"]);
+            }
+            set
+            {
+                this["RequiredSignalQuality"] = value;
+            }
+        }
     }
 }
