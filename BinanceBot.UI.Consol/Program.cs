@@ -35,6 +35,8 @@ namespace BinanceBot.UI.Consol
 
             #endregion
 
+            BinanceBot.Utility.Utility.EnableLogging();
+
             BinanceCommand bcmd = new BinanceCommand(ApiKey, ApiSecret);
 
             bcmd.StartRoBot(strategyInput, isLive);
