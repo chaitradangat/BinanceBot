@@ -19,7 +19,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BinanceBot.Settings", "Bina
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BinanceBot.Validator", "BinanceBot.Validator\BinanceBot.Validator.csproj", "{52B3B2D7-F12B-419C-A8D8-851735D8B87F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BinanceBot.Indicator", "BinanceBot.Indicator\BinanceBot.Indicator.csproj", "{69F9E2E2-7B14-494F-932A-D211D172B558}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BinanceBot.Indicator", "BinanceBot.Indicator\BinanceBot.Indicator.csproj", "{69F9E2E2-7B14-494F-932A-D211D172B558}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BinanceBot.Utility", "BinanceBot.Utility\BinanceBot.Utility.csproj", "{9150BA06-733A-4D72-AD3F-670489A7C472}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -63,6 +65,10 @@ Global
 		{69F9E2E2-7B14-494F-932A-D211D172B558}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{69F9E2E2-7B14-494F-932A-D211D172B558}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{69F9E2E2-7B14-494F-932A-D211D172B558}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9150BA06-733A-4D72-AD3F-670489A7C472}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9150BA06-733A-4D72-AD3F-670489A7C472}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9150BA06-733A-4D72-AD3F-670489A7C472}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9150BA06-733A-4D72-AD3F-670489A7C472}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
