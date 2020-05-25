@@ -83,16 +83,21 @@ namespace BinanceBot.Domain
 
         public decimal BollingerLowerPercentage { get; set; }
 
-        public bool BollTopCrossed { get; set; } 
+        public bool BollTopCrossed { get; set; }
 
         public bool BollBottomCrossed { get; set; }
 
         public bool BollMiddleCrossed { get; set; }
         //boll values end
 
+        //signal related variables
         public int SignalGap0 { get; set; }
 
         public int SignalGap1 { get; set; }
+
+        public int SignalQuality { get; set; }
+        //
+
 
         public HashSet<StrategyDecision> AvoidReasons { get; set; }
     }
