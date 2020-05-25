@@ -41,6 +41,8 @@ namespace BinanceBot.Strategy
         //validation vars
         private decimal BollingerFactor;//1.1
         private int RequiredSignalGap;//4
+        private int RequiredSignalQuality;//3
+
 
         #endregion
 
@@ -377,6 +379,11 @@ namespace BinanceBot.Strategy
                 {
                     sOutput = StrategyDecision.AvoidLowSignalGapBuy; strategyData.AvoidReasons.Add(StrategyDecision.AvoidLowSignalGapBuy);
                 }
+
+                if (!validator.IsSignalGoodQuality(strategyData,decision,RequiredSignalQuality))
+                {
+                    sOutput = StrategyDecision.AvoidBadSignalQualityBuy; strategyData.AvoidReasons.Add(StrategyDecision.AvoidBadSignalQualityBuy);
+                }
             }
             if (decision == StrategyDecision.Sell)
             {
@@ -394,6 +401,11 @@ namespace BinanceBot.Strategy
                 if (!validator.IsSignalGapValid(strategyData, RequiredSignalGap))
                 {
                     sOutput = StrategyDecision.AvoidLowSignalGapSell; strategyData.AvoidReasons.Add(StrategyDecision.AvoidLowSignalGapSell);
+                }
+
+                if (!validator.IsSignalGoodQuality(strategyData, decision, RequiredSignalQuality))
+                {
+                    sOutput = StrategyDecision.AvoidBadSignalQualitySell; strategyData.AvoidReasons.Add(StrategyDecision.AvoidBadSignalQualitySell);
                 }
             }
         }
@@ -422,6 +434,11 @@ namespace BinanceBot.Strategy
                 {
                     sOutput = StrategyDecision.AvoidLowSignalGapBuy; strategyData.AvoidReasons.Add(StrategyDecision.AvoidLowSignalGapBuy);
                 }
+
+                if (!validator.IsSignalGoodQuality(strategyData, decision, RequiredSignalQuality))
+                {
+                    sOutput = StrategyDecision.AvoidBadSignalQualityBuy; strategyData.AvoidReasons.Add(StrategyDecision.AvoidBadSignalQualityBuy);
+                }
             }
             if (decision == StrategyDecision.Sell)
             {
@@ -445,6 +462,11 @@ namespace BinanceBot.Strategy
                 if (!validator.IsSignalGapValid(strategyData, RequiredSignalGap))
                 {
                     sOutput = StrategyDecision.AvoidLowSignalGapSell; strategyData.AvoidReasons.Add(StrategyDecision.AvoidLowSignalGapSell);
+                }
+
+                if (!validator.IsSignalGoodQuality(strategyData, decision, RequiredSignalQuality))
+                {
+                    sOutput = StrategyDecision.AvoidBadSignalQualitySell; strategyData.AvoidReasons.Add(StrategyDecision.AvoidBadSignalQualitySell);
                 }
             }
         }
@@ -593,6 +615,8 @@ namespace BinanceBot.Strategy
             ConsistentKandlesLookBack = OpenCloseStrategySettings.settings.ConsistentKandlesLookBack;
 
             validator = new TradeValidator(ValidationRuleSet);
+
+            RequiredSignalQuality = OpenCloseStrategySettings.settings.RequiredSignalQuality;
         }
 
         //method to take decision
