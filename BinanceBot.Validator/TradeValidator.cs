@@ -194,6 +194,13 @@ namespace BinanceBot.Validator
             return false;
         }
 
+        /// <summary>
+        /// Validate Buy & Sell is following the trend
+        /// </summary>
+        /// <param name="strategyData"></param>
+        /// <param name="decision"></param>
+        /// <param name="CallingDecision"></param>
+        /// <returns></returns>
         public bool IsTradeMatchTrend(StrategyData strategyData,StrategyDecision decision, [CallerMemberName]string CallingDecision = "")
         {
             if (!ValidationRequired(CallingDecision))
@@ -226,7 +233,30 @@ namespace BinanceBot.Validator
             return true;
         }
 
+        /// <summary>
+        /// Validate the signal quality for buy or sell decision
+        /// </summary>
+        /// <param name="strategyData"></param>
+        /// <param name="decision"></param>
+        /// <param name="RequiredSignalQuality"></param>
+        /// <param name="CallingDecision"></param>
+        /// <returns></returns>
+        public bool IsSignalGoodQuality(StrategyData strategyData,StrategyDecision decision,int RequiredSignalQuality,[CallerMemberName]string CallingDecision = "")
+        {
+            if (!ValidationRequired(CallingDecision))
+            {
+                return true;
+            }
 
+            if (decision != StrategyDecision.Buy && decision != StrategyDecision.Sell)
+            {
+                //invalid decision input
+                return false;
+            }
+
+
+            return strategyData.SignalQuality >= RequiredSignalQuality;
+        }
 
         /// <summary>
         /// Checks if validation is required for "StrategyDecision.TradeDecision"
