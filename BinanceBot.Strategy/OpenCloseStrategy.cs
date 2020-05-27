@@ -116,8 +116,18 @@ namespace BinanceBot.Strategy
             strategyData.BollMiddleCrossed = bBands.BollMiddleCrossed;
         }
 
-        public void RunStrategy(List<OHLCKandle> inputkandles, RobotInput robotInput, SimplePosition currentPosition, ref StrategyData strategyData)
+        public void RunStrategy(RobotInput robotInput, SimplePosition currentPosition, ref StrategyData strategyData)
         {
+            List<OHLCKandle> inputkandles = strategyData.kandles.Select(x => new OHLCKandle
+            {
+                Close = x.Close,
+                CloseTime = x.CloseTime,
+                High = x.High,
+                Low = x.Low,
+                Open = x.Open,
+                OpenTime = x.OpenTime
+            }).ToList();
+
             PineScriptFunction fn = new PineScriptFunction();
 
             //convert to higher timeframe
