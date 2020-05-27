@@ -59,16 +59,14 @@ namespace BinanceBot.Application
                 {
                     try
                     {
+                        #region -variables refreshed every cycle-
                         Stopwatch sw = new Stopwatch();
 
                         sw.Start();
 
-                        #region -variables refreshed every cycle-
                         var currentPosition = new SimplePosition(robotInput.quantity);
 
                         strategyData = new StrategyData(strategyData.profitFactor);//tracking updated check for more elegant ways to write this..
-
-                        List<OHLCKandle> ohlckandles = new List<OHLCKandle>();
 
                         Thread.Sleep(pingtime);
                         #endregion
@@ -77,10 +75,10 @@ namespace BinanceBot.Application
                         webCall.GetCurrentPosition(robotInput, ref strategyData, ref currentPosition, isLive);
 
                         //get kandles from server
-                        webCall.GetKLinesDataCached(robotInput.timeframe, robotInput.candleCount, ref strategyData, ref ohlckandles);
+                        webCall.GetKLinesDataCached(robotInput.timeframe, robotInput.candleCount, ref strategyData);
 
                         //run strategy over the kandles
-                        openclosestrategy.RunStrategy(ohlckandles, robotInput, currentPosition, ref strategyData);
+                        openclosestrategy.RunStrategy(robotInput, currentPosition, ref strategyData);
 
                         //place orders based on strategy output
                         webCall.PlaceOrders(robotInput, strategyData, isLive);
