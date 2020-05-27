@@ -447,8 +447,10 @@ namespace BinanceBot.Application
         /// <param name="candleCount"></param>
         /// <param name="currentClose"></param>
         /// <param name="ohlckandles"></param>
-        public void GetKLinesDataCached(string timeframe, int candleCount, ref StrategyData strategyData, ref List<OHLCKandle> ohlckandles)
+        public void GetKLinesDataCached(string timeframe, int candleCount, ref StrategyData strategyData)
         {
+            List<OHLCKandle> ohlckandles = new List<OHLCKandle>();
+
             //insert data in cache
             if (string.IsNullOrEmpty(timeframeCache) || timeframe != timeframeCache || kandleCache == null || kandleCache.Count == 0)
             {
