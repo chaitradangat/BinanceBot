@@ -11,7 +11,7 @@ using CryptoExchange.Net.Authentication;
 
 using BinanceBot.Domain;
 
-using BinanceBot.Settings;
+using BinanceBot.Utility;
 
 namespace BinanceBot.Application
 {
@@ -732,13 +732,29 @@ namespace BinanceBot.Application
         //method to place orders
         public void PlaceOrders(RobotInput robotInput, StrategyData strategyData, bool isLive)
         {
+            BinancePlacedOrder placedOrder = null;
+
             if (!isLive || strategyData.Decision == StrategyDecision.None)
             {
                 return;
             }
 
-            BinancePlacedOrder placedOrder = null;
+            if (strategyData.Decision == StrategyDecision.Open || strategyData.Decision == StrategyDecision.OpenMissed || strategyData.Decision == StrategyDecision.TakeProfit ||
+                strategyData.Decision == StrategyDecision.Exit || strategyData.Decision == StrategyDecision.ExitHeavy || strategyData.Decision == StrategyDecision.Escape)
+            {
+                if (strategyData.DecisionType == StrategyDecision.Buy)
+                {
+                    placedOrder = PlaceBuyOrder(robotInput.quantity, -1, true);
+                }
+                if (strategyData.DecisionType == StrategyDecision.Sell)
+                {
+                    placedOrder = PlaceSellOrder(robotInput.quantity, -1, true);
+                }
+            }
 
+            #region -old commented code retained for historical sakes-
+            /*old code */
+            /*
             if (strategyData.Decision == StrategyDecision.OpenPositionWithBuy || strategyData.Decision == StrategyDecision.ExitPositionWithBuy ||
                 strategyData.Decision == StrategyDecision.BookProfitWithBuy || strategyData.Decision == StrategyDecision.MissedPositionBuy ||
                 strategyData.Decision == StrategyDecision.ExitPositionHeavyLossWithBuy)
@@ -780,61 +796,13 @@ namespace BinanceBot.Application
             {
                 //no action
             }
+            */
+            #endregion
 
-            if (placedOrder != null || strategyData.Decision.ToString().ToLower().Contains("avoid"))
-            /*|| strategyData.Decision == StrategyDecision.AvoidOpenWithSell || strategyData.Decision == StrategyDecision.AvoidOpenWithBuy
-            || strategyData.Decision == StrategyDecision.AvoidLowSignalGapBuy || strategyData.Decision == StrategyDecision.AvoidLowSignalGapSell
-            || strategyData.Decision == StrategyDecision.AvoidOpenWithBuyOnRedKandle || strategyData.Decision == StrategyDecision.AvoidOpenWithSellOnGreenKandle
-            || strategyData.Decision == StrategyDecision.AvoidEscapeWithSell || strategyData.Decision == StrategyDecision.AvoidEscapeWithBuy
-            || strategyData.Decision == StrategyDecision.AvoidInvalidBollingerOpenBuy || strategyData.Decision == StrategyDecision.AvoidInvalidBollingerOpenSell
-            || strategyData.Decision == StrategyDecision.AvoidEscapeBuyOppositeTrend || strategyData.Decision == StrategyDecision.AvoidEscapeSellOppositeTrend */
+            if (placedOrder != null || strategyData.Decision.ToString().ToLower().Contains("skip"))
             {
-                DumpToLog(robotInput, strategyData);
+               Utility.Utility.DumpToLog(robotInput, strategyData);
             }
-        }
-
-        private void DumpToLog(RobotInput robotInput, StrategyData strategyData)
-        {
-            string timeutc530 = DateTime.Now.ToUniversalTime().AddMinutes(330).ToString();
-
-            decimal percentage;
-
-            var avoidReasons = "";
-
-            if (strategyData.Decision.ToString().ToLower().Contains("buy"))
-            {
-                percentage = Math.Round(strategyData.shortPercentage, 3);
-            }
-            else if (strategyData.Decision.ToString().ToLower().Contains("sell"))
-            {
-                percentage = Math.Round(strategyData.longPercentage, 3);
-            }
-            else
-            {
-                percentage = 0;
-            }
-
-            if (strategyData.AvoidReasons != null && strategyData.AvoidReasons.Count > 0)
-            {
-                foreach (var AvoidReason in strategyData.AvoidReasons)
-                {
-                    avoidReasons += AvoidReason.ToString() + "\t";
-                }
-            }
-
-            //strategyData.AvoidReasons.Clear();//this is un-necessary please verify later
-
-            string debuginfo = string.Format("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}\t{7}\t{8}\t{9}\t{10}",
-
-            timeutc530, strategyData.Decision.ToString(), strategyData.currentClose, percentage, strategyData.histdata,
-
-            strategyData.BollingerUpperPercentage, strategyData.BollingerMiddlePercentage, strategyData.BollingerLowerPercentage,
-
-            strategyData.SignalGap0, strategyData.SignalGap1, avoidReasons);
-
-            File.AppendAllLines("debug.logs", new[] { debuginfo });
-
-            File.AppendAllLines("Logs\\debug.txt", new[] { debuginfo });
         }
     }
 }
