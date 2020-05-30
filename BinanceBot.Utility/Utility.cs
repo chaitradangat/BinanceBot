@@ -139,12 +139,12 @@ namespace BinanceBot.Common
                 Console.WriteLine("TREND : {0}\n", "");
             }
 
-            if (strategyData.PrevDecision.ToString().ToLower().Contains("buy") && strategyData.LatestSignalStrength != 0)
+            if (strategyData.PrevDecisionType == StrategyDecision.Buy && strategyData.LatestSignalStrength != 0)
             {
                 //signal
                 Console.WriteLine("DECISION : {0}  {1}%  @STRENGTH OF {2}\n", strategyData.PrevDecision.ToString(), 100 * strategyData.BuyCounter / strategyData.LatestSignalStrength, strategyData.LatestSignalStrength);
             }
-            else if (strategyData.PrevDecision.ToString().ToLower().Contains("sell") && strategyData.LatestSignalStrength != 0)
+            else if (strategyData.PrevDecisionType == StrategyDecision.Sell && strategyData.LatestSignalStrength != 0)
             {
                 Console.WriteLine("DECISION : {0}  {1}%  @STRENGTH OF {2}\n", strategyData.PrevDecision.ToString(), 100 * strategyData.SellCounter / strategyData.LatestSignalStrength, strategyData.LatestSignalStrength);
             }
