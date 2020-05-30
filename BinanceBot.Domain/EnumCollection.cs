@@ -6,6 +6,7 @@ namespace BinanceBot.Domain
 {
     public enum StrategyDecision
     {
+        #region -old code retained for histroical sakes-
         /*
         OpenPositionWithBuy,
         OpenPositionWithSell,
@@ -35,8 +36,9 @@ namespace BinanceBot.Domain
         AvoidEscapeSellOppositeTrend,
         AvoidBadSignalQualityBuy,
         AvoidBadSignalQualitySell,*/
+        #endregion
 
-
+        //avoid reasons
         RedKandle,
         GreenKandle,
         InvalidBollinger,
@@ -45,21 +47,24 @@ namespace BinanceBot.Domain
         LowSignalGap,
         InconsistentKandles,
 
+        //avoid decision type
+        SkipOpen,
+        SkipMissedOpen,
+        SkipExit,
+        SkipEscape,
+
+
+        //order actions
         Buy,
         Sell,
         
+        //decision type
         Open,
         OpenMissed,
         TakeProfit,
         Exit,
         ExitHeavy,
         Escape,
-
-        SkipOpen,
-        SkipMissedOpen,
-        SkipExit,
-        SkipEscape,
-
         None
     }
 }
