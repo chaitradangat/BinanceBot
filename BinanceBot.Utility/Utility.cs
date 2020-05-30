@@ -91,7 +91,7 @@ namespace BinanceBot.Common
         /// <param name="BollingerFactor"></param>
         /// <param name="LastAvoidReason"></param>
         /// <param name="cycleTime"></param>
-        public static void DumpToConsole(StrategyData strategyData, SimplePosition order, RobotInput robotInput, decimal BollingerFactor, string LastAvoidReason, long cycleTime)
+        public static void DumpToConsole(StrategyData strategyData, SimplePosition order, RobotInput robotInput, decimal BollingerFactor, ref string LastAvoidReason, long cycleTime)
         {
             Console.Clear();
 
@@ -142,11 +142,11 @@ namespace BinanceBot.Common
             if (strategyData.PrevDecisionType == StrategyDecision.Buy && strategyData.LatestSignalStrength != 0)
             {
                 //signal
-                Console.WriteLine("DECISION : {0}  {1}%  @STRENGTH OF {2}\n", strategyData.PrevDecision.ToString(), 100 * strategyData.BuyCounter / strategyData.LatestSignalStrength, strategyData.LatestSignalStrength);
+                Console.WriteLine("DECISION : {0}{1}  {2}%  @STRENGTH OF {3}\n", strategyData.PrevDecision.ToString(),strategyData.PrevDecisionType, 100 * strategyData.BuyCounter / strategyData.LatestSignalStrength, strategyData.LatestSignalStrength);
             }
             else if (strategyData.PrevDecisionType == StrategyDecision.Sell && strategyData.LatestSignalStrength != 0)
             {
-                Console.WriteLine("DECISION : {0}  {1}%  @STRENGTH OF {2}\n", strategyData.PrevDecision.ToString(), 100 * strategyData.SellCounter / strategyData.LatestSignalStrength, strategyData.LatestSignalStrength);
+                Console.WriteLine("DECISION : {0}{1}  {2}%  @STRENGTH OF {3}\n", strategyData.PrevDecision.ToString(), strategyData.PrevDecisionType, 100 * strategyData.SellCounter / strategyData.LatestSignalStrength, strategyData.LatestSignalStrength);
             }
             else
             {
@@ -157,10 +157,10 @@ namespace BinanceBot.Common
 
             if (strategyData.AvoidReasons != null && strategyData.AvoidReasons.Count > 0)
             {
-                LastAvoidReason = "";
+                LastAvoidReason = " ";
                 foreach (var AvoidReason in strategyData.AvoidReasons)
                 {
-                    LastAvoidReason += AvoidReason.ToString() + "\t";
+                    LastAvoidReason += AvoidReason.ToString() + " ";
                 }
             }
 
