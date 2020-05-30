@@ -85,7 +85,7 @@ namespace BinanceBot.Application
                         sw.Stop();
 
                         //display data to UI
-                        Utility.DumpToConsole(strategyData, currentPosition, robotInput, BollingerFactor, LastAvoidReason, sw.ElapsedMilliseconds);
+                        Utility.DumpToConsole(strategyData, currentPosition, robotInput, BollingerFactor, ref LastAvoidReason, sw.ElapsedMilliseconds);
                     }
                     catch (Exception ex)
                     {
