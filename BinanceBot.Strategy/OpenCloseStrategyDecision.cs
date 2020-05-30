@@ -73,6 +73,10 @@ namespace BinanceBot.Strategy
                 prevDecision = currentDecision;
 
                 prevDecisionType = currentDecisionType;
+
+                this.prevDecision = prevDecision;
+
+                this.prevDecisionType = prevDecisionType;
             }
 
             if (currentDecision == prevDecision && currentDecisionType == prevDecisionType && currentDecision != StrategyDecision.None && prevDecision != StrategyDecision.None)
