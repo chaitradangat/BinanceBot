@@ -59,77 +59,77 @@ namespace BinanceBot.Strategy
         #endregion
 
         #region -Decision Methods for Buy Sell Opinion-
-        private bool IsValidSignal(bool isBuy, bool isSell, int signalStrength, StrategyDecision currentState, ref StrategyDecision prevState)
+        private bool IsValidSignal(bool isBuy, bool isSell, int signalStrength, StrategyDecision currentDecision, StrategyDecision currentDecisionType, ref StrategyDecision prevDecision, ref StrategyDecision prevDecisionType)
         {
             LatestSignalStrength = signalStrength;
 
-            if (prevState != currentState)
+            if (prevDecision != currentDecision)
             {
                 BuyCounter = 0;
 
                 SellCounter = 0;
 
-                prevState = currentState;
+                prevDecision = currentDecision;
             }
 
             //simple logic of current and previous states match
-            if (prevState == currentState && prevState != StrategyDecision.None)
+            if (prevDecision == currentDecision && prevDecision != StrategyDecision.None)
             {
-                if (isBuy && (currentState == StrategyDecision.OpenPositionWithBuy || currentState == StrategyDecision.BookProfitWithBuy))
+                if (isBuy && (currentDecision == StrategyDecision.OpenPositionWithBuy || currentDecision == StrategyDecision.BookProfitWithBuy))
                 {
                     ++BuyCounter;
 
                     return BuyCounter >= signalStrength;
                 }
-                if (isSell && (currentState == StrategyDecision.OpenPositionWithSell || currentState == StrategyDecision.BookProfitWithSell))
+                if (isSell && (currentDecision == StrategyDecision.OpenPositionWithSell || currentDecision == StrategyDecision.BookProfitWithSell))
                 {
                     ++SellCounter;
 
                     return SellCounter >= signalStrength;
                 }
-                if (isBuy && currentState == StrategyDecision.ExitPositionWithBuy)
+                if (isBuy && currentDecision == StrategyDecision.ExitPositionWithBuy)
                 {
                     ++BuyCounter;
 
                     return BuyCounter >= signalStrength;
                 }
-                if (isSell && currentState == StrategyDecision.ExitPositionWithSell)
+                if (isSell && currentDecision == StrategyDecision.ExitPositionWithSell)
                 {
                     ++SellCounter;
 
                     return SellCounter >= signalStrength;
                 }
-                if (ExitImmediate && currentState == StrategyDecision.ExitPositionWithBuy)
+                if (ExitImmediate && currentDecision == StrategyDecision.ExitPositionWithBuy)
                 {
                     ++BuyCounter;
 
                     return BuyCounter >= signalStrength;
                 }
-                if (ExitImmediate && currentState == StrategyDecision.ExitPositionWithSell)
+                if (ExitImmediate && currentDecision == StrategyDecision.ExitPositionWithSell)
                 {
                     ++SellCounter;
 
                     return SellCounter >= signalStrength;
                 }
-                if (!isBuy && !isSell && currentState == StrategyDecision.EscapeTrapWithBuy)
+                if (!isBuy && !isSell && currentDecision == StrategyDecision.EscapeTrapWithBuy)
                 {
                     ++BuyCounter;
 
                     return BuyCounter >= signalStrength;
                 }
-                if (!isBuy && !isSell && currentState == StrategyDecision.EscapeTrapWithSell)
+                if (!isBuy && !isSell && currentDecision == StrategyDecision.EscapeTrapWithSell)
                 {
                     ++SellCounter;
 
                     return SellCounter >= signalStrength;
                 }
-                if (!isBuy && !isSell && currentState == StrategyDecision.MissedPositionBuy)
+                if (!isBuy && !isSell && currentDecision == StrategyDecision.MissedPositionBuy)
                 {
                     ++BuyCounter;
 
                     return BuyCounter >= signalStrength;
                 }
-                if (!isBuy && !isSell && currentState == StrategyDecision.MissedPositionSell)
+                if (!isBuy && !isSell && currentDecision == StrategyDecision.MissedPositionSell)
                 {
                     ++SellCounter;
 
@@ -147,12 +147,12 @@ namespace BinanceBot.Strategy
                 return false;
             }
 
-            if (strategyData.isBuy && IsValidSignal(strategyData.isBuy, strategyData.isSell, signalStrength, StrategyDecision.OpenPositionWithBuy, ref prevDecision))
+            if (strategyData.isBuy && IsValidSignal(strategyData.isBuy, strategyData.isSell, signalStrength, StrategyDecision.Open, StrategyDecision.Buy, ref prevDecision, ref prevDecisionType))
             {
                 return true;
             }
 
-            if (strategyData.isSell && IsValidSignal(strategyData.isBuy, strategyData.isSell, signalStrength, StrategyDecision.OpenPositionWithSell, ref prevDecision))
+            if (strategyData.isSell && IsValidSignal(strategyData.isBuy, strategyData.isSell, signalStrength, StrategyDecision.Open, StrategyDecision.Sell, ref prevDecision, ref prevDecisionType))
             {
                 return true;
             }
@@ -194,13 +194,13 @@ namespace BinanceBot.Strategy
             }
 
             //missed buy position
-            if (signaldecision == StrategyDecision.Buy && signalperiod >= MissedPositionStartCandleIndex && signalperiod <= MissedPositionEndCandleIndex && IsValidSignal(false, false, MissedPositionSignalStrength, StrategyDecision.MissedPositionBuy, ref prevDecision))//3,5,200
+            if (signaldecision == StrategyDecision.Buy && signalperiod >= MissedPositionStartCandleIndex && signalperiod <= MissedPositionEndCandleIndex && IsValidSignal(false, false, MissedPositionSignalStrength, StrategyDecision.OpenMissed, StrategyDecision.Buy, ref prevDecision, ref prevDecisionType))//3,5,200
             {
                 return true;
             }
 
             //missed sell position
-            if (signaldecision == StrategyDecision.Sell && signalperiod >= MissedPositionStartCandleIndex && signalperiod <= MissedPositionEndCandleIndex && IsValidSignal(false, false, MissedPositionSignalStrength, StrategyDecision.MissedPositionSell, ref prevDecision))//3,5,200
+            if (signaldecision == StrategyDecision.Sell && signalperiod >= MissedPositionStartCandleIndex && signalperiod <= MissedPositionEndCandleIndex && IsValidSignal(false, false, MissedPositionSignalStrength, StrategyDecision.OpenMissed, StrategyDecision.Sell, ref prevDecision, ref prevDecisionType))//3,5,200
             {
                 return true;
             }
@@ -236,19 +236,19 @@ namespace BinanceBot.Strategy
                 //no positions to exit from
                 return false;
             }
-            else if (position.PositionType == "BUY" && strategyData.longPercentage <= risk && IsValidSignal(strategyData.isBuy, strategyData.isSell, ExitSignalStrength, StrategyDecision.ExitPositionWithSell, ref prevDecision))//15
+            else if (position.PositionType == "BUY" && strategyData.longPercentage <= risk && IsValidSignal(strategyData.isBuy, strategyData.isSell, ExitSignalStrength, StrategyDecision.Exit, StrategyDecision.Sell, ref prevDecision, ref prevDecisionType))//15
             {
                 return true;
             }
-            else if (position.PositionType == "SELL" && strategyData.shortPercentage <= risk && IsValidSignal(strategyData.isBuy, strategyData.isSell, ExitSignalStrength, StrategyDecision.ExitPositionWithBuy, ref prevDecision))//15
+            else if (position.PositionType == "SELL" && strategyData.shortPercentage <= risk && IsValidSignal(strategyData.isBuy, strategyData.isSell, ExitSignalStrength, StrategyDecision.Exit, StrategyDecision.Buy, ref prevDecision, ref prevDecisionType))//15
             {
                 return true;
             }
-            else if (position.PositionType == "BUY" && strategyData.isSell && IsValidSignal(strategyData.isBuy, strategyData.isSell, signalStrength / 2, StrategyDecision.ExitPositionWithSell, ref prevDecision))
+            else if (position.PositionType == "BUY" && strategyData.isSell && IsValidSignal(strategyData.isBuy, strategyData.isSell, signalStrength / 2, StrategyDecision.Exit, StrategyDecision.Sell, ref prevDecision, ref prevDecisionType))
             {
                 return true;
             }
-            else if (position.PositionType == "SELL" && strategyData.isBuy && IsValidSignal(strategyData.isBuy, strategyData.isSell, signalStrength / 2, StrategyDecision.ExitPositionWithBuy, ref prevDecision))
+            else if (position.PositionType == "SELL" && strategyData.isBuy && IsValidSignal(strategyData.isBuy, strategyData.isSell, signalStrength / 2, StrategyDecision.Exit, StrategyDecision.Buy, ref prevDecision, ref prevDecisionType))
             {
                 return true;
             }
@@ -321,13 +321,13 @@ namespace BinanceBot.Strategy
             }
 
             //the bot is trapped with sell position!!
-            if (position.PositionType == "SELL" && signaldecision == StrategyDecision.Buy && signalperiod >= EscapeTrapCandleIdx && IsValidSignal(false, false, EscapeTrapSignalStrength, StrategyDecision.EscapeTrapWithBuy, ref prevDecision))//3,300
+            if (position.PositionType == "SELL" && signaldecision == StrategyDecision.Buy && signalperiod >= EscapeTrapCandleIdx && IsValidSignal(false, false, EscapeTrapSignalStrength, StrategyDecision.Escape, StrategyDecision.Buy, ref prevDecision, ref prevDecisionType))//3,300
             {
                 return true;
             }
 
             //the bot is trapped with buy position
-            if (position.PositionType == "BUY" && signaldecision == StrategyDecision.Sell && signalperiod >= EscapeTrapCandleIdx && IsValidSignal(false, false, EscapeTrapSignalStrength, StrategyDecision.EscapeTrapWithSell, ref prevDecision))//3,300
+            if (position.PositionType == "BUY" && signaldecision == StrategyDecision.Sell && signalperiod >= EscapeTrapCandleIdx && IsValidSignal(false, false, EscapeTrapSignalStrength, StrategyDecision.Escape, StrategyDecision.Sell, ref prevDecision, ref prevDecisionType))//3,300
             {
                 return true;
             }
@@ -558,7 +558,7 @@ namespace BinanceBot.Strategy
 
         private void GetDecisionType(StrategyData strategyData, ref StrategyDecision decisionType)
         {
-            if (strategyData!=null)
+            if (strategyData != null)
             {
                 if (strategyData.isBuy)
                 {
@@ -572,7 +572,7 @@ namespace BinanceBot.Strategy
             }
         }
 
-        private void GetDecisionType(SimplePosition position,ref StrategyDecision decisionType)
+        private void GetDecisionType(SimplePosition position, ref StrategyDecision decisionType)
         {
             if (position != null)
             {
