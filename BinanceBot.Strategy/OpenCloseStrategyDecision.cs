@@ -516,7 +516,7 @@ namespace BinanceBot.Strategy
             }
         }
 
-        private void ValidateBookProfit(RobotInput roboInput, ref StrategyData strategyData, StrategyDecision decision, ref StrategyDecision sOutput)
+        private void ValidateTakeProfit(RobotInput roboInput, ref StrategyData strategyData, StrategyDecision decision, ref StrategyDecision sOutput)
         {
             //this logic will be done later.
             return;
@@ -743,7 +743,7 @@ namespace BinanceBot.Strategy
                 {
                     decision = StrategyDecision.TakeProfit;
 
-                    ValidateBookProfit(roboInput, ref strategyData, decisionType, ref decision);
+                    ValidateTakeProfit(roboInput, ref strategyData, decisionType, ref decision);
                 }
             }
 
