@@ -17,6 +17,8 @@ namespace BinanceBot.Domain
 
             this.Decision = StrategyDecision.None;
 
+            this.DecisionType = StrategyDecision.None;
+
             this.prevOutput = StrategyDecision.None;
 
             this.AvoidReasons = new HashSet<StrategyDecision>();
@@ -63,6 +65,8 @@ namespace BinanceBot.Domain
         public StrategyDecision prevOutput { get; set; }
 
         public StrategyDecision Decision { get; set; }
+
+        public StrategyDecision DecisionType { get; set; }
 
         public int LatestSignalStrength { get; set; }
 

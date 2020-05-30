@@ -42,12 +42,14 @@ namespace BinanceBot.Domain
         InvalidBollinger,
         AgainstTrend,
         LowSignalQuality,
+        LowSignalGap,
+        InconsistentKandles,
 
         Buy,
         Sell,
         
         Open,
-        MissedOpen,
+        OpenMissed,
         TakeProfit,
         Exit,
         ExitHeavy,
