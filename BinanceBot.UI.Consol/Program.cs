@@ -35,7 +35,7 @@ namespace BinanceBot.UI.Consol
 
             #endregion
 
-            BinanceBot.Utility.Utility.EnableLogging();
+            BinanceBot.Common.Utility.EnableLogging();
 
             BinanceCommand bcmd = new BinanceCommand(ApiKey, ApiSecret);
 

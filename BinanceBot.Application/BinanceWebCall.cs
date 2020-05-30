@@ -11,7 +11,7 @@ using CryptoExchange.Net.Authentication;
 
 using BinanceBot.Domain;
 
-using BinanceBot.Utility;
+using BinanceBot.Common;
 
 namespace BinanceBot.Application
 {
@@ -801,7 +801,7 @@ namespace BinanceBot.Application
 
             if (placedOrder != null || strategyData.Decision.ToString().ToLower().Contains("skip"))
             {
-               Utility.Utility.DumpToLog(robotInput, strategyData);
+               Utility.DumpToLog(robotInput, strategyData);
             }
         }
     }
