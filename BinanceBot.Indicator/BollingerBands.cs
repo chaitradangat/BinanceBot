@@ -77,7 +77,7 @@ namespace BinanceBot.Indicator
 
             this.BollingerUpperPercentage = Math.Round((100 * (this.BollingerUpper - close) / this.BollingerUpper), 3);
 
-            this.BollingerMiddlePercentage = Math.Round((100 * (this.BollingerMiddle - close) / this.BollingerMiddle), 3);
+            this.BollingerMiddlePercentage = Math.Round((100 * (close - this.BollingerMiddle) / this.BollingerMiddle), 3);
 
             this.BollingerLowerPercentage = Math.Round((100 * (close - this.BollingerLower) / close), 3);
 
