@@ -202,6 +202,30 @@ namespace BinanceBot.Settings
             }
         }
 
+        [ConfigurationProperty("PrimaryLogPath", IsRequired = true)]
+        public string PrimaryLogPath
+        {
+            get
+            {
+                return Convert.ToString(this["PrimaryLogPath"]);
+            }
+            set
+            {
+                this["PrimaryLogPath"] = value;
+            }
+        }
 
+        [ConfigurationProperty("SecondaryLogPath", IsRequired = true)]
+        public string SecondaryLogPath
+        {
+            get
+            {
+                return Convert.ToString(this["SecondaryLogPath"]);
+            }
+            set
+            {
+                this["SecondaryLogPath"] = value;
+            }
+        }
     }
 }
