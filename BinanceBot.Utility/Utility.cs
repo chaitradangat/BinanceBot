@@ -22,7 +22,6 @@ namespace BinanceBot.Common
             SecondaryLogPath = BinanceBotSettings.settings.SecondaryLogPath;
         }
 
-
         /// <summary>
         /// Function to enable logging and write initial schema
         /// </summary>
@@ -37,7 +36,11 @@ namespace BinanceBot.Common
                 File.AppendAllLines(SecondaryLogPath, new[] { "Date\tSignal\tSignalType\tPrice\t%\tSignalHistory\tBU\tBM\tBL\tS0\tS1\tA1\tA2\tA3\tA4" });
             }
         }
-
+        /// <summary>
+        /// This function dumps decision logs
+        /// </summary>
+        /// <param name="robotInput"></param>
+        /// <param name="strategyData"></param>
         public static void DumpToLog(RobotInput robotInput, StrategyData strategyData)
         {
             string timeutc530 = DateTime.Now.ToUniversalTime().AddMinutes(330).ToString();
@@ -79,7 +82,15 @@ namespace BinanceBot.Common
 
             File.AppendAllLines(SecondaryLogPath, new[] { debuginfo });
         }
-
+        /// <summary>
+        /// This function dumps to display
+        /// </summary>
+        /// <param name="strategyData"></param>
+        /// <param name="order"></param>
+        /// <param name="robotInput"></param>
+        /// <param name="BollingerFactor"></param>
+        /// <param name="LastAvoidReason"></param>
+        /// <param name="cycleTime"></param>
         public static void DumpToConsole(StrategyData strategyData, SimplePosition order, RobotInput robotInput, decimal BollingerFactor, string LastAvoidReason, long cycleTime)
         {
             Console.Clear();
@@ -192,6 +203,5 @@ namespace BinanceBot.Common
 
 
         }
-
     }
 }
