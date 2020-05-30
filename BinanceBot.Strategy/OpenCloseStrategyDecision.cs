@@ -51,7 +51,9 @@ namespace BinanceBot.Strategy
 
         private int SellCounter;
 
-        private StrategyDecision prevOutput;
+        private StrategyDecision prevDecision;
+
+        private StrategyDecision prevDecisionType;
 
         private int LatestSignalStrength;
         #endregion
@@ -145,12 +147,12 @@ namespace BinanceBot.Strategy
                 return false;
             }
 
-            if (strategyData.isBuy && IsValidSignal(strategyData.isBuy, strategyData.isSell, signalStrength, StrategyDecision.OpenPositionWithBuy, ref prevOutput))
+            if (strategyData.isBuy && IsValidSignal(strategyData.isBuy, strategyData.isSell, signalStrength, StrategyDecision.OpenPositionWithBuy, ref prevDecision))
             {
                 return true;
             }
 
-            if (strategyData.isSell && IsValidSignal(strategyData.isBuy, strategyData.isSell, signalStrength, StrategyDecision.OpenPositionWithSell, ref prevOutput))
+            if (strategyData.isSell && IsValidSignal(strategyData.isBuy, strategyData.isSell, signalStrength, StrategyDecision.OpenPositionWithSell, ref prevDecision))
             {
                 return true;
             }
@@ -192,13 +194,13 @@ namespace BinanceBot.Strategy
             }
 
             //missed buy position
-            if (signaldecision == StrategyDecision.Buy && signalperiod >= MissedPositionStartCandleIndex && signalperiod <= MissedPositionEndCandleIndex && IsValidSignal(false, false, MissedPositionSignalStrength, StrategyDecision.MissedPositionBuy, ref prevOutput))//3,5,200
+            if (signaldecision == StrategyDecision.Buy && signalperiod >= MissedPositionStartCandleIndex && signalperiod <= MissedPositionEndCandleIndex && IsValidSignal(false, false, MissedPositionSignalStrength, StrategyDecision.MissedPositionBuy, ref prevDecision))//3,5,200
             {
                 return true;
             }
 
             //missed sell position
-            if (signaldecision == StrategyDecision.Sell && signalperiod >= MissedPositionStartCandleIndex && signalperiod <= MissedPositionEndCandleIndex && IsValidSignal(false, false, MissedPositionSignalStrength, StrategyDecision.MissedPositionSell, ref prevOutput))//3,5,200
+            if (signaldecision == StrategyDecision.Sell && signalperiod >= MissedPositionStartCandleIndex && signalperiod <= MissedPositionEndCandleIndex && IsValidSignal(false, false, MissedPositionSignalStrength, StrategyDecision.MissedPositionSell, ref prevDecision))//3,5,200
             {
                 return true;
             }
@@ -234,19 +236,19 @@ namespace BinanceBot.Strategy
                 //no positions to exit from
                 return false;
             }
-            else if (position.PositionType == "BUY" && strategyData.longPercentage <= risk && IsValidSignal(strategyData.isBuy, strategyData.isSell, ExitSignalStrength, StrategyDecision.ExitPositionWithSell, ref prevOutput))//15
+            else if (position.PositionType == "BUY" && strategyData.longPercentage <= risk && IsValidSignal(strategyData.isBuy, strategyData.isSell, ExitSignalStrength, StrategyDecision.ExitPositionWithSell, ref prevDecision))//15
             {
                 return true;
             }
-            else if (position.PositionType == "SELL" && strategyData.shortPercentage <= risk && IsValidSignal(strategyData.isBuy, strategyData.isSell, ExitSignalStrength, StrategyDecision.ExitPositionWithBuy, ref prevOutput))//15
+            else if (position.PositionType == "SELL" && strategyData.shortPercentage <= risk && IsValidSignal(strategyData.isBuy, strategyData.isSell, ExitSignalStrength, StrategyDecision.ExitPositionWithBuy, ref prevDecision))//15
             {
                 return true;
             }
-            else if (position.PositionType == "BUY" && strategyData.isSell && IsValidSignal(strategyData.isBuy, strategyData.isSell, signalStrength / 2, StrategyDecision.ExitPositionWithSell, ref prevOutput))
+            else if (position.PositionType == "BUY" && strategyData.isSell && IsValidSignal(strategyData.isBuy, strategyData.isSell, signalStrength / 2, StrategyDecision.ExitPositionWithSell, ref prevDecision))
             {
                 return true;
             }
-            else if (position.PositionType == "SELL" && strategyData.isBuy && IsValidSignal(strategyData.isBuy, strategyData.isSell, signalStrength / 2, StrategyDecision.ExitPositionWithBuy, ref prevOutput))
+            else if (position.PositionType == "SELL" && strategyData.isBuy && IsValidSignal(strategyData.isBuy, strategyData.isSell, signalStrength / 2, StrategyDecision.ExitPositionWithBuy, ref prevDecision))
             {
                 return true;
             }
@@ -319,13 +321,13 @@ namespace BinanceBot.Strategy
             }
 
             //the bot is trapped with sell position!!
-            if (position.PositionType == "SELL" && signaldecision == StrategyDecision.Buy && signalperiod >= EscapeTrapCandleIdx && IsValidSignal(false, false, EscapeTrapSignalStrength, StrategyDecision.EscapeTrapWithBuy, ref prevOutput))//3,300
+            if (position.PositionType == "SELL" && signaldecision == StrategyDecision.Buy && signalperiod >= EscapeTrapCandleIdx && IsValidSignal(false, false, EscapeTrapSignalStrength, StrategyDecision.EscapeTrapWithBuy, ref prevDecision))//3,300
             {
                 return true;
             }
 
             //the bot is trapped with buy position
-            if (position.PositionType == "BUY" && signaldecision == StrategyDecision.Sell && signalperiod >= EscapeTrapCandleIdx && IsValidSignal(false, false, EscapeTrapSignalStrength, StrategyDecision.EscapeTrapWithSell, ref prevOutput))//3,300
+            if (position.PositionType == "BUY" && signaldecision == StrategyDecision.Sell && signalperiod >= EscapeTrapCandleIdx && IsValidSignal(false, false, EscapeTrapSignalStrength, StrategyDecision.EscapeTrapWithSell, ref prevDecision))//3,300
             {
                 return true;
             }
@@ -592,7 +594,7 @@ namespace BinanceBot.Strategy
 
             SellCounter = 0;
 
-            prevOutput = StrategyDecision.None;
+            prevDecision = StrategyDecision.None;
 
             LatestSignalStrength = 0;
         }
@@ -604,7 +606,7 @@ namespace BinanceBot.Strategy
 
             SellCounter = 0;
 
-            prevOutput = StrategyDecision.None;
+            prevDecision = StrategyDecision.None;
 
             //ruleset
             ValidationRuleSet = OpenCloseStrategySettings.settings.ValidationRuleSet;
@@ -734,7 +736,7 @@ namespace BinanceBot.Strategy
                 decisionType = StrategyDecision.None;
             }
 
-            strategyData.prevOutput = prevOutput;
+            strategyData.prevOutput = prevDecision;
 
             strategyData.LatestSignalStrength = LatestSignalStrength;//improve this code laterz
 
