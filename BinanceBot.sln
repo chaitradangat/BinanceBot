@@ -21,7 +21,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BinanceBot.Validator", "Bin
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BinanceBot.Indicator", "BinanceBot.Indicator\BinanceBot.Indicator.csproj", "{69F9E2E2-7B14-494F-932A-D211D172B558}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BinanceBot.Utility", "BinanceBot.Utility\BinanceBot.Utility.csproj", "{9150BA06-733A-4D72-AD3F-670489A7C472}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BinanceBot.Common", "BinanceBot.Utility\BinanceBot.Common.csproj", "{9150BA06-733A-4D72-AD3F-670489A7C472}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
