@@ -151,14 +151,14 @@ namespace BinanceBot.Application
                 Console.WriteLine("TREND : {0}\n", "");
             }
 
-            if (strategyData.prevOutput.ToString().ToLower().Contains("buy") && strategyData.LatestSignalStrength != 0)
+            if (strategyData.PrevDecision.ToString().ToLower().Contains("buy") && strategyData.LatestSignalStrength != 0)
             {
                 //signal
-                Console.WriteLine("DECISION : {0}  {1}%  @STRENGTH OF {2}\n", strategyData.prevOutput.ToString(), 100 * strategyData.BuyCounter / strategyData.LatestSignalStrength, strategyData.LatestSignalStrength);
+                Console.WriteLine("DECISION : {0}  {1}%  @STRENGTH OF {2}\n", strategyData.PrevDecision.ToString(), 100 * strategyData.BuyCounter / strategyData.LatestSignalStrength, strategyData.LatestSignalStrength);
             }
-            else if (strategyData.prevOutput.ToString().ToLower().Contains("sell") && strategyData.LatestSignalStrength != 0)
+            else if (strategyData.PrevDecision.ToString().ToLower().Contains("sell") && strategyData.LatestSignalStrength != 0)
             {
-                Console.WriteLine("DECISION : {0}  {1}%  @STRENGTH OF {2}\n", strategyData.prevOutput.ToString(), 100 * strategyData.SellCounter / strategyData.LatestSignalStrength, strategyData.LatestSignalStrength);
+                Console.WriteLine("DECISION : {0}  {1}%  @STRENGTH OF {2}\n", strategyData.PrevDecision.ToString(), 100 * strategyData.SellCounter / strategyData.LatestSignalStrength, strategyData.LatestSignalStrength);
             }
             else
             {

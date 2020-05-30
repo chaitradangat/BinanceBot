@@ -596,6 +596,8 @@ namespace BinanceBot.Strategy
 
             prevDecision = StrategyDecision.None;
 
+            prevDecisionType = StrategyDecision.None;
+
             LatestSignalStrength = 0;
         }
         #endregion
@@ -607,6 +609,8 @@ namespace BinanceBot.Strategy
             SellCounter = 0;
 
             prevDecision = StrategyDecision.None;
+
+            prevDecisionType = StrategyDecision.None;
 
             //ruleset
             ValidationRuleSet = OpenCloseStrategySettings.settings.ValidationRuleSet;
@@ -736,8 +740,6 @@ namespace BinanceBot.Strategy
                 decisionType = StrategyDecision.None;
             }
 
-            strategyData.prevOutput = prevDecision;
-
             strategyData.LatestSignalStrength = LatestSignalStrength;//improve this code laterz
 
             strategyData.BuyCounter = BuyCounter;
@@ -747,6 +749,11 @@ namespace BinanceBot.Strategy
             strategyData.Decision = decision;
 
             strategyData.DecisionType = decisionType;
+
+            strategyData.PrevDecision = prevDecision;
+
+            strategyData.PrevDecisionType = prevDecisionType;
+
         }
     }
 }

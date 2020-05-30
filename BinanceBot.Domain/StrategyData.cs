@@ -19,7 +19,9 @@ namespace BinanceBot.Domain
 
             this.DecisionType = StrategyDecision.None;
 
-            this.prevOutput = StrategyDecision.None;
+            this.PrevDecision = StrategyDecision.None;
+
+            this.PrevDecisionType = StrategyDecision.None;
 
             this.AvoidReasons = new HashSet<StrategyDecision>();
         }
@@ -30,7 +32,11 @@ namespace BinanceBot.Domain
 
             this.Decision = StrategyDecision.None;
 
-            this.prevOutput = StrategyDecision.None;
+            this.DecisionType = StrategyDecision.None;
+
+            this.PrevDecision = StrategyDecision.None;
+
+            this.PrevDecisionType = StrategyDecision.None;
 
             this.AvoidReasons = new HashSet<StrategyDecision>();
         }
@@ -62,7 +68,9 @@ namespace BinanceBot.Domain
 
         public decimal profitFactor { get; set; }
 
-        public StrategyDecision prevOutput { get; set; }
+        public StrategyDecision PrevDecision { get; set; }
+
+        public StrategyDecision PrevDecisionType { get; set; }
 
         public StrategyDecision Decision { get; set; }
 
