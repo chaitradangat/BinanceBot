@@ -13,6 +13,7 @@ namespace BinanceBot.Settings
             }
         }
 
+        //variables for basic strategy setup
         [ConfigurationProperty("KandleMultiplier", IsRequired = true)]
         public int KandleMultiplier
         {
@@ -23,6 +24,73 @@ namespace BinanceBot.Settings
             set
             {
                 this["KandleMultiplier"] = value;
+            }
+        }
+        [ConfigurationProperty("Smoothing", IsRequired = true)]
+        public string Smoothing
+        {
+            get
+            {
+                return Convert.ToString(this["Smoothing"]);
+            }
+            set
+            {
+                this["Smoothing"] = value;
+            }
+        }
+
+
+
+        //variables to set signal strength for decisions
+        
+        [ConfigurationProperty("EscapeTrapSignalStrength", IsRequired = true)]
+        public int EscapeTrapSignalStrength
+        {
+            get
+            {
+                return Convert.ToInt32(this["EscapeTrapSignalStrength"]);
+            }
+            set
+            {
+                this["EscapeTrapSignalStrength"] = value;
+            }
+        }
+        //TakeProfit
+
+        [ConfigurationProperty("OpenPositionSignalStrength", IsRequired = true)]
+        public int OpenPositionSignalStrength
+        {
+            get
+            {
+                return Convert.ToInt32(this["OpenPositionSignalStrength"]);
+            }
+            set
+            {
+                this["OpenPositionSignalStrength"] = value;
+            }
+        }
+        [ConfigurationProperty("MissedPositionSignalStrength", IsRequired = true)]
+        public int MissedPositionSignalStrength
+        {
+            get
+            {
+                return Convert.ToInt32(this["MissedPositionSignalStrength"]);
+            }
+            set
+            {
+                this["MissedPositionSignalStrength"] = value;
+            }
+        }
+        [ConfigurationProperty("MissedPositionSignalStrength", IsRequired = true)]
+        public int ExitPositionHeavyLossSignalStrength
+        {
+            get
+            {
+                return Convert.ToInt32(this["ExitPositionHeavyLossSignalStrength"]);
+            }
+            set
+            {
+                this["ExitPositionHeavyLossSignalStrength"] = value;
             }
         }
         [ConfigurationProperty("ExitSignalStrength", IsRequired = true)]
@@ -37,6 +105,33 @@ namespace BinanceBot.Settings
                 this["ExitSignalStrength"] = value;
             }
         }
+        [ConfigurationProperty("TakeProfitSignalStrength", IsRequired = true)]
+        public int TakeProfitSignalStrength
+        {
+            get
+            {
+                return Convert.ToInt32(this["TakeProfitSignalStrength"]);
+            }
+            set
+            {
+                this["TakeProfitSignalStrength"] = value;
+            }
+        }
+
+
+        //variables for escape traps decision policy
+        [ConfigurationProperty("EscapeTraps", IsRequired = true)]
+        public bool EscapeTraps
+        {
+            get
+            {
+                return bool.Parse(this["EscapeTraps"].ToString());
+            }
+            set
+            {
+                this["EscapeTraps"] = value;
+            }
+        }
         [ConfigurationProperty("EscapeTrapCandleIdx", IsRequired = true)]
         public int EscapeTrapCandleIdx
         {
@@ -49,16 +144,18 @@ namespace BinanceBot.Settings
                 this["EscapeTrapCandleIdx"] = value;
             }
         }
-        [ConfigurationProperty("EscapeTrapSignalStrength", IsRequired = true)]
-        public int EscapeTrapSignalStrength
+
+        //variables for missed position decision policy
+        [ConfigurationProperty("GrabMissedPosition", IsRequired = true)]
+        public bool GrabMissedPosition
         {
             get
             {
-                return Convert.ToInt32(this["EscapeTrapSignalStrength"]);
+                return bool.Parse(this["GrabMissedPosition"].ToString());
             }
             set
             {
-                this["EscapeTrapSignalStrength"] = value;
+                this["GrabMissedPosition"] = value;
             }
         }
         [ConfigurationProperty("MissedPositionStartCandleIndex", IsRequired = true)]
@@ -85,42 +182,8 @@ namespace BinanceBot.Settings
                 this["MissedPositionEndCandleIndex"] = value;
             }
         }
-        [ConfigurationProperty("MissedPositionSignalStrength", IsRequired = true)]
-        public int MissedPositionSignalStrength
-        {
-            get
-            {
-                return Convert.ToInt32(this["MissedPositionSignalStrength"]);
-            }
-            set
-            {
-                this["MissedPositionSignalStrength"] = value;
-            }
-        }
-        [ConfigurationProperty("EscapeTraps", IsRequired = true)]
-        public bool EscapeTraps
-        {
-            get
-            {
-                return bool.Parse(this["EscapeTraps"].ToString());
-            }
-            set
-            {
-                this["EscapeTraps"] = value;
-            }
-        }
-        [ConfigurationProperty("GrabMissedPosition", IsRequired = true)]
-        public bool GrabMissedPosition
-        {
-            get
-            {
-                return bool.Parse(this["GrabMissedPosition"].ToString());
-            }
-            set
-            {
-                this["GrabMissedPosition"] = value;
-            }
-        }
+        
+        //variables for exit heavy decision policy
         [ConfigurationProperty("ExitImmediate", IsRequired = true)]
         public bool ExitImmediate
         {
@@ -145,18 +208,12 @@ namespace BinanceBot.Settings
                 this["HeavyRiskPercentage"] = value;
             }
         }
-        [ConfigurationProperty("Smoothing", IsRequired = true)]
-        public string Smoothing
-        {
-            get
-            {
-                return Convert.ToString(this["Smoothing"]);
-            }
-            set
-            {
-                this["Smoothing"] = value;
-            }
-        }
+
+
+
+
+
+        //variables for validating the decision taken
         [ConfigurationProperty("BollingerFactor", IsRequired = true)]
         public decimal BollingerFactor
         {
