@@ -165,6 +165,24 @@ namespace BinanceBot.Application
 
                 position.Quantity = robotInput.quantity;
             }
+
+            if (position.PositionType != PositionType.None)
+            {
+                if (position.PositionType == PositionType.Sell)
+                {
+                    strategyData.Percentage = robotInput.leverage * ((position.EntryPrice - strategyData.currentClose) / position.EntryPrice) * 100;
+                }
+
+                if (position.PositionType == PositionType.Buy)
+                {
+                    strategyData.Percentage = robotInput.leverage * ((strategyData.currentClose - position.EntryPrice) / position.EntryPrice) * 100;
+                }
+
+                if (strategyData.Percentage < 0)
+                {
+                    strategyData.profitFactor = robotInput.decreaseOnNegative;
+                }
+            }
         }
         /// <summary>
         /// Get Candle Data From the Servers
