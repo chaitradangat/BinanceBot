@@ -11,7 +11,7 @@ namespace BinanceBot.Validator
     /// <summary>
     /// Used to Validate Trades
     /// </summary>
-    public class TradeValidator
+    public class TradeValidator //#warning the variables passed to methods in this class are readonly and should not be modified
     {
         private List<string> ValidationRules;
         public TradeValidator(string ValidationRuleSet)
