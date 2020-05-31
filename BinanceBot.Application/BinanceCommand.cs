@@ -70,11 +70,11 @@ namespace BinanceBot.Application
                         Thread.Sleep(pingtime);
                         #endregion
 
-                        //get open positions from server
-                        webCall.GetOpenPosition(robotInput, ref strategyData, ref currentPosition, isLive);
-
                         //get kandles from server
                         webCall.GetKLinesDataCached(robotInput.timeframe, robotInput.candleCount, ref strategyData);
+
+                        //get open positions from server
+                        webCall.GetOpenPosition(robotInput, ref strategyData, ref currentPosition, isLive);
 
                         //run strategy over the kandles
                         openclosestrategy.RunStrategy(robotInput, currentPosition, ref strategyData);
