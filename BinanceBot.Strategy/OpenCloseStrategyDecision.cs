@@ -169,7 +169,7 @@ namespace BinanceBot.Strategy
 
         private bool OpenPosition(SimplePosition position, StrategyData strategyData, int signalStrength)
         {
-            if (position.PositionID != -1)
+            if (position.PositionType != PositionType.None)
             {
                 return false;
             }
@@ -190,7 +190,7 @@ namespace BinanceBot.Strategy
         private bool OpenMissedPosition(SimplePosition position, StrategyData strategyData)
         {
             //position already exists
-            if (position.PositionID != -1)
+            if (position.PositionType != PositionType.None)
             {
                 return false;
             }
@@ -238,7 +238,7 @@ namespace BinanceBot.Strategy
         private bool ExitPositionHeavyLoss(SimplePosition position, StrategyData strategyData, decimal HeavyRiskPercentage)
         {
             //no position to exit from
-            if (position.PositionID == -1)
+            if (position.PositionType == PositionType.None)
             {
                 return false;
             }
@@ -258,7 +258,7 @@ namespace BinanceBot.Strategy
 
         private bool ExitPosition(SimplePosition position, StrategyData strategyData, decimal risk, int signalStrength)
         {
-            if (position.PositionID == -1)
+            if (position.PositionType == PositionType.None)
             {
                 //no positions to exit from
                 return false;
@@ -287,7 +287,7 @@ namespace BinanceBot.Strategy
 
         private bool TakeProfit(SimplePosition position, StrategyData strategyData, decimal reward)
         {
-            if (position.PositionID == -1)
+            if (position.PositionType == PositionType.None)
             {
                 return false;
             }
@@ -318,7 +318,7 @@ namespace BinanceBot.Strategy
         private bool EscapeTrap(SimplePosition position, StrategyData strategyData)
         {
             //no open positions
-            if (position.PositionID == -1)
+            if (position.PositionType == PositionType.None)
             {
                 return false;
             }
@@ -364,7 +364,7 @@ namespace BinanceBot.Strategy
 
         private void CalculatePercentageChange(SimplePosition position, RobotInput robotInput, ref StrategyData strategyData)
         {
-            if (position.PositionID != -1)
+            if (position.PositionType != PositionType.None)
             {
                 strategyData.shortPercentage = robotInput.leverage * ((position.EntryPrice - strategyData.currentClose) / position.EntryPrice) * 100;
 

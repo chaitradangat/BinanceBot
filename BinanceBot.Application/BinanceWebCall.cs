@@ -116,8 +116,6 @@ namespace BinanceBot.Application
 
             position = new SimplePosition
             {
-                PositionID = -1,
-
                 PositionType = PositionType.None,
 
                 EntryPrice = -1,
@@ -131,33 +129,25 @@ namespace BinanceBot.Application
 
             if (currentPosition.entryPrice != 0)
             {
+                position.EntryPrice = currentPosition.entryPrice;
+
+                position.Quantity = robotInput.quantity;
+
                 if (currentPosition.entryPrice > currentPosition.markPrice && currentPosition.unRealizedProfit > 0)
                 {
-                    position.EntryPrice = currentPosition.entryPrice;
-                    position.PositionID = 999;
-                    position.PositionType = PositionType.Sell;
-                    position.Quantity = robotInput.quantity;
+                    position.PositionType = PositionType.Sell;   
                 }
                 else if (currentPosition.entryPrice < currentPosition.markPrice && currentPosition.unRealizedProfit < 0)
                 {
-                    position.EntryPrice = currentPosition.entryPrice;
-                    position.PositionID = 999;
                     position.PositionType = PositionType.Sell;
-                    position.Quantity = robotInput.quantity;
                 }
                 else if (currentPosition.entryPrice < currentPosition.markPrice && currentPosition.unRealizedProfit > 0)
                 {
-                    position.EntryPrice = currentPosition.entryPrice;
-                    position.PositionID = 999;
                     position.PositionType = PositionType.Buy;
-                    position.Quantity = robotInput.quantity;
                 }
                 else if (currentPosition.entryPrice > currentPosition.markPrice && currentPosition.unRealizedProfit < 0)
                 {
-                    position.EntryPrice = currentPosition.entryPrice;
-                    position.PositionID = 999;
                     position.PositionType = PositionType.Buy;
-                    position.Quantity = robotInput.quantity;
                 }
                 else
                 {
@@ -167,10 +157,7 @@ namespace BinanceBot.Application
             }
             else
             {
-
                 strategyData.profitFactor = 1;
-
-                position.PositionID = -1;
 
                 position.PositionType = PositionType.None;
 

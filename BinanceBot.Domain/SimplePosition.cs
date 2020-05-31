@@ -10,8 +10,6 @@ namespace BinanceBot.Domain
         {
             this.Quantity = (decimal)0.002;
 
-            this.PositionID = -1;
-
             this.PositionType = PositionType.None;
 
             this.EntryPrice = -1;
@@ -21,14 +19,10 @@ namespace BinanceBot.Domain
         {
             this.Quantity = Quantity;
 
-            this.PositionID = -1;
-
             this.PositionType = PositionType.None;
 
             this.EntryPrice = -1;
         }
-
-        public long PositionID { get; set; }
 
         public decimal Quantity { get; set; }
 
