@@ -243,12 +243,12 @@ namespace BinanceBot.Strategy
                 return false;
             }
 
-            if (position.PositionType == "BUY" && strategyData.longPercentage <= HeavyRiskPercentage)
+            if (position.PositionType == PositionType.Buy && strategyData.longPercentage <= HeavyRiskPercentage)
             {
                 return true;
             }
 
-            if (position.PositionType == "SELL" && strategyData.shortPercentage <= HeavyRiskPercentage)
+            if (position.PositionType == PositionType.Sell && strategyData.shortPercentage <= HeavyRiskPercentage)
             {
                 return true;
             }
@@ -263,19 +263,19 @@ namespace BinanceBot.Strategy
                 //no positions to exit from
                 return false;
             }
-            else if (position.PositionType == "BUY" && strategyData.longPercentage <= risk && IsValidSignal(ExitSignalStrength, StrategyDecision.Exit, StrategyDecision.Sell, prevDecision, prevDecisionType))//15
+            else if (position.PositionType == PositionType.Buy && strategyData.longPercentage <= risk && IsValidSignal(ExitSignalStrength, StrategyDecision.Exit, StrategyDecision.Sell, prevDecision, prevDecisionType))//15
             {
                 return true;
             }
-            else if (position.PositionType == "SELL" && strategyData.shortPercentage <= risk && IsValidSignal(ExitSignalStrength, StrategyDecision.Exit, StrategyDecision.Buy, prevDecision, prevDecisionType))//15
+            else if (position.PositionType == PositionType.Sell && strategyData.shortPercentage <= risk && IsValidSignal(ExitSignalStrength, StrategyDecision.Exit, StrategyDecision.Buy, prevDecision, prevDecisionType))//15
             {
                 return true;
             }
-            else if (position.PositionType == "BUY" && strategyData.isSell && IsValidSignal(signalStrength / 2, StrategyDecision.Exit, StrategyDecision.Sell, prevDecision, prevDecisionType))
+            else if (position.PositionType == PositionType.Buy && strategyData.isSell && IsValidSignal(signalStrength / 2, StrategyDecision.Exit, StrategyDecision.Sell, prevDecision, prevDecisionType))
             {
                 return true;
             }
-            else if (position.PositionType == "SELL" && strategyData.isBuy && IsValidSignal(signalStrength / 2, StrategyDecision.Exit, StrategyDecision.Buy, prevDecision, prevDecisionType))
+            else if (position.PositionType == PositionType.Sell && strategyData.isBuy && IsValidSignal(signalStrength / 2, StrategyDecision.Exit, StrategyDecision.Buy, prevDecision, prevDecisionType))
             {
                 return true;
             }
@@ -292,22 +292,22 @@ namespace BinanceBot.Strategy
                 return false;
             }
 
-            if (position.PositionType == "BUY" && strategyData.longPercentage >= strategyData.profitFactor * reward)
+            if (position.PositionType == PositionType.Buy && strategyData.longPercentage >= strategyData.profitFactor * reward)
             {
                 return true;
             }
 
-            if (position.PositionType == "SELL" && strategyData.shortPercentage >= strategyData.profitFactor * reward)
+            if (position.PositionType == PositionType.Sell && strategyData.shortPercentage >= strategyData.profitFactor * reward)
             {
                 return true;
             }
 
-            if (position.PositionType == "BUY" && strategyData.isSell && strategyData.longPercentage >= reward / 2)
+            if (position.PositionType == PositionType.Buy && strategyData.isSell && strategyData.longPercentage >= reward / 2)
             {
                 return true;
             }
 
-            if (position.PositionType == "SELL" && strategyData.isBuy && strategyData.shortPercentage >= reward / 2)
+            if (position.PositionType == PositionType.Sell && strategyData.isBuy && strategyData.shortPercentage >= reward / 2)
             {
                 return true;
             }
@@ -348,13 +348,13 @@ namespace BinanceBot.Strategy
             }
 
             //the bot is trapped with sell position!!
-            if (position.PositionType == "SELL" && signaldecision == StrategyDecision.Buy && signalperiod >= EscapeTrapCandleIdx && IsValidSignal(EscapeTrapSignalStrength, StrategyDecision.Escape, StrategyDecision.Buy, prevDecision, prevDecisionType))//3,300
+            if (position.PositionType == PositionType.Sell && signaldecision == StrategyDecision.Buy && signalperiod >= EscapeTrapCandleIdx && IsValidSignal(EscapeTrapSignalStrength, StrategyDecision.Escape, StrategyDecision.Buy, prevDecision, prevDecisionType))//3,300
             {
                 return true;
             }
 
             //the bot is trapped with buy position
-            if (position.PositionType == "BUY" && signaldecision == StrategyDecision.Sell && signalperiod >= EscapeTrapCandleIdx && IsValidSignal(EscapeTrapSignalStrength, StrategyDecision.Escape, StrategyDecision.Sell, prevDecision, prevDecisionType))//3,300
+            if (position.PositionType == PositionType.Buy && signaldecision == StrategyDecision.Sell && signalperiod >= EscapeTrapCandleIdx && IsValidSignal(EscapeTrapSignalStrength, StrategyDecision.Escape, StrategyDecision.Sell, prevDecision, prevDecisionType))//3,300
             {
                 return true;
             }
@@ -370,11 +370,11 @@ namespace BinanceBot.Strategy
 
                 strategyData.longPercentage = robotInput.leverage * ((strategyData.currentClose - position.EntryPrice) / position.EntryPrice) * 100;
 
-                if (strategyData.shortPercentage < 0 && position.PositionType == "SELL")
+                if (strategyData.shortPercentage < 0 && position.PositionType == PositionType.Sell)
                 {
                     strategyData.profitFactor = robotInput.decreaseOnNegative;
                 }
-                else if (strategyData.longPercentage < 0 && position.PositionType == "BUY")
+                else if (strategyData.longPercentage < 0 && position.PositionType == PositionType.Buy)
                 {
                     strategyData.profitFactor = robotInput.decreaseOnNegative;
                 }
@@ -603,12 +603,12 @@ namespace BinanceBot.Strategy
         {
             if (position != null)
             {
-                if (position.PositionType == "BUY")
+                if (position.PositionType == PositionType.Buy)
                 {
                     decisionType = StrategyDecision.Sell;
                 }
 
-                if (position.PositionType == "SELL")
+                if (position.PositionType == PositionType.Sell)
                 {
                     decisionType = StrategyDecision.Buy;
                 }

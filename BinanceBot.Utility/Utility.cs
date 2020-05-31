@@ -176,11 +176,11 @@ namespace BinanceBot.Common
 
             Console.WriteLine("ENTRY PRICE {0} \n", order?.EntryPrice);
 
-            if (order?.PositionID != -1 && order?.PositionType == "SELL")
+            if (order?.PositionID != -1 && order?.PositionType == PositionType.Sell)
             {
                 Console.WriteLine("PERCENTAGE {0} \n", Math.Round(strategyData.shortPercentage, 3));
             }
-            if (order?.PositionID != -1 && order?.PositionType == "BUY")
+            if (order?.PositionID != -1 && order?.PositionType == PositionType.Buy)
             {
                 Console.WriteLine("PERCENTAGE {0} \n", Math.Round(strategyData.longPercentage, 3));
             }

@@ -37,16 +37,6 @@ namespace BinanceBot.Application
         /// </summary>
         /// <param name="client"></param>
         /// <param name="symbol"></param>
-        public void AssignBinanceWebCallFeatures(BinanceClient client, string symbol)
-        {
-            this.client = client;
-            this.symbol = symbol;
-        }
-        /// <summary>
-        /// Assign variables common to this class to all functions
-        /// </summary>
-        /// <param name="client"></param>
-        /// <param name="symbol"></param>
         public void AssignBinanceWebCallFeatures(string symbol)
         {
             this.symbol = symbol;
@@ -110,171 +100,13 @@ namespace BinanceBot.Application
             }
         }
         /// <summary>
-        /// Get All Positions for given Symbol
-        /// </summary>
-        /// <param name="position"></param>
-        /// <param name="quantity"></param>
-        /// <param name="profitFactor"></param>
-        public void GetCurrentPosition(ref SimplePosition position, decimal quantity, ref decimal profitFactor)
-        {
-        getpositions:
-
-            position = new SimplePosition
-            {
-                PositionID = -1,
-
-                PositionType = "",
-
-                EntryPrice = -1,
-
-                Quantity = quantity,
-
-                Trend = "",
-
-                Mood = ""
-            };
-
-            var positions = client.GetPositions(default, true);
-
-            var currentPosition = positions.Data.Where(x => x.symbol == symbol).Single();
-
-            if (currentPosition.entryPrice != 0)
-            {
-                if (currentPosition.entryPrice > currentPosition.markPrice && currentPosition.unRealizedProfit > 0)
-                {
-                    position.EntryPrice = currentPosition.entryPrice;
-                    position.PositionID = 999;
-                    position.PositionType = "SELL";
-                    position.Quantity = quantity;
-                }
-                else if (currentPosition.entryPrice < currentPosition.markPrice && currentPosition.unRealizedProfit < 0)
-                {
-                    position.EntryPrice = currentPosition.entryPrice;
-                    position.PositionID = 999;
-                    position.PositionType = "SELL";
-                    position.Quantity = quantity;
-                }
-                else if (currentPosition.entryPrice < currentPosition.markPrice && currentPosition.unRealizedProfit > 0)
-                {
-                    position.EntryPrice = currentPosition.entryPrice;
-                    position.PositionID = 999;
-                    position.PositionType = "BUY";
-                    position.Quantity = quantity;
-                }
-                else if (currentPosition.entryPrice > currentPosition.markPrice && currentPosition.unRealizedProfit < 0)
-                {
-                    position.EntryPrice = currentPosition.entryPrice;
-                    position.PositionID = 999;
-                    position.PositionType = "BUY";
-                    position.Quantity = quantity;
-                }
-                else
-                {
-                    Thread.Sleep(1000);
-                    goto getpositions;
-                }
-            }
-            else
-            {
-
-                profitFactor = 1;
-
-                position.PositionID = -1;
-
-                position.PositionType = "";
-
-                position.EntryPrice = -1;
-
-                position.Quantity = quantity;
-            }
-        }
-        /// <summary>
-        /// Get All Positions for given Symbol
-        /// </summary>
-        /// <param name="position"></param>
-        /// <param name="quantity"></param>
-        /// <param name="profitFactor"></param>
-        public void GetCurrentPosition(ref SimplePosition position, decimal quantity, ref StrategyData strategyData)
-        {
-        getpositions:
-
-            position = new SimplePosition
-            {
-                PositionID = -1,
-
-                PositionType = "",
-
-                EntryPrice = -1,
-
-                Quantity = quantity,
-
-                Trend = "",
-
-                Mood = ""
-            };
-
-            var positions = client.GetPositions(default, true);
-
-            var currentPosition = positions.Data.Where(x => x.symbol == symbol && x.positionSide == "BOTH").Single();
-
-            if (currentPosition.entryPrice != 0)
-            {
-                if (currentPosition.entryPrice > currentPosition.markPrice && currentPosition.unRealizedProfit > 0)
-                {
-                    position.EntryPrice = currentPosition.entryPrice;
-                    position.PositionID = 999;
-                    position.PositionType = "SELL";
-                    position.Quantity = quantity;
-                }
-                else if (currentPosition.entryPrice < currentPosition.markPrice && currentPosition.unRealizedProfit < 0)
-                {
-                    position.EntryPrice = currentPosition.entryPrice;
-                    position.PositionID = 999;
-                    position.PositionType = "SELL";
-                    position.Quantity = quantity;
-                }
-                else if (currentPosition.entryPrice < currentPosition.markPrice && currentPosition.unRealizedProfit > 0)
-                {
-                    position.EntryPrice = currentPosition.entryPrice;
-                    position.PositionID = 999;
-                    position.PositionType = "BUY";
-                    position.Quantity = quantity;
-                }
-                else if (currentPosition.entryPrice > currentPosition.markPrice && currentPosition.unRealizedProfit < 0)
-                {
-                    position.EntryPrice = currentPosition.entryPrice;
-                    position.PositionID = 999;
-                    position.PositionType = "BUY";
-                    position.Quantity = quantity;
-                }
-                else
-                {
-                    Thread.Sleep(1000);
-                    goto getpositions;
-                }
-            }
-            else
-            {
-
-                strategyData.profitFactor = 1;
-
-                position.PositionID = -1;
-
-                position.PositionType = "";
-
-                position.EntryPrice = -1;
-
-                position.Quantity = quantity;
-            }
-        }
-        /// <summary>
         /// Get all Positions for the given symbol 
         /// </summary>
         /// <param name="robotInput"></param>
         /// <param name="strategyData"></param>
         /// <param name="position"></param>
         /// <param name="isLive"></param>
-        public void GetCurrentPosition(RobotInput robotInput, ref StrategyData strategyData, ref SimplePosition position, bool isLive)
+        public void GetOpenPosition(RobotInput robotInput, ref StrategyData strategyData, ref SimplePosition position, bool isLive)
         {
             if (!isLive)
             {
@@ -286,15 +118,11 @@ namespace BinanceBot.Application
             {
                 PositionID = -1,
 
-                PositionType = "",
+                PositionType = PositionType.None,
 
                 EntryPrice = -1,
 
-                Quantity = robotInput.quantity,
-
-                Trend = "",
-
-                Mood = ""
+                Quantity = robotInput.quantity
             };
 
             var positions = client.GetPositions(default, true);
@@ -307,28 +135,28 @@ namespace BinanceBot.Application
                 {
                     position.EntryPrice = currentPosition.entryPrice;
                     position.PositionID = 999;
-                    position.PositionType = "SELL";
+                    position.PositionType = PositionType.Sell;
                     position.Quantity = robotInput.quantity;
                 }
                 else if (currentPosition.entryPrice < currentPosition.markPrice && currentPosition.unRealizedProfit < 0)
                 {
                     position.EntryPrice = currentPosition.entryPrice;
                     position.PositionID = 999;
-                    position.PositionType = "SELL";
+                    position.PositionType = PositionType.Sell;
                     position.Quantity = robotInput.quantity;
                 }
                 else if (currentPosition.entryPrice < currentPosition.markPrice && currentPosition.unRealizedProfit > 0)
                 {
                     position.EntryPrice = currentPosition.entryPrice;
                     position.PositionID = 999;
-                    position.PositionType = "BUY";
+                    position.PositionType = PositionType.Buy;
                     position.Quantity = robotInput.quantity;
                 }
                 else if (currentPosition.entryPrice > currentPosition.markPrice && currentPosition.unRealizedProfit < 0)
                 {
                     position.EntryPrice = currentPosition.entryPrice;
                     position.PositionID = 999;
-                    position.PositionType = "BUY";
+                    position.PositionType = PositionType.Buy;
                     position.Quantity = robotInput.quantity;
                 }
                 else
@@ -344,14 +172,13 @@ namespace BinanceBot.Application
 
                 position.PositionID = -1;
 
-                position.PositionType = "";
+                position.PositionType = PositionType.None;
 
                 position.EntryPrice = -1;
 
                 position.Quantity = robotInput.quantity;
             }
         }
-
         /// <summary>
         /// Get Candle Data From the Servers
         /// </summary>

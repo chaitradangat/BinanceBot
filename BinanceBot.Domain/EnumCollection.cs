@@ -73,6 +73,7 @@ namespace BinanceBot.Domain
         Buy,
         Sell,
         Long,
-        Short
+        Short,
+        None
     }
 }

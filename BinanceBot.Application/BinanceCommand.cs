@@ -71,7 +71,7 @@ namespace BinanceBot.Application
                         #endregion
 
                         //get open positions from server
-                        webCall.GetCurrentPosition(robotInput, ref strategyData, ref currentPosition, isLive);
+                        webCall.GetOpenPosition(robotInput, ref strategyData, ref currentPosition, isLive);
 
                         //get kandles from server
                         webCall.GetKLinesDataCached(robotInput.timeframe, robotInput.candleCount, ref strategyData);

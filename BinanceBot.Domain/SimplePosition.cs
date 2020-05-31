@@ -12,13 +12,9 @@ namespace BinanceBot.Domain
 
             this.PositionID = -1;
 
-            this.PositionType = "";
+            this.PositionType = PositionType.None;
 
             this.EntryPrice = -1;
-
-            this.Trend = "";
-
-            this.Mood = "";
         }
 
         public SimplePosition(decimal Quantity)
@@ -27,25 +23,18 @@ namespace BinanceBot.Domain
 
             this.PositionID = -1;
 
-            this.PositionType = "";
+            this.PositionType = PositionType.None;
 
             this.EntryPrice = -1;
-
-            this.Trend = "";
-
-            this.Mood = "";
         }
 
         public long PositionID { get; set; }
 
         public decimal Quantity { get; set; }
 
-        public string PositionType { get; set; }
+        public PositionType PositionType { get; set; }
 
         public decimal EntryPrice { get; set; }
 
-        public string Trend { get; set; }
-
-        public string Mood { get; set; }
     }
 }
