@@ -12,15 +12,15 @@ namespace BinanceBot.Strategy
 {
     public class OpenCloseStrategyDecision
     {
+        #region -variables of strategy configuration-
+        //master validator class
         TradeValidator validator;
 
-        #region -variables of strategy configuration-
         //ruleset
         private string ValidationRuleSet;
 
         //exit vars
         private bool ExitImmediate;//false
-        private int ExitSignalStrength; //15
         private decimal HeavyRiskPercentage;//15
 
         //escape vars
@@ -32,7 +32,7 @@ namespace BinanceBot.Strategy
         private bool GrabMissedPosition; //true
         private int MissedPositionStartCandleIndex; //3
         private int MissedPositionEndCandleIndex; //5
-        private int MissedPositionSignalStrength; //200
+
         private int ConsistentKandlesLookBack; //3
 
         //validation vars
@@ -41,6 +41,11 @@ namespace BinanceBot.Strategy
         private int RequiredSignalQuality;//3
 
 
+        private int OpenPositionSignalStrength;//50
+        private int MissedPositionSignalStrength;//200
+        private int ExitPositionHeavyLossSignalStrength;//0
+        private int ExitSignalStrength;
+        private int TakeProfitSignalStrength;
         #endregion
 
         #region -variables to calculate signal strength-
@@ -55,139 +60,32 @@ namespace BinanceBot.Strategy
         private int LatestSignalStrength;
         #endregion
 
-        #region -Decision Methods for Buy Sell Opinion-
-        private bool IsValidSignal(int signalStrength, StrategyDecision currentDecision, StrategyDecision currentDecisionType, StrategyDecision prevDecision, StrategyDecision prevDecisionType)
-        {
-            LatestSignalStrength = signalStrength;
-
-            //simple logic of current and previous states match
-            if (prevDecision != currentDecision || prevDecisionType != currentDecisionType)
-            {
-                BuyCounter = 0;
-
-                SellCounter = 0;
-
-                prevDecision = currentDecision;
-
-                prevDecisionType = currentDecisionType;
-
-                this.prevDecision = prevDecision;
-
-                this.prevDecisionType = prevDecisionType;
-            }
-
-            if (currentDecision == prevDecision && currentDecisionType == prevDecisionType && currentDecision != StrategyDecision.None && prevDecision != StrategyDecision.None)
-            {
-                if (currentDecision == StrategyDecision.Open || currentDecision == StrategyDecision.OpenMissed || currentDecision == StrategyDecision.TakeProfit || currentDecision == StrategyDecision.Exit || currentDecision == StrategyDecision.Escape)
-                {
-                    if (currentDecisionType == StrategyDecision.Buy)
-                    {
-                        ++BuyCounter;
-
-                        return BuyCounter >= signalStrength;
-                    }
-                    if (currentDecisionType == StrategyDecision.Sell)
-                    {
-                        ++SellCounter;
-
-                        return SellCounter >= signalStrength;
-                    }
-                }
-            }
-
-
-            return false;
-
-            #region -old commented code retained for historical sakes-
-            /*
-            if (prevDecision == currentDecision && prevDecision != StrategyDecision.None)
-            {
-                if (isBuy && (currentDecision == StrategyDecision.OpenPositionWithBuy || currentDecision == StrategyDecision.BookProfitWithBuy))
-                {
-                    ++BuyCounter;
-
-                    return BuyCounter >= signalStrength;
-                }
-                if (isSell && (currentDecision == StrategyDecision.OpenPositionWithSell || currentDecision == StrategyDecision.BookProfitWithSell))
-                {
-                    ++SellCounter;
-
-                    return SellCounter >= signalStrength;
-                }
-                if (isBuy && currentDecision == StrategyDecision.ExitPositionWithBuy)
-                {
-                    ++BuyCounter;
-
-                    return BuyCounter >= signalStrength;
-                }
-                if (isSell && currentDecision == StrategyDecision.ExitPositionWithSell)
-                {
-                    ++SellCounter;
-
-                    return SellCounter >= signalStrength;
-                }
-                if (ExitImmediate && currentDecision == StrategyDecision.ExitPositionWithBuy)
-                {
-                    ++BuyCounter;
-
-                    return BuyCounter >= signalStrength;
-                }
-                if (ExitImmediate && currentDecision == StrategyDecision.ExitPositionWithSell)
-                {
-                    ++SellCounter;
-
-                    return SellCounter >= signalStrength;
-                }
-                if (!isBuy && !isSell && currentDecision == StrategyDecision.EscapeTrapWithBuy)
-                {
-                    ++BuyCounter;
-
-                    return BuyCounter >= signalStrength;
-                }
-                if (!isBuy && !isSell && currentDecision == StrategyDecision.EscapeTrapWithSell)
-                {
-                    ++SellCounter;
-
-                    return SellCounter >= signalStrength;
-                }
-                if (!isBuy && !isSell && currentDecision == StrategyDecision.MissedPositionBuy)
-                {
-                    ++BuyCounter;
-
-                    return BuyCounter >= signalStrength;
-                }
-                if (!isBuy && !isSell && currentDecision == StrategyDecision.MissedPositionSell)
-                {
-                    ++SellCounter;
-
-                    return SellCounter >= signalStrength;
-                }
-            }
-            */
-            #endregion
-        }
-
-        private bool OpenPosition(SimplePosition position, StrategyData strategyData, int signalStrength)
+        #region -Decision Methods-
+        private bool OpenPosition(SimplePosition position, ref StrategyData strategyData)
         {
             if (position.PositionType != PositionType.None)
             {
                 return false;
             }
 
-            if (strategyData.isBuy && IsValidSignal(signalStrength, StrategyDecision.Open, StrategyDecision.Buy, prevDecision, prevDecisionType))
+            if (strategyData.isBuy)
             {
+                strategyData.Decision = StrategyDecision.Open;
+                strategyData.DecisionType = StrategyDecision.Buy;
                 return true;
             }
 
-            if (strategyData.isSell && IsValidSignal(signalStrength, StrategyDecision.Open, StrategyDecision.Sell, prevDecision, prevDecisionType))
+            if (strategyData.isSell)
             {
+                strategyData.Decision = StrategyDecision.Open;
+                strategyData.DecisionType = StrategyDecision.Sell;
                 return true;
             }
 
             return false;
         }
 
-        private bool OpenMissedPosition(SimplePosition position, StrategyData strategyData)
+        private bool OpenMissedPosition(SimplePosition position, ref StrategyData strategyData)
         {
             //position already exists
             if (position.PositionType != PositionType.None)
@@ -221,21 +119,25 @@ namespace BinanceBot.Strategy
             }
 
             //missed buy position
-            if (signaldecision == StrategyDecision.Buy && signalperiod >= MissedPositionStartCandleIndex && signalperiod <= MissedPositionEndCandleIndex && IsValidSignal(MissedPositionSignalStrength, StrategyDecision.OpenMissed, StrategyDecision.Buy, prevDecision, prevDecisionType))//3,5,200
+            if (signaldecision == StrategyDecision.Buy && signalperiod >= MissedPositionStartCandleIndex && signalperiod <= MissedPositionEndCandleIndex)//3,5,200
             {
+                strategyData.Decision = StrategyDecision.OpenMissed;
+                strategyData.DecisionType = StrategyDecision.Buy;
                 return true;
             }
 
             //missed sell position
-            if (signaldecision == StrategyDecision.Sell && signalperiod >= MissedPositionStartCandleIndex && signalperiod <= MissedPositionEndCandleIndex && IsValidSignal(MissedPositionSignalStrength, StrategyDecision.OpenMissed, StrategyDecision.Sell, prevDecision, prevDecisionType))//3,5,200
+            if (signaldecision == StrategyDecision.Sell && signalperiod >= MissedPositionStartCandleIndex && signalperiod <= MissedPositionEndCandleIndex)//3,5,200
             {
+                strategyData.Decision = StrategyDecision.OpenMissed;
+                strategyData.DecisionType = StrategyDecision.Sell;
                 return true;
             }
 
             return false;
         }
 
-        private bool ExitPositionHeavyLoss(SimplePosition position, StrategyData strategyData, decimal HeavyRiskPercentage)
+        private bool ExitPositionHeavyLoss(SimplePosition position, ref StrategyData strategyData)
         {
             //no position to exit from
             if (position.PositionType == PositionType.None)
@@ -245,47 +147,55 @@ namespace BinanceBot.Strategy
 
             if (position.PositionType == PositionType.Buy && strategyData.Percentage <= HeavyRiskPercentage)
             {
+                strategyData.Decision = StrategyDecision.ExitHeavy;
+                strategyData.DecisionType = StrategyDecision.Sell;
                 return true;
             }
 
             if (position.PositionType == PositionType.Sell && strategyData.Percentage <= HeavyRiskPercentage)
             {
+                strategyData.Decision = StrategyDecision.ExitHeavy;
+                strategyData.DecisionType = StrategyDecision.Buy;
                 return true;
             }
 
             return false;
         }
 
-        private bool ExitPosition(SimplePosition position, StrategyData strategyData, decimal risk, int signalStrength)
+        private bool ExitPosition(SimplePosition position, ref StrategyData strategyData, decimal risk)
         {
             if (position.PositionType == PositionType.None)
             {
-                //no positions to exit from
                 return false;
             }
-            else if (position.PositionType == PositionType.Buy && strategyData.Percentage <= risk && IsValidSignal(ExitSignalStrength, StrategyDecision.Exit, StrategyDecision.Sell, prevDecision, prevDecisionType))//15
+            if (position.PositionType == PositionType.Buy && strategyData.Percentage <= risk)//15
             {
+                strategyData.Decision = StrategyDecision.Exit;
+                strategyData.DecisionType = StrategyDecision.Sell;
                 return true;
             }
-            else if (position.PositionType == PositionType.Sell && strategyData.Percentage <= risk && IsValidSignal(ExitSignalStrength, StrategyDecision.Exit, StrategyDecision.Buy, prevDecision, prevDecisionType))//15
+            if (position.PositionType == PositionType.Sell && strategyData.Percentage <= risk)//15
             {
+                strategyData.Decision = StrategyDecision.Exit;
+                strategyData.DecisionType = StrategyDecision.Buy;
                 return true;
             }
-            else if (position.PositionType == PositionType.Buy && strategyData.isSell && IsValidSignal(signalStrength / 2, StrategyDecision.Exit, StrategyDecision.Sell, prevDecision, prevDecisionType))
+            if (position.PositionType == PositionType.Buy && strategyData.isSell)
             {
+                strategyData.Decision = StrategyDecision.Exit;
+                strategyData.DecisionType = StrategyDecision.Sell;
                 return true;
             }
-            else if (position.PositionType == PositionType.Sell && strategyData.isBuy && IsValidSignal(signalStrength / 2, StrategyDecision.Exit, StrategyDecision.Buy, prevDecision, prevDecisionType))
+            if (position.PositionType == PositionType.Sell && strategyData.isBuy)
             {
+                strategyData.Decision = StrategyDecision.Exit;
+                strategyData.DecisionType = StrategyDecision.Buy;
                 return true;
             }
-            else
-            {
-                return false;
-            }
+            return false;
         }
 
-        private bool TakeProfit(SimplePosition position, StrategyData strategyData, decimal reward)
+        private bool TakeProfit(SimplePosition position, ref StrategyData strategyData, decimal reward)
         {
             if (position.PositionType == PositionType.None)
             {
@@ -294,28 +204,36 @@ namespace BinanceBot.Strategy
 
             if (position.PositionType == PositionType.Buy && strategyData.Percentage >= strategyData.profitFactor * reward)
             {
+                strategyData.Decision = StrategyDecision.TakeProfit;
+                strategyData.DecisionType = StrategyDecision.Sell;
                 return true;
             }
 
             if (position.PositionType == PositionType.Sell && strategyData.Percentage >= strategyData.profitFactor * reward)
             {
+                strategyData.Decision = StrategyDecision.TakeProfit;
+                strategyData.DecisionType = StrategyDecision.Buy;
                 return true;
             }
 
             if (position.PositionType == PositionType.Buy && strategyData.isSell && strategyData.Percentage >= reward / 2)
             {
+                strategyData.Decision = StrategyDecision.TakeProfit;
+                strategyData.DecisionType = StrategyDecision.Sell;
                 return true;
             }
 
             if (position.PositionType == PositionType.Sell && strategyData.isBuy && strategyData.Percentage >= reward / 2)
             {
+                strategyData.Decision = StrategyDecision.TakeProfit;
+                strategyData.DecisionType = StrategyDecision.Buy;
                 return true;
             }
 
             return false;
         }
 
-        private bool EscapeTrap(SimplePosition position, StrategyData strategyData)
+        private bool EscapeTrap(SimplePosition position, ref StrategyData strategyData)
         {
             //no open positions
             if (position.PositionType == PositionType.None)
@@ -348,173 +266,274 @@ namespace BinanceBot.Strategy
             }
 
             //the bot is trapped with sell position!!
-            if (position.PositionType == PositionType.Sell && signaldecision == StrategyDecision.Buy && signalperiod >= EscapeTrapCandleIdx && IsValidSignal(EscapeTrapSignalStrength, StrategyDecision.Escape, StrategyDecision.Buy, prevDecision, prevDecisionType))//3,300
+            if (position.PositionType == PositionType.Sell && signaldecision == StrategyDecision.Buy && signalperiod >= EscapeTrapCandleIdx)//3,300
             {
+                strategyData.Decision = StrategyDecision.Escape;
+                strategyData.DecisionType = StrategyDecision.Buy;
                 return true;
             }
 
             //the bot is trapped with buy position
-            if (position.PositionType == PositionType.Buy && signaldecision == StrategyDecision.Sell && signalperiod >= EscapeTrapCandleIdx && IsValidSignal(EscapeTrapSignalStrength, StrategyDecision.Escape, StrategyDecision.Sell, prevDecision, prevDecisionType))//3,300
+            if (position.PositionType == PositionType.Buy && signaldecision == StrategyDecision.Sell && signalperiod >= EscapeTrapCandleIdx)//3,300
             {
+                strategyData.Decision = StrategyDecision.Escape;
+                strategyData.DecisionType = StrategyDecision.Sell;
                 return true;
             }
 
             return false;
         }
-
         #endregion
 
-        #region -Validator Methods-
+        #region -Decision Validator Methods-
         //validations for the decisions made 
-        private void ValidateOpenPosition(RobotInput roboInput, ref StrategyData strategyData, StrategyDecision decision, ref StrategyDecision sOutput)
+        private bool IsDecisionStrong(int signalStrength, StrategyDecision Decision, StrategyDecision DecisionType)
         {
-            if (decision == StrategyDecision.Buy || decision == StrategyDecision.Sell)
+            LatestSignalStrength = signalStrength;
+
+            //simple logic of current and previous states match
+            if (prevDecision != Decision || prevDecisionType != DecisionType)
             {
-                if (!validator.IsTradeOnRightKandle(strategyData, decision, StrategyDecision.Open))
+                BuyCounter = 0;
+
+                SellCounter = 0;
+
+                prevDecision = Decision;
+
+                prevDecisionType = DecisionType;
+            }
+
+            if (Decision == prevDecision && DecisionType == prevDecisionType && Decision != StrategyDecision.None && DecisionType != StrategyDecision.None)
+            {
+                if (Decision == StrategyDecision.Open || Decision == StrategyDecision.OpenMissed || Decision == StrategyDecision.TakeProfit ||
+                    Decision == StrategyDecision.Exit || Decision == StrategyDecision.Escape || Decision == StrategyDecision.ExitHeavy)
                 {
-                    sOutput = StrategyDecision.SkipOpen;
+                    if (DecisionType == StrategyDecision.Buy)
+                    {
+                        ++BuyCounter;
 
-                    strategyData.AvoidReasons.Add(decision);
+                        return BuyCounter >= signalStrength;
+                    }
+                    if (DecisionType == StrategyDecision.Sell)
+                    {
+                        ++SellCounter;
 
-                    if (decision == StrategyDecision.Buy)
+                        return SellCounter >= signalStrength;
+                    }
+                }
+            }
+            return false;
+        }
+
+        private void ValidateOpenPosition(RobotInput roboInput, ref StrategyData strategyData)
+        {
+            if (strategyData.DecisionType == StrategyDecision.Buy || strategyData.DecisionType == StrategyDecision.Sell)
+            {
+                var decision = StrategyDecision.Open;
+
+                var skipdecision = StrategyDecision.SkipOpen;
+
+                var decisiontype = StrategyDecision.None;
+
+                if (strategyData.DecisionType == StrategyDecision.Buy)
+                {
+                    decisiontype = StrategyDecision.Buy;
+                }
+                if (strategyData.DecisionType == StrategyDecision.Sell)
+                {
+                    decisiontype = StrategyDecision.Sell;
+                }
+
+                if (!validator.IsTradeOnRightKandle(strategyData, decisiontype, decision))
+                {
+                    strategyData.Decision = skipdecision;
+
+                    strategyData.AvoidReasons.Add(decisiontype);
+
+                    if (decisiontype == StrategyDecision.Buy)
                     {
                         strategyData.AvoidReasons.Add(StrategyDecision.RedKandle);
                     }
-                    if (decision == StrategyDecision.Sell)
+                    if (decisiontype == StrategyDecision.Sell)
                     {
                         strategyData.AvoidReasons.Add(StrategyDecision.GreenKandle);
                     }
                 }
 
-                if (!validator.IsTradeValidOnBollinger(strategyData, decision, BollingerFactor, roboInput.reward))
+                if (!validator.IsTradeValidOnBollinger(strategyData, decisiontype, BollingerFactor, roboInput.reward))
                 {
-                    sOutput = StrategyDecision.SkipOpen;
+                    strategyData.Decision = skipdecision;
 
-                    strategyData.AvoidReasons.Add(decision);
+                    strategyData.AvoidReasons.Add(decisiontype);
 
                     strategyData.AvoidReasons.Add(StrategyDecision.InvalidBollinger);
                 }
 
                 if (!validator.IsSignalGapValid(strategyData, RequiredSignalGap))
                 {
-                    sOutput = StrategyDecision.SkipOpen;
+                    strategyData.Decision = skipdecision;
 
-                    strategyData.AvoidReasons.Add(decision);
+                    strategyData.AvoidReasons.Add(decisiontype);
 
                     strategyData.AvoidReasons.Add(StrategyDecision.LowSignalGap);
                 }
 
-                if (!validator.IsSignalGoodQuality(strategyData, decision, RequiredSignalQuality))
+                if (!validator.IsSignalGoodQuality(strategyData, decisiontype, RequiredSignalQuality))
                 {
-                    sOutput = StrategyDecision.SkipOpen;
+                    strategyData.Decision = skipdecision;
 
-                    strategyData.AvoidReasons.Add(decision);
+                    strategyData.AvoidReasons.Add(decisiontype);
 
                     strategyData.AvoidReasons.Add(StrategyDecision.LowSignalQuality);
                 }
             }
         }
 
-        private void ValidateOpenMissedPosition(RobotInput roboInput, ref StrategyData strategyData, StrategyDecision decision, ref StrategyDecision sOutput)
+        private void ValidateOpenMissedPosition(RobotInput roboInput, ref StrategyData strategyData)
         {
-            if (decision == StrategyDecision.Buy || decision == StrategyDecision.Sell)
+            if (strategyData.DecisionType == StrategyDecision.Buy || strategyData.DecisionType == StrategyDecision.Sell)
             {
-                if (!validator.KandlesAreConsistent(strategyData, decision, ConsistentKandlesLookBack))
-                {
-                    sOutput = StrategyDecision.SkipMissedOpen;
+                var decision = StrategyDecision.OpenMissed;
 
-                    strategyData.AvoidReasons.Add(decision);
+                var skipdecision = StrategyDecision.SkipMissedOpen;
+
+                var decisiontype = StrategyDecision.None;
+
+                if (strategyData.DecisionType == StrategyDecision.Buy)
+                {
+                    decisiontype = StrategyDecision.Buy;
+                }
+                if (strategyData.DecisionType == StrategyDecision.Sell)
+                {
+                    decisiontype = StrategyDecision.Sell;
+                }
+
+                if (!validator.KandlesAreConsistent(strategyData, decisiontype, ConsistentKandlesLookBack))
+                {
+                    strategyData.Decision = skipdecision;
+
+                    strategyData.AvoidReasons.Add(decisiontype);
 
                     strategyData.AvoidReasons.Add(StrategyDecision.InconsistentKandles);
                 }
 
-                if (!validator.IsTradeOnRightKandle(strategyData, decision, StrategyDecision.Open))
+                if (!validator.IsTradeOnRightKandle(strategyData, decisiontype, decision))
                 {
-                    sOutput = StrategyDecision.SkipMissedOpen;
+                    strategyData.Decision = skipdecision;
 
-                    strategyData.AvoidReasons.Add(decision);
+                    strategyData.AvoidReasons.Add(decisiontype);
 
-                    if (decision == StrategyDecision.Buy)
+                    if (decisiontype == StrategyDecision.Buy)
                     {
                         strategyData.AvoidReasons.Add(StrategyDecision.RedKandle);
                     }
-                    if (decision == StrategyDecision.Sell)
+                    if (decisiontype == StrategyDecision.Sell)
                     {
                         strategyData.AvoidReasons.Add(StrategyDecision.GreenKandle);
                     }
                 }
 
-                if (!validator.IsTradeValidOnBollinger(strategyData, decision, BollingerFactor, roboInput.reward))
+                if (!validator.IsTradeValidOnBollinger(strategyData, decisiontype, BollingerFactor, roboInput.reward))
                 {
-                    sOutput = StrategyDecision.SkipMissedOpen;
+                    strategyData.Decision = skipdecision;
 
-                    strategyData.AvoidReasons.Add(decision);
+                    strategyData.AvoidReasons.Add(decisiontype);
 
                     strategyData.AvoidReasons.Add(StrategyDecision.InvalidBollinger);
                 }
 
                 if (!validator.IsSignalGapValid(strategyData, RequiredSignalGap))
                 {
-                    sOutput = StrategyDecision.SkipMissedOpen;
+                    strategyData.Decision = skipdecision;
 
-                    strategyData.AvoidReasons.Add(decision);
+                    strategyData.AvoidReasons.Add(decisiontype);
 
                     strategyData.AvoidReasons.Add(StrategyDecision.LowSignalGap);
                 }
 
-                if (!validator.IsSignalGoodQuality(strategyData, decision, RequiredSignalQuality))
+                if (!validator.IsSignalGoodQuality(strategyData, decisiontype, RequiredSignalQuality))
                 {
-                    sOutput = StrategyDecision.SkipMissedOpen;
+                    strategyData.Decision = skipdecision;
 
-                    strategyData.AvoidReasons.Add(decision);
+                    strategyData.AvoidReasons.Add(decisiontype);
 
                     strategyData.AvoidReasons.Add(StrategyDecision.LowSignalQuality);
                 }
             }
         }
 
-        private void ValidateExitPositionHeavyLoss(RobotInput roboInput, ref StrategyData strategyData, StrategyDecision decision, ref StrategyDecision sOutput)
+        private void ValidateExitPositionHeavyLoss(RobotInput roboInput, ref StrategyData strategyData)
         {
             //this logic will be done later.
             return;
         }
 
-        private void ValidateExitPosition(RobotInput roboInput, ref StrategyData strategyData, StrategyDecision decision, ref StrategyDecision sOutput)
+        private void ValidateExitPosition(RobotInput roboInput, ref StrategyData strategyData)
         {
-            if (decision == StrategyDecision.Sell || decision == StrategyDecision.Buy)
+            if (strategyData.DecisionType == StrategyDecision.Sell || strategyData.DecisionType == StrategyDecision.Buy)
             {
+                var decision = StrategyDecision.Exit;
+
+                var skipdecision = StrategyDecision.SkipExit;
+
+                var decisiontype = StrategyDecision.None;
+
+                if (strategyData.DecisionType == StrategyDecision.Buy)
+                {
+                    decisiontype = StrategyDecision.Buy;
+                }
+                if (strategyData.DecisionType == StrategyDecision.Sell)
+                {
+                    decisiontype = StrategyDecision.Sell;
+                }
+
                 if (!validator.IsSignalGapValid(strategyData, RequiredSignalGap))
                 {
-                    sOutput = StrategyDecision.SkipExit;
+                    strategyData.Decision = skipdecision;
 
-                    strategyData.AvoidReasons.Add(decision);
+                    strategyData.AvoidReasons.Add(decisiontype);
 
                     strategyData.AvoidReasons.Add(StrategyDecision.LowSignalGap);
                 }
             }
         }
 
-        private void ValidateTakeProfit(RobotInput roboInput, ref StrategyData strategyData, StrategyDecision decision, ref StrategyDecision sOutput)
+        private void ValidateTakeProfit(RobotInput roboInput, ref StrategyData strategyData)
         {
             //this logic will be done later.
             return;
         }
 
-        private void ValidateEscapeTrap(RobotInput roboInput, ref StrategyData strategyData, StrategyDecision decision, ref StrategyDecision sOutput)
+        private void ValidateEscapeTrap(RobotInput roboInput, ref StrategyData strategyData)
         {
-            if (decision == StrategyDecision.Sell || decision == StrategyDecision.Buy)
+            if (strategyData.DecisionType == StrategyDecision.Sell || strategyData.DecisionType == StrategyDecision.Buy)
             {
-                if (!validator.IsTradeOnRightKandle(strategyData, decision, StrategyDecision.Open))
+                var decision = StrategyDecision.Escape;
+
+                var skipdecision = StrategyDecision.SkipEscape;
+
+                var decisiontype = StrategyDecision.None;
+
+                if (strategyData.DecisionType == StrategyDecision.Buy)
                 {
-                    sOutput = StrategyDecision.SkipEscape;
+                    decisiontype = StrategyDecision.Buy;
+                }
+                if (strategyData.DecisionType == StrategyDecision.Sell)
+                {
+                    decisiontype = StrategyDecision.Sell;
+                }
 
-                    strategyData.AvoidReasons.Add(decision);
+                if (!validator.IsTradeOnRightKandle(strategyData, decisiontype, decision))
+                {
+                    strategyData.Decision = skipdecision;
 
-                    if (decision == StrategyDecision.Buy)
+                    strategyData.AvoidReasons.Add(decisiontype);
+
+                    if (decisiontype == StrategyDecision.Buy)
                     {
                         strategyData.AvoidReasons.Add(StrategyDecision.RedKandle);
                     }
-                    if (decision == StrategyDecision.Sell)
+                    if (decisiontype == StrategyDecision.Sell)
                     {
                         strategyData.AvoidReasons.Add(StrategyDecision.GreenKandle);
                     }
@@ -522,18 +541,18 @@ namespace BinanceBot.Strategy
 
                 if (!validator.IsSignalGapValid(strategyData, RequiredSignalGap))
                 {
-                    sOutput = StrategyDecision.SkipEscape;
+                    strategyData.Decision = skipdecision;
 
-                    strategyData.AvoidReasons.Add(decision);
+                    strategyData.AvoidReasons.Add(decisiontype);
 
                     strategyData.AvoidReasons.Add(StrategyDecision.LowSignalGap);
                 }
 
-                if (!validator.IsTradeMatchTrend(strategyData, decision))
+                if (!validator.IsTradeMatchTrend(strategyData, decisiontype))
                 {
-                    sOutput = StrategyDecision.SkipEscape;
+                    strategyData.Decision = skipdecision;
 
-                    strategyData.AvoidReasons.Add(decision);
+                    strategyData.AvoidReasons.Add(decisiontype);
 
                     strategyData.AvoidReasons.Add(StrategyDecision.AgainstTrend);
                 }
@@ -560,36 +579,11 @@ namespace BinanceBot.Strategy
             period = Convert.ToInt32(signaldata.Replace("B", "").Replace("S", ""));
         }
 
-        private void GetDecisionType(StrategyData strategyData, ref StrategyDecision decisionType)
+        private void ResetDecision(ref StrategyData strategyData)
         {
-            if (strategyData != null)
-            {
-                if (strategyData.isBuy)
-                {
-                    decisionType = StrategyDecision.Buy;
-                }
+            strategyData.Decision = StrategyDecision.None;
 
-                if (strategyData.isSell)
-                {
-                    decisionType = StrategyDecision.Sell;
-                }
-            }
-        }
-
-        private void GetDecisionType(SimplePosition position, ref StrategyDecision decisionType)
-        {
-            if (position != null)
-            {
-                if (position.PositionType == PositionType.Buy)
-                {
-                    decisionType = StrategyDecision.Sell;
-                }
-
-                if (position.PositionType == PositionType.Sell)
-                {
-                    decisionType = StrategyDecision.Buy;
-                }
-            }
+            strategyData.DecisionType = StrategyDecision.None;
         }
 
         public void ResetCounters()
@@ -608,138 +602,120 @@ namespace BinanceBot.Strategy
 
         public OpenCloseStrategyDecision()
         {
+            //decision strength variables
             BuyCounter = 0;
-
             SellCounter = 0;
-
             prevDecision = StrategyDecision.None;
-
             prevDecisionType = StrategyDecision.None;
 
-            //ruleset
-            ValidationRuleSet = OpenCloseStrategySettings.settings.ValidationRuleSet;
-
-            //set strategy variables
-            ExitSignalStrength = OpenCloseStrategySettings.settings.ExitSignalStrength;
-
-            ExitImmediate = OpenCloseStrategySettings.settings.ExitImmediate;
-
-            //set escape strategy variables
-            EscapeTraps = OpenCloseStrategySettings.settings.EscapeTraps;
-
-            EscapeTrapCandleIdx = OpenCloseStrategySettings.settings.EscapeTrapCandleIdx;
-
-            EscapeTrapSignalStrength = OpenCloseStrategySettings.settings.EscapeTrapSignalStrength;
-
-            //set missed position strategy variables
+            //missedposition decision variables
             GrabMissedPosition = OpenCloseStrategySettings.settings.GrabMissedPosition;
-
             MissedPositionStartCandleIndex = OpenCloseStrategySettings.settings.MissedPositionStartCandleIndex;
-
             MissedPositionEndCandleIndex = OpenCloseStrategySettings.settings.MissedPositionEndCandleIndex;
 
-            MissedPositionSignalStrength = OpenCloseStrategySettings.settings.MissedPositionSignalStrength;
-
+            //heavyloss decision variables
+            ExitImmediate = OpenCloseStrategySettings.settings.ExitImmediate;
             HeavyRiskPercentage = OpenCloseStrategySettings.settings.HeavyRiskPercentage;
 
+            //escape decision variables
+            EscapeTraps = OpenCloseStrategySettings.settings.EscapeTraps;
+            EscapeTrapCandleIdx = OpenCloseStrategySettings.settings.EscapeTrapCandleIdx;
+
             //set variables to avoid wrong trades (trade validation)
-            BollingerFactor = OpenCloseStrategySettings.settings.BollingerFactor;
-
             RequiredSignalGap = OpenCloseStrategySettings.settings.SignalGap;
-
+            BollingerFactor = OpenCloseStrategySettings.settings.BollingerFactor;
+            RequiredSignalQuality = OpenCloseStrategySettings.settings.RequiredSignalQuality;
             ConsistentKandlesLookBack = OpenCloseStrategySettings.settings.ConsistentKandlesLookBack;
-
+            ValidationRuleSet = OpenCloseStrategySettings.settings.ValidationRuleSet; //ruleset
             validator = new TradeValidator(ValidationRuleSet);
 
-            RequiredSignalQuality = OpenCloseStrategySettings.settings.RequiredSignalQuality;
+            //decision signal strengths
+            OpenPositionSignalStrength = OpenCloseStrategySettings.settings.OpenPositionSignalStrength;
+            MissedPositionSignalStrength = OpenCloseStrategySettings.settings.MissedPositionSignalStrength;
+            ExitPositionHeavyLossSignalStrength = OpenCloseStrategySettings.settings.ExitPositionHeavyLossSignalStrength;
+            ExitSignalStrength = OpenCloseStrategySettings.settings.ExitSignalStrength;
+            TakeProfitSignalStrength = OpenCloseStrategySettings.settings.TakeProfitSignalStrength;
+            EscapeTrapSignalStrength = OpenCloseStrategySettings.settings.EscapeTrapSignalStrength;
         }
 
         //method to take decision
         public void Decide(ref StrategyData strategyData, SimplePosition position, RobotInput roboInput)
         {
-            var decision = StrategyDecision.None;
-
-            var decisionType = StrategyDecision.None;
-
-            if (OpenPosition(position, strategyData, roboInput.signalStrength))
+            if (OpenPosition(position, ref strategyData))
             {
-                GetDecisionType(strategyData, ref decisionType);
-
-                if (decisionType != StrategyDecision.None)
+                if (IsDecisionStrong(OpenPositionSignalStrength, strategyData.Decision, strategyData.DecisionType))
                 {
-                    decision = StrategyDecision.Open;
-
-                    ValidateOpenPosition(roboInput, ref strategyData, decisionType, ref decision);
+                    ValidateOpenPosition(roboInput, ref strategyData);
+                }
+                else
+                {
+                    ResetDecision(ref strategyData);
                 }
             }
 
-            else if (OpenMissedPosition(position, strategyData) && GrabMissedPosition)
+            else if (OpenMissedPosition(position, ref strategyData) && GrabMissedPosition)
             {
-                int signalperiod = 0;
-
-                GetSignalData(strategyData, ref decisionType, ref signalperiod);
-
-                if (decisionType != StrategyDecision.None)
+                if (IsDecisionStrong(MissedPositionSignalStrength, strategyData.Decision, strategyData.DecisionType))
                 {
-                    decision = StrategyDecision.OpenMissed;
-
-                    ValidateOpenMissedPosition(roboInput, ref strategyData, decisionType, ref decision);
+                    ValidateOpenMissedPosition(roboInput, ref strategyData);
+                }
+                else
+                {
+                    ResetDecision(ref strategyData);
                 }
             }
 
-            else if (ExitPositionHeavyLoss(position, strategyData, HeavyRiskPercentage))
+            else if (ExitPositionHeavyLoss(position, ref strategyData))
             {
-                GetDecisionType(position, ref decisionType);
-
-                if (decisionType != StrategyDecision.None)
+                if (IsDecisionStrong(ExitPositionHeavyLossSignalStrength, strategyData.Decision, strategyData.DecisionType))
                 {
-                    decision = StrategyDecision.ExitHeavy;
-
-                    ValidateExitPositionHeavyLoss(roboInput, ref strategyData, decisionType, ref decision);
+                    ValidateExitPositionHeavyLoss(roboInput, ref strategyData);
+                }
+                else
+                {
+                    ResetDecision(ref strategyData);
                 }
             }
 
-            else if (ExitPosition(position, strategyData, roboInput.risk, roboInput.signalStrength))
+            else if (ExitPosition(position, ref strategyData, roboInput.risk))
             {
-                GetDecisionType(position, ref decisionType);
-
-                if (decisionType != StrategyDecision.None)
+                if (IsDecisionStrong(ExitSignalStrength, strategyData.Decision, strategyData.DecisionType))
                 {
-                    decision = StrategyDecision.Exit;
-
-                    ValidateExitPosition(roboInput, ref strategyData, decisionType, ref decision);
+                    ValidateExitPosition(roboInput, ref strategyData);
+                }
+                else
+                {
+                    ResetDecision(ref strategyData);
                 }
             }
 
-            else if (TakeProfit(position, strategyData, roboInput.reward))
+            else if (TakeProfit(position, ref strategyData, roboInput.reward))
             {
-                GetDecisionType(position, ref decisionType);
-
-                if (decisionType != StrategyDecision.None)
+                if (IsDecisionStrong(TakeProfitSignalStrength, strategyData.Decision, strategyData.DecisionType))
                 {
-                    decision = StrategyDecision.TakeProfit;
-
-                    ValidateTakeProfit(roboInput, ref strategyData, decisionType, ref decision);
+                    ValidateTakeProfit(roboInput, ref strategyData);
+                }
+                else
+                {
+                    ResetDecision(ref strategyData);
                 }
             }
 
-            else if (EscapeTrap(position, strategyData) && EscapeTraps)
+            else if (EscapeTrap(position, ref strategyData) && EscapeTraps)
             {
-                GetDecisionType(position, ref decisionType);
-
-                if (decisionType != StrategyDecision.None)
+                if (IsDecisionStrong(EscapeTrapSignalStrength, strategyData.Decision, strategyData.DecisionType))
                 {
-                    decision = StrategyDecision.Escape;
-
-                    ValidateEscapeTrap(roboInput, ref strategyData, decisionType, ref decision);
+                    ValidateEscapeTrap(roboInput, ref strategyData);
+                }
+                else
+                {
+                    ResetDecision(ref strategyData);
                 }
             }
 
             else
             {
-                decision = StrategyDecision.None;
-
-                decisionType = StrategyDecision.None;
+                ResetDecision(ref strategyData);
             }
 
             strategyData.LatestSignalStrength = LatestSignalStrength;//improve this code laterz
@@ -747,10 +723,6 @@ namespace BinanceBot.Strategy
             strategyData.BuyCounter = BuyCounter;
 
             strategyData.SellCounter = SellCounter;
-
-            strategyData.Decision = decision;
-
-            strategyData.DecisionType = decisionType;
 
             strategyData.PrevDecision = prevDecision;
 
