@@ -29,11 +29,11 @@ namespace BinanceBot.Common
         {
             if (!File.Exists(PrimaryLogPath))
             {
-                File.AppendAllLines(PrimaryLogPath, new[] { "Date\tSignal\tSignalType\tPrice\t%\tSignalHistory\tBU\tBM\tBL\tS0\tS1\tA1\tA2\tA3\tA4" });
+                File.AppendAllLines(PrimaryLogPath, new[] { "Date\tSignal\tSignalType\tPrice\t%\tSignalHistory\tBU\tBM\tBL\tS0\tS1\tTrend\tMood\tA1\tA2\tA3\tA4" });
             }
             if (!File.Exists(SecondaryLogPath))
             {
-                File.AppendAllLines(SecondaryLogPath, new[] { "Date\tSignal\tSignalType\tPrice\t%\tSignalHistory\tBU\tBM\tBL\tS0\tS1\tA1\tA2\tA3\tA4" });
+                File.AppendAllLines(SecondaryLogPath, new[] { "Date\tSignal\tSignalType\tPrice\t%\tSignalHistory\tBU\tBM\tBL\tS0\tS1\tTrend\tMood\tA1\tA2\tA3\tA4" });
             }
         }
         /// <summary>
@@ -45,22 +45,7 @@ namespace BinanceBot.Common
         {
             string timeutc530 = DateTime.Now.ToUniversalTime().AddMinutes(330).ToString();
 
-            decimal percentage;
-
             var skipReasons = "";
-
-            if (strategyData.DecisionType == StrategyDecision.Buy)
-            {
-                percentage = Math.Round(strategyData.shortPercentage, 3);
-            }
-            else if (strategyData.DecisionType == StrategyDecision.Sell)
-            {
-                percentage = Math.Round(strategyData.longPercentage, 3);
-            }
-            else
-            {
-                percentage = 0;
-            }
 
             if (strategyData.AvoidReasons != null && strategyData.AvoidReasons.Count > 0)
             {
@@ -70,13 +55,15 @@ namespace BinanceBot.Common
                 }
             }
 
-            string debuginfo = string.Format("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}\t{7}\t{8}\t{9}\t{10}\t{11}",
+            string debuginfo = string.Format("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}\t{7}\t{8}\t{9}\t{10}\t{11}\t{12}\t{13}",
 
-            timeutc530, strategyData.Decision.ToString(), strategyData.DecisionType.ToString(), strategyData.currentClose, percentage, strategyData.histdata,
+            timeutc530, strategyData.Decision.ToString(), strategyData.DecisionType.ToString(), strategyData.currentClose,
+            
+            strategyData.DecisionType != StrategyDecision.None ? strategyData.Percentage : 0, 
+            
+            strategyData.histdata, strategyData.BollingerUpperPercentage, strategyData.BollingerMiddlePercentage, strategyData.BollingerLowerPercentage,
 
-            strategyData.BollingerUpperPercentage, strategyData.BollingerMiddlePercentage, strategyData.BollingerLowerPercentage,
-
-            strategyData.SignalGap0, strategyData.SignalGap1, skipReasons);
+            strategyData.SignalGap0, strategyData.SignalGap1, strategyData.trend, strategyData.mood, skipReasons);
 
             File.AppendAllLines(PrimaryLogPath, new[] { debuginfo });
 
@@ -142,11 +129,11 @@ namespace BinanceBot.Common
             if (strategyData.PrevDecisionType == StrategyDecision.Buy && strategyData.LatestSignalStrength != 0)
             {
                 //signal
-                Console.WriteLine("DECISION : {0}{1}  {2}%  @STRENGTH OF {3}\n", strategyData.PrevDecision.ToString(),strategyData.PrevDecisionType, 100 * strategyData.BuyCounter / strategyData.LatestSignalStrength, strategyData.LatestSignalStrength);
+                Console.WriteLine("DECISION : {0}{1}  {2}%  @STRENGTH OF {3}\n", strategyData.PrevDecision, strategyData.PrevDecisionType, 100 * strategyData.BuyCounter / strategyData.LatestSignalStrength, strategyData.LatestSignalStrength);
             }
             else if (strategyData.PrevDecisionType == StrategyDecision.Sell && strategyData.LatestSignalStrength != 0)
             {
-                Console.WriteLine("DECISION : {0}{1}  {2}%  @STRENGTH OF {3}\n", strategyData.PrevDecision.ToString(), strategyData.PrevDecisionType, 100 * strategyData.SellCounter / strategyData.LatestSignalStrength, strategyData.LatestSignalStrength);
+                Console.WriteLine("DECISION : {0}{1}  {2}%  @STRENGTH OF {3}\n", strategyData.PrevDecision, strategyData.PrevDecisionType, 100 * strategyData.SellCounter / strategyData.LatestSignalStrength, strategyData.LatestSignalStrength);
             }
             else
             {
@@ -157,7 +144,7 @@ namespace BinanceBot.Common
 
             if (strategyData.AvoidReasons != null && strategyData.AvoidReasons.Count > 0)
             {
-                LastAvoidReason = " ";
+                LastAvoidReason = " Skip";
                 foreach (var AvoidReason in strategyData.AvoidReasons)
                 {
                     LastAvoidReason += AvoidReason.ToString() + " ";
@@ -174,16 +161,10 @@ namespace BinanceBot.Common
 
             Console.WriteLine("ENTRY PRICE {0} \n", order?.EntryPrice);
 
-            if (order?.PositionType == PositionType.Sell)
+            if (order?.PositionType != PositionType.None)
             {
-                Console.WriteLine("PERCENTAGE {0} \n", Math.Round(strategyData.shortPercentage, 3));
+                Console.WriteLine("PERCENTAGE {0} \n", Math.Round(strategyData.Percentage, 3));
             }
-            if (order?.PositionType == PositionType.Buy)
-            {
-                Console.WriteLine("PERCENTAGE {0} \n", Math.Round(strategyData.longPercentage, 3));
-            }
-
-
 
             Console.WriteLine("LIMITS > ADJPROFIT *{0}%*  PROFIT *{1}%*  LOSS *{2}%* BOLL *{3}%*\n",
             Math.Round(robotInput.reward * strategyData.profitFactor, 3),
