@@ -62,9 +62,7 @@ namespace BinanceBot.Domain
 
         public string histdata { get; set; }
 
-        public decimal shortPercentage { get; set; }
-
-        public decimal longPercentage { get; set; }
+        public decimal Percentage { get; set; }
 
         public decimal profitFactor { get; set; }
 
