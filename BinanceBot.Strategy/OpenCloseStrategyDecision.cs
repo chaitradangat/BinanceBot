@@ -325,6 +325,42 @@ namespace BinanceBot.Strategy
             return false;
         }
 
+        //common method to route all the validations
+        private void ValidateDecision(RobotInput robotInput, ref StrategyData strategyData, int signalStrength)
+        {
+            if (IsDecisionStrong(signalStrength, strategyData.Decision, strategyData.DecisionType))
+            {
+                if (strategyData.Decision == StrategyDecision.Open)
+                {
+                    ValidateOpenPosition(robotInput, ref strategyData);
+                }
+                if (strategyData.Decision == StrategyDecision.OpenMissed)
+                {
+                    ValidateOpenMissedPosition(robotInput, ref strategyData);
+                }
+                if (strategyData.Decision == StrategyDecision.ExitHeavy)
+                {
+                    ValidateExitPositionHeavyLoss(robotInput, ref strategyData);
+                }
+                if (strategyData.Decision == StrategyDecision.Exit)
+                {
+                    ValidateExitPosition(robotInput, ref strategyData);
+                }
+                if (strategyData.Decision == StrategyDecision.TakeProfit)
+                {
+                    ValidateTakeProfit(robotInput, ref strategyData);
+                }
+                if (strategyData.Decision == StrategyDecision.Escape)
+                {
+                    ValidateEscapeTrap(robotInput, ref strategyData);
+                }
+            }
+            else
+            {
+                ResetDecision(ref strategyData);
+            }
+        }
+
         private void ValidateOpenPosition(RobotInput roboInput, ref StrategyData strategyData)
         {
             if (strategyData.DecisionType == StrategyDecision.Buy || strategyData.DecisionType == StrategyDecision.Sell)
@@ -643,74 +679,32 @@ namespace BinanceBot.Strategy
         {
             if (OpenPosition(position, ref strategyData))
             {
-                if (IsDecisionStrong(OpenPositionSignalStrength, strategyData.Decision, strategyData.DecisionType))
-                {
-                    ValidateOpenPosition(roboInput, ref strategyData);
-                }
-                else
-                {
-                    ResetDecision(ref strategyData);
-                }
+                ValidateDecision(roboInput, ref strategyData, OpenPositionSignalStrength);
             }
 
             else if (OpenMissedPosition(position, ref strategyData) && GrabMissedPosition)
             {
-                if (IsDecisionStrong(MissedPositionSignalStrength, strategyData.Decision, strategyData.DecisionType))
-                {
-                    ValidateOpenMissedPosition(roboInput, ref strategyData);
-                }
-                else
-                {
-                    ResetDecision(ref strategyData);
-                }
+                ValidateDecision(roboInput, ref strategyData, MissedPositionSignalStrength);
             }
 
             else if (ExitPositionHeavyLoss(position, ref strategyData))
             {
-                if (IsDecisionStrong(ExitPositionHeavyLossSignalStrength, strategyData.Decision, strategyData.DecisionType))
-                {
-                    ValidateExitPositionHeavyLoss(roboInput, ref strategyData);
-                }
-                else
-                {
-                    ResetDecision(ref strategyData);
-                }
+                ValidateDecision(roboInput, ref strategyData, ExitPositionHeavyLossSignalStrength);
             }
 
             else if (ExitPosition(position, ref strategyData, roboInput.risk))
             {
-                if (IsDecisionStrong(ExitSignalStrength, strategyData.Decision, strategyData.DecisionType))
-                {
-                    ValidateExitPosition(roboInput, ref strategyData);
-                }
-                else
-                {
-                    ResetDecision(ref strategyData);
-                }
+                ValidateDecision(roboInput, ref strategyData, ExitSignalStrength);
             }
 
             else if (TakeProfit(position, ref strategyData, roboInput.reward))
             {
-                if (IsDecisionStrong(TakeProfitSignalStrength, strategyData.Decision, strategyData.DecisionType))
-                {
-                    ValidateTakeProfit(roboInput, ref strategyData);
-                }
-                else
-                {
-                    ResetDecision(ref strategyData);
-                }
+                ValidateDecision(roboInput, ref strategyData, TakeProfitSignalStrength);
             }
 
             else if (EscapeTrap(position, ref strategyData) && EscapeTraps)
             {
-                if (IsDecisionStrong(EscapeTrapSignalStrength, strategyData.Decision, strategyData.DecisionType))
-                {
-                    ValidateEscapeTrap(roboInput, ref strategyData);
-                }
-                else
-                {
-                    ResetDecision(ref strategyData);
-                }
+                ValidateDecision(roboInput, ref strategyData, EscapeTrapSignalStrength);
             }
 
             else
@@ -718,6 +712,7 @@ namespace BinanceBot.Strategy
                 ResetDecision(ref strategyData);
             }
 
+            //signal strength data
             strategyData.LatestSignalStrength = LatestSignalStrength;//improve this code laterz
 
             strategyData.BuyCounter = BuyCounter;
