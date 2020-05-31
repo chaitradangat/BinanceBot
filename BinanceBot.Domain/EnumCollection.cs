@@ -67,4 +67,12 @@ namespace BinanceBot.Domain
         Escape,
         None
     }
+
+    public enum PositionType
+    { 
+        Buy,
+        Sell,
+        Long,
+        Short
+    }
 }
