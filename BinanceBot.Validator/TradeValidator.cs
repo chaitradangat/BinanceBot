@@ -152,12 +152,14 @@ namespace BinanceBot.Validator
                 return true;
             }
 
-            if (decisiontype != StrategyDecision.Buy && decisiontype != StrategyDecision.Sell && positiondecision != StrategyDecision.Open && positiondecision != StrategyDecision.Exit)
+            if (decisiontype != StrategyDecision.Buy && decisiontype != StrategyDecision.Sell &&
+                positiondecision != StrategyDecision.Open && positiondecision != StrategyDecision.OpenMissed &&
+                positiondecision != StrategyDecision.Exit && positiondecision != StrategyDecision.Escape)
             {
                 return false;
             }
 
-            if (decisiontype == StrategyDecision.Buy && positiondecision == StrategyDecision.Open)
+            if (decisiontype == StrategyDecision.Buy && (positiondecision == StrategyDecision.Open || positiondecision == StrategyDecision.OpenMissed))
             {
                 //buy on green
                 if (strategyData.currentClose > strategyData.currentOpen && strategyData.currentClose > strategyData.PrevOpen)
@@ -166,7 +168,7 @@ namespace BinanceBot.Validator
                 }
             }
 
-            if (decisiontype == StrategyDecision.Sell && positiondecision == StrategyDecision.Open)
+            if (decisiontype == StrategyDecision.Sell && (positiondecision == StrategyDecision.Open || positiondecision == StrategyDecision.OpenMissed))
             {
                 //sell on red
                 if (strategyData.currentClose < strategyData.currentOpen && strategyData.currentClose < strategyData.PrevOpen)
@@ -175,7 +177,7 @@ namespace BinanceBot.Validator
                 }
             }
 
-            if (decisiontype == StrategyDecision.Buy && positiondecision == StrategyDecision.Exit)
+            if (decisiontype == StrategyDecision.Buy && (positiondecision == StrategyDecision.Exit || positiondecision == StrategyDecision.Escape))
             {
                 if (strategyData.currentClose > strategyData.currentOpen)
                 {
@@ -183,7 +185,7 @@ namespace BinanceBot.Validator
                 }
             }
 
-            if (decisiontype == StrategyDecision.Sell && positiondecision == StrategyDecision.Exit)
+            if (decisiontype == StrategyDecision.Sell && (positiondecision == StrategyDecision.Exit || positiondecision == StrategyDecision.Escape))
             {
                 if (strategyData.currentClose < strategyData.currentOpen)
                 {
@@ -201,7 +203,7 @@ namespace BinanceBot.Validator
         /// <param name="decisiontype"></param>
         /// <param name="CallingDecision"></param>
         /// <returns></returns>
-        public bool IsTradeMatchTrend(StrategyData strategyData,StrategyDecision decisiontype, [CallerMemberName]string CallingDecision = "")
+        public bool IsTradeMatchTrend(StrategyData strategyData, StrategyDecision decisiontype, [CallerMemberName]string CallingDecision = "")
         {
             if (!ValidationRequired(CallingDecision))
             {
@@ -241,7 +243,7 @@ namespace BinanceBot.Validator
         /// <param name="RequiredSignalQuality"></param>
         /// <param name="CallingDecision"></param>
         /// <returns></returns>
-        public bool IsSignalGoodQuality(StrategyData strategyData,StrategyDecision decisiontype,int RequiredSignalQuality,[CallerMemberName]string CallingDecision = "")
+        public bool IsSignalGoodQuality(StrategyData strategyData, StrategyDecision decisiontype, int RequiredSignalQuality, [CallerMemberName]string CallingDecision = "")
         {
             if (!ValidationRequired(CallingDecision))
             {
