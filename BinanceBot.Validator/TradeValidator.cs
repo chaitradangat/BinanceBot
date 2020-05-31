@@ -24,14 +24,14 @@ namespace BinanceBot.Validator
         /// <summary>
         /// Validate for consecutive dropping or rising kandles
         /// </summary>
-        public bool KandlesAreConsistent(StrategyData strategyData, StrategyDecision decision, int lookback, [CallerMemberName]string CallingDecision = "")
+        public bool KandlesAreConsistent(StrategyData strategyData, StrategyDecision decisiontype, int lookback, [CallerMemberName]string CallingDecision = "")
         {
             if (!ValidationRequired(CallingDecision))
             {
                 return true;
             }
 
-            if (decision != StrategyDecision.Buy && decision != StrategyDecision.Sell)
+            if (decisiontype != StrategyDecision.Buy && decisiontype != StrategyDecision.Sell)
             {
                 //invalid value for decision
                 return false;
@@ -41,12 +41,12 @@ namespace BinanceBot.Validator
 
             for (int i = 0; i < kandleslice.Count() - 1; i++)
             {
-                if (kandleslice.ElementAt(i).Open > kandleslice.ElementAt(i + 1).Open && decision == StrategyDecision.Buy)
+                if (kandleslice.ElementAt(i).Open > kandleslice.ElementAt(i + 1).Open && decisiontype == StrategyDecision.Buy)
                 {
                     return false;
                 }
 
-                if (kandleslice.ElementAt(i).Open < kandleslice.ElementAt(i + 1).Open && decision == StrategyDecision.Sell)
+                if (kandleslice.ElementAt(i).Open < kandleslice.ElementAt(i + 1).Open && decisiontype == StrategyDecision.Sell)
                 {
                     return false;
                 }
@@ -76,22 +76,22 @@ namespace BinanceBot.Validator
         /// Validate Trade on the Bollinger
         /// </summary>
         /// <param name="strategyData"></param>
-        /// <param name="decision"></param>
+        /// <param name="decisiontype"></param>
         /// <returns></returns>
-        public bool IsTradeValidOnBollinger(StrategyData strategyData, StrategyDecision decision, decimal BollingerFactor, decimal Reward, [CallerMemberName]string CallingDecision = "")
+        public bool IsTradeValidOnBollinger(StrategyData strategyData, StrategyDecision decisiontype, decimal BollingerFactor, decimal Reward, [CallerMemberName]string CallingDecision = "")
         {
             if (!ValidationRequired(CallingDecision))
             {
                 return true;
             }
 
-            if (decision != StrategyDecision.Buy && decision != StrategyDecision.Sell)
+            if (decisiontype != StrategyDecision.Buy && decisiontype != StrategyDecision.Sell)
             {
                 //invalid decision input
                 return false;
             }
 
-            if (decision == StrategyDecision.Buy)
+            if (decisiontype == StrategyDecision.Buy)
             {
                 //top crossed recently so chances of loss higher with buy
                 if (strategyData.BollTopCrossed)
@@ -113,7 +113,7 @@ namespace BinanceBot.Validator
                 return false;
             }
 
-            if (decision == StrategyDecision.Sell)
+            if (decisiontype == StrategyDecision.Sell)
             {
                 //bottom crossed recently so chances of loss higer with sell
                 if (strategyData.BollBottomCrossed)
@@ -143,21 +143,21 @@ namespace BinanceBot.Validator
         /// Validate Buy On Green and Sell On Red
         /// </summary>
         /// <param name="strategyData"></param>
-        /// <param name="decision"></param>
+        /// <param name="decisiontype"></param>
         /// <returns></returns>
-        public bool IsTradeOnRightKandle(StrategyData strategyData, StrategyDecision decision, StrategyDecision positiondecision, [CallerMemberName]string CallingDecision = "")
+        public bool IsTradeOnRightKandle(StrategyData strategyData, StrategyDecision decisiontype, StrategyDecision positiondecision, [CallerMemberName]string CallingDecision = "")
         {
             if (!ValidationRequired(CallingDecision))
             {
                 return true;
             }
 
-            if (decision != StrategyDecision.Buy && decision != StrategyDecision.Sell && positiondecision != StrategyDecision.Open && positiondecision != StrategyDecision.Exit)
+            if (decisiontype != StrategyDecision.Buy && decisiontype != StrategyDecision.Sell && positiondecision != StrategyDecision.Open && positiondecision != StrategyDecision.Exit)
             {
                 return false;
             }
 
-            if (decision == StrategyDecision.Buy && positiondecision == StrategyDecision.Open)
+            if (decisiontype == StrategyDecision.Buy && positiondecision == StrategyDecision.Open)
             {
                 //buy on green
                 if (strategyData.currentClose > strategyData.currentOpen && strategyData.currentClose > strategyData.PrevOpen)
@@ -166,7 +166,7 @@ namespace BinanceBot.Validator
                 }
             }
 
-            if (decision == StrategyDecision.Sell && positiondecision == StrategyDecision.Open)
+            if (decisiontype == StrategyDecision.Sell && positiondecision == StrategyDecision.Open)
             {
                 //sell on red
                 if (strategyData.currentClose < strategyData.currentOpen && strategyData.currentClose < strategyData.PrevOpen)
@@ -175,7 +175,7 @@ namespace BinanceBot.Validator
                 }
             }
 
-            if (decision == StrategyDecision.Buy && positiondecision == StrategyDecision.Exit)
+            if (decisiontype == StrategyDecision.Buy && positiondecision == StrategyDecision.Exit)
             {
                 if (strategyData.currentClose > strategyData.currentOpen)
                 {
@@ -183,7 +183,7 @@ namespace BinanceBot.Validator
                 }
             }
 
-            if (decision == StrategyDecision.Sell && positiondecision == StrategyDecision.Exit)
+            if (decisiontype == StrategyDecision.Sell && positiondecision == StrategyDecision.Exit)
             {
                 if (strategyData.currentClose < strategyData.currentOpen)
                 {
@@ -198,23 +198,23 @@ namespace BinanceBot.Validator
         /// Validate Buy & Sell is following the trend
         /// </summary>
         /// <param name="strategyData"></param>
-        /// <param name="decision"></param>
+        /// <param name="decisiontype"></param>
         /// <param name="CallingDecision"></param>
         /// <returns></returns>
-        public bool IsTradeMatchTrend(StrategyData strategyData,StrategyDecision decision, [CallerMemberName]string CallingDecision = "")
+        public bool IsTradeMatchTrend(StrategyData strategyData,StrategyDecision decisiontype, [CallerMemberName]string CallingDecision = "")
         {
             if (!ValidationRequired(CallingDecision))
             {
                 return true;
             }
 
-            if (decision != StrategyDecision.Buy && decision != StrategyDecision.Sell)
+            if (decisiontype != StrategyDecision.Buy && decisiontype != StrategyDecision.Sell)
             {
                 //invalid decision input
                 return false;
             }
 
-            if (decision == StrategyDecision.Buy)
+            if (decisiontype == StrategyDecision.Buy)
             {
                 if (strategyData.trend != "BULLISH" && strategyData.mood != "BULLISH")
                 {
@@ -222,7 +222,7 @@ namespace BinanceBot.Validator
                 }
             }
 
-            if (decision == StrategyDecision.Sell)
+            if (decisiontype == StrategyDecision.Sell)
             {
                 if (strategyData.trend != "BEARISH" && strategyData.mood != "BEARISH")
                 {
@@ -237,18 +237,18 @@ namespace BinanceBot.Validator
         /// Validate the signal quality for buy or sell decision
         /// </summary>
         /// <param name="strategyData"></param>
-        /// <param name="decision"></param>
+        /// <param name="decisiontype"></param>
         /// <param name="RequiredSignalQuality"></param>
         /// <param name="CallingDecision"></param>
         /// <returns></returns>
-        public bool IsSignalGoodQuality(StrategyData strategyData,StrategyDecision decision,int RequiredSignalQuality,[CallerMemberName]string CallingDecision = "")
+        public bool IsSignalGoodQuality(StrategyData strategyData,StrategyDecision decisiontype,int RequiredSignalQuality,[CallerMemberName]string CallingDecision = "")
         {
             if (!ValidationRequired(CallingDecision))
             {
                 return true;
             }
 
-            if (decision != StrategyDecision.Buy && decision != StrategyDecision.Sell)
+            if (decisiontype != StrategyDecision.Buy && decisiontype != StrategyDecision.Sell)
             {
                 //invalid decision input
                 return false;
