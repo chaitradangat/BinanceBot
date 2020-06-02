@@ -23,7 +23,7 @@ namespace BinanceBot.Domain
 
             this.PrevDecisionType = StrategyDecision.None;
 
-            this.AvoidReasons = new HashSet<StrategyDecision>();
+            this.SkipReasons = new HashSet<SkipReason>();
         }
 
         public StrategyData(decimal profitFactor)
@@ -38,7 +38,7 @@ namespace BinanceBot.Domain
 
             this.PrevDecisionType = StrategyDecision.None;
 
-            this.AvoidReasons = new HashSet<StrategyDecision>();
+            this.SkipReasons = new HashSet<SkipReason>();
         }
 
         //this is a copy of kandles which will be pristine or if read should not be modified in any part of kode
@@ -109,6 +109,6 @@ namespace BinanceBot.Domain
         //
 
 
-        public HashSet<StrategyDecision> AvoidReasons { get; set; }
+        public HashSet<SkipReason> SkipReasons { get; set; }
     }
 }

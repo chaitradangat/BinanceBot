@@ -6,58 +6,18 @@ namespace BinanceBot.Domain
 {
     public enum StrategyDecision
     {
-        #region -old code retained for histroical sakes-
-        /*
-        OpenPositionWithBuy,
-        OpenPositionWithSell,
-        ExitPositionWithBuy,
-        ExitPositionWithSell,
-        BookProfitWithBuy,
-        BookProfitWithSell,
-        EscapeTrapWithBuy,
-        EscapeTrapWithSell,
-        MissedPositionBuy,
-        MissedPositionSell,
-        ExitPositionHeavyLossWithBuy,
-        ExitPositionHeavyLossWithSell,
-        AvoidOpenWithBuy,
-        AvoidOpenWithSell,
-        AvoidLowSignalGapBuy,
-        AvoidLowSignalGapSell,
-        AvoidOpenWithBuyOnRedKandle,
-        AvoidOpenWithSellOnGreenKandle,
-        AvoidEscapeWithSell,
-        AvoidEscapeWithBuy,
-        AvoidBuyNoEntryPoint,
-        AvoidSellNoEntryPoint,
-        AvoidInvalidBollingerOpenBuy,
-        AvoidInvalidBollingerOpenSell,
-        AvoidEscapeBuyOppositeTrend,
-        AvoidEscapeSellOppositeTrend,
-        AvoidBadSignalQualityBuy,
-        AvoidBadSignalQualitySell,*/
-        #endregion
-
-        //avoid reasons
-        RedKandle,
-        GreenKandle,
-        InvalidBollinger,
-        AgainstTrend,
-        LowSignalQuality,
-        LowSignalGap,
-        InconsistentKandles,
+        //order actions
+        Buy,
+        Sell,
 
         //avoid decision type
         SkipOpen,
         SkipMissedOpen,
+        SkipTakeProfit,
         SkipExit,
+        SkipExitHeavy,
         SkipEscape,
 
-
-        //order actions
-        Buy,
-        Sell,
-        
         //decision type
         Open,
         OpenMissed,
@@ -69,11 +29,25 @@ namespace BinanceBot.Domain
     }
 
     public enum PositionType
-    { 
+    {
         Buy,
         Sell,
         Long,
         Short,
         None
+    }
+
+    public enum SkipReason
+    {
+        //#avoid or skip reasons
+        SkipBuy,
+        SkipSell,
+        RedKandle,
+        GreenKandle,
+        InvalidBollinger,
+        AgainstTrend,
+        LowSignalQuality,
+        LowSignalGap,
+        InconsistentKandles
     }
 }

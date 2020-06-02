@@ -361,6 +361,130 @@ namespace BinanceBot.Strategy
             }
         }
 
+        //common method used throughout all the validations
+        private void ValidateDecision(RobotInput roboInput, ref StrategyData strategyData, int signalStrength, bool dummyvar)//#dummyvar to be removed once refactoring is successful
+        {
+            StrategyDecision decision;
+
+            StrategyDecision skipdecision;
+
+            StrategyDecision decisiontype;
+
+            switch (strategyData.Decision)
+            {
+                case StrategyDecision.Open:
+                    decision = StrategyDecision.Open;
+                    skipdecision = StrategyDecision.SkipOpen;
+                    break;
+
+                case StrategyDecision.OpenMissed:
+                    decision = StrategyDecision.OpenMissed;
+                    skipdecision = StrategyDecision.SkipMissedOpen;
+                    break;
+
+                case StrategyDecision.ExitHeavy:
+                    decision = StrategyDecision.ExitHeavy;
+                    skipdecision = StrategyDecision.SkipExitHeavy;
+                    break;
+
+                case StrategyDecision.Exit:
+                    decision = StrategyDecision.Exit;
+                    skipdecision = StrategyDecision.SkipExit;
+                    break;
+
+                case StrategyDecision.TakeProfit:
+                    decision = StrategyDecision.TakeProfit;
+                    skipdecision = StrategyDecision.SkipTakeProfit;
+                    break;
+
+                case StrategyDecision.Escape:
+                    decision = StrategyDecision.Escape;
+                    skipdecision = StrategyDecision.SkipEscape;
+                    break;
+
+                default:
+                    decision = StrategyDecision.None;
+                    skipdecision = StrategyDecision.None;
+                    break;
+            }
+
+            switch (strategyData.DecisionType)
+            {
+                case StrategyDecision.Buy:
+                    decisiontype = StrategyDecision.Buy;
+                    break;
+
+                case StrategyDecision.Sell:
+                    decisiontype = StrategyDecision.Sell;
+                    break;
+
+                default:
+                    decisiontype = StrategyDecision.None;
+                    break;
+            }
+
+            if (!validator.IsTradeOnRightKandle(strategyData, decisiontype, decision, decision.ToString()))
+            {
+                strategyData.Decision = skipdecision;
+
+                strategyData.SkipReasons.Add((SkipReason)(int)decisiontype);
+
+                if (decisiontype == StrategyDecision.Buy)
+                {
+                    strategyData.SkipReasons.Add(SkipReason.RedKandle);
+                }
+                if (decisiontype == StrategyDecision.Sell)
+                {
+                    strategyData.SkipReasons.Add(SkipReason.GreenKandle);
+                }
+            }
+            
+            if (!validator.IsTradeValidOnBollinger(strategyData, decisiontype, BollingerFactor, roboInput.reward, decision.ToString()))
+            {
+                strategyData.Decision = skipdecision;
+
+                strategyData.SkipReasons.Add((SkipReason)(int)decisiontype);
+
+                strategyData.SkipReasons.Add(SkipReason.InvalidBollinger);
+            }
+
+            if (!validator.IsSignalGapValid(strategyData, RequiredSignalGap, decision.ToString()))
+            {
+                strategyData.Decision = skipdecision;
+
+                strategyData.SkipReasons.Add((SkipReason)(int)decisiontype);
+
+                strategyData.SkipReasons.Add(SkipReason.LowSignalGap);
+            }
+
+            if (!validator.IsSignalGoodQuality(strategyData, decisiontype, RequiredSignalQuality, decision.ToString()))
+            {
+                strategyData.Decision = skipdecision;
+
+                strategyData.SkipReasons.Add((SkipReason)(int)decisiontype);
+
+                strategyData.SkipReasons.Add(SkipReason.LowSignalQuality);
+            }
+
+            if (!validator.IsKandleConsistent(strategyData, decisiontype, ConsistentKandlesLookBack, decision.ToString()))
+            {
+                strategyData.Decision = skipdecision;
+
+                strategyData.SkipReasons.Add((SkipReason)(int)decisiontype);
+
+                strategyData.SkipReasons.Add(SkipReason.InconsistentKandles);
+            }
+
+            if (!validator.IsTradeMatchTrend(strategyData, decisiontype, decision.ToString()))
+            {
+                strategyData.Decision = skipdecision;
+
+                strategyData.SkipReasons.Add((SkipReason)(int)decisiontype);
+
+                strategyData.SkipReasons.Add(SkipReason.AgainstTrend);
+            }
+        }
+
         private void ValidateOpenPosition(RobotInput roboInput, ref StrategyData strategyData)
         {
             if (strategyData.DecisionType == StrategyDecision.Buy || strategyData.DecisionType == StrategyDecision.Sell)
@@ -385,15 +509,15 @@ namespace BinanceBot.Strategy
                 {
                     strategyData.Decision = skipdecision;
 
-                    strategyData.AvoidReasons.Add(decisiontype);
+                    strategyData.SkipReasons.Add((SkipReason)(int)decisiontype);
 
                     if (decisiontype == StrategyDecision.Buy)
                     {
-                        strategyData.AvoidReasons.Add(StrategyDecision.RedKandle);
+                        strategyData.SkipReasons.Add(SkipReason.RedKandle);
                     }
                     if (decisiontype == StrategyDecision.Sell)
                     {
-                        strategyData.AvoidReasons.Add(StrategyDecision.GreenKandle);
+                        strategyData.SkipReasons.Add(SkipReason.GreenKandle);
                     }
                 }
 
@@ -401,27 +525,27 @@ namespace BinanceBot.Strategy
                 {
                     strategyData.Decision = skipdecision;
 
-                    strategyData.AvoidReasons.Add(decisiontype);
+                    strategyData.SkipReasons.Add((SkipReason)(int)decisiontype);
 
-                    strategyData.AvoidReasons.Add(StrategyDecision.InvalidBollinger);
+                    strategyData.SkipReasons.Add(SkipReason.InvalidBollinger);
                 }
 
                 if (!validator.IsSignalGapValid(strategyData, RequiredSignalGap))
                 {
                     strategyData.Decision = skipdecision;
 
-                    strategyData.AvoidReasons.Add(decisiontype);
+                    strategyData.SkipReasons.Add((SkipReason)(int)decisiontype);
 
-                    strategyData.AvoidReasons.Add(StrategyDecision.LowSignalGap);
+                    strategyData.SkipReasons.Add(SkipReason.LowSignalGap);
                 }
 
                 if (!validator.IsSignalGoodQuality(strategyData, decisiontype, RequiredSignalQuality))
                 {
                     strategyData.Decision = skipdecision;
 
-                    strategyData.AvoidReasons.Add(decisiontype);
+                    strategyData.SkipReasons.Add((SkipReason)(int)decisiontype);
 
-                    strategyData.AvoidReasons.Add(StrategyDecision.LowSignalQuality);
+                    strategyData.SkipReasons.Add(SkipReason.LowSignalQuality);
                 }
             }
         }
@@ -446,28 +570,19 @@ namespace BinanceBot.Strategy
                     decisiontype = StrategyDecision.Sell;
                 }
 
-                if (!validator.KandlesAreConsistent(strategyData, decisiontype, ConsistentKandlesLookBack))
-                {
-                    strategyData.Decision = skipdecision;
-
-                    strategyData.AvoidReasons.Add(decisiontype);
-
-                    strategyData.AvoidReasons.Add(StrategyDecision.InconsistentKandles);
-                }
-
                 if (!validator.IsTradeOnRightKandle(strategyData, decisiontype, decision))
                 {
                     strategyData.Decision = skipdecision;
 
-                    strategyData.AvoidReasons.Add(decisiontype);
+                    strategyData.SkipReasons.Add((SkipReason)(int)decisiontype);
 
                     if (decisiontype == StrategyDecision.Buy)
                     {
-                        strategyData.AvoidReasons.Add(StrategyDecision.RedKandle);
+                        strategyData.SkipReasons.Add(SkipReason.RedKandle);
                     }
                     if (decisiontype == StrategyDecision.Sell)
                     {
-                        strategyData.AvoidReasons.Add(StrategyDecision.GreenKandle);
+                        strategyData.SkipReasons.Add(SkipReason.GreenKandle);
                     }
                 }
 
@@ -475,27 +590,36 @@ namespace BinanceBot.Strategy
                 {
                     strategyData.Decision = skipdecision;
 
-                    strategyData.AvoidReasons.Add(decisiontype);
+                    strategyData.SkipReasons.Add((SkipReason)(int)decisiontype);
 
-                    strategyData.AvoidReasons.Add(StrategyDecision.InvalidBollinger);
+                    strategyData.SkipReasons.Add(SkipReason.InvalidBollinger);
                 }
 
                 if (!validator.IsSignalGapValid(strategyData, RequiredSignalGap))
                 {
                     strategyData.Decision = skipdecision;
 
-                    strategyData.AvoidReasons.Add(decisiontype);
+                    strategyData.SkipReasons.Add((SkipReason)(int)decisiontype);
 
-                    strategyData.AvoidReasons.Add(StrategyDecision.LowSignalGap);
+                    strategyData.SkipReasons.Add(SkipReason.LowSignalGap);
                 }
 
                 if (!validator.IsSignalGoodQuality(strategyData, decisiontype, RequiredSignalQuality))
                 {
                     strategyData.Decision = skipdecision;
 
-                    strategyData.AvoidReasons.Add(decisiontype);
+                    strategyData.SkipReasons.Add((SkipReason)(int)decisiontype);
 
-                    strategyData.AvoidReasons.Add(StrategyDecision.LowSignalQuality);
+                    strategyData.SkipReasons.Add(SkipReason.LowSignalQuality);
+                }
+
+                if (!validator.IsKandleConsistent(strategyData, decisiontype, ConsistentKandlesLookBack))
+                {
+                    strategyData.Decision = skipdecision;
+
+                    strategyData.SkipReasons.Add((SkipReason)(int)decisiontype);
+
+                    strategyData.SkipReasons.Add(SkipReason.InconsistentKandles);
                 }
             }
         }
@@ -530,9 +654,9 @@ namespace BinanceBot.Strategy
                 {
                     strategyData.Decision = skipdecision;
 
-                    strategyData.AvoidReasons.Add(decisiontype);
+                    strategyData.SkipReasons.Add((SkipReason)(int)decisiontype);
 
-                    strategyData.AvoidReasons.Add(StrategyDecision.LowSignalGap);
+                    strategyData.SkipReasons.Add(SkipReason.LowSignalGap);
                 }
             }
         }
@@ -567,15 +691,15 @@ namespace BinanceBot.Strategy
                 {
                     strategyData.Decision = skipdecision;
 
-                    strategyData.AvoidReasons.Add(decisiontype);
+                    strategyData.SkipReasons.Add((SkipReason)(int)decisiontype);
 
                     if (decisiontype == StrategyDecision.Buy)
                     {
-                        strategyData.AvoidReasons.Add(StrategyDecision.RedKandle);
+                        strategyData.SkipReasons.Add(SkipReason.RedKandle);
                     }
                     if (decisiontype == StrategyDecision.Sell)
                     {
-                        strategyData.AvoidReasons.Add(StrategyDecision.GreenKandle);
+                        strategyData.SkipReasons.Add(SkipReason.GreenKandle);
                     }
                 }
 
@@ -583,18 +707,18 @@ namespace BinanceBot.Strategy
                 {
                     strategyData.Decision = skipdecision;
 
-                    strategyData.AvoidReasons.Add(decisiontype);
+                    strategyData.SkipReasons.Add((SkipReason)(int)decisiontype);
 
-                    strategyData.AvoidReasons.Add(StrategyDecision.LowSignalGap);
+                    strategyData.SkipReasons.Add(SkipReason.LowSignalGap);
                 }
 
                 if (!validator.IsTradeMatchTrend(strategyData, decisiontype))
                 {
                     strategyData.Decision = skipdecision;
 
-                    strategyData.AvoidReasons.Add(decisiontype);
+                    strategyData.SkipReasons.Add((SkipReason)(int)decisiontype);
 
-                    strategyData.AvoidReasons.Add(StrategyDecision.AgainstTrend);
+                    strategyData.SkipReasons.Add(SkipReason.AgainstTrend);
                 }
             }
         }

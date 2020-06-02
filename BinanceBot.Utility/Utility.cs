@@ -47,9 +47,9 @@ namespace BinanceBot.Common
 
             var skipReasons = "";
 
-            if (strategyData.AvoidReasons != null && strategyData.AvoidReasons.Count > 0)
+            if (strategyData.SkipReasons != null && strategyData.SkipReasons.Count > 0)
             {
-                foreach (var AvoidReason in strategyData.AvoidReasons)
+                foreach (var AvoidReason in strategyData.SkipReasons)
                 {
                     skipReasons += AvoidReason.ToString() + "\t";
                 }
@@ -142,10 +142,10 @@ namespace BinanceBot.Common
 
             Console.WriteLine("SGNLHISTORY : {0}\n", strategyData.histdata);
 
-            if (strategyData.AvoidReasons != null && strategyData.AvoidReasons.Count > 0)
+            if (strategyData.SkipReasons != null && strategyData.SkipReasons.Count > 0)
             {
                 LastAvoidReason = " Skip";
-                foreach (var AvoidReason in strategyData.AvoidReasons)
+                foreach (var AvoidReason in strategyData.SkipReasons)
                 {
                     LastAvoidReason += AvoidReason.ToString() + " ";
                 }
