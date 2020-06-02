@@ -375,6 +375,7 @@ namespace BinanceBot.Strategy
                 {
                     decisiontype = StrategyDecision.Buy;
                 }
+
                 if (strategyData.DecisionType == StrategyDecision.Sell)
                 {
                     decisiontype = StrategyDecision.Sell;
@@ -439,6 +440,7 @@ namespace BinanceBot.Strategy
                 {
                     decisiontype = StrategyDecision.Buy;
                 }
+
                 if (strategyData.DecisionType == StrategyDecision.Sell)
                 {
                     decisiontype = StrategyDecision.Sell;
@@ -518,6 +520,7 @@ namespace BinanceBot.Strategy
                 {
                     decisiontype = StrategyDecision.Buy;
                 }
+
                 if (strategyData.DecisionType == StrategyDecision.Sell)
                 {
                     decisiontype = StrategyDecision.Sell;
@@ -554,6 +557,7 @@ namespace BinanceBot.Strategy
                 {
                     decisiontype = StrategyDecision.Buy;
                 }
+
                 if (strategyData.DecisionType == StrategyDecision.Sell)
                 {
                     decisiontype = StrategyDecision.Sell;
