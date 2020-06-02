@@ -24,7 +24,7 @@ namespace BinanceBot.Validator
         /// <summary>
         /// Validate for consecutive dropping or rising kandles
         /// </summary>
-        public bool KandlesAreConsistent(StrategyData strategyData, StrategyDecision decisiontype, int lookback, [CallerMemberName]string CallingDecision = "")
+        public bool IsKandleConsistent(StrategyData strategyData, StrategyDecision decisiontype, int lookback, [CallerMemberName]string CallingDecision = "")
         {
             if (!ValidationRequired(CallingDecision))
             {
@@ -264,11 +264,11 @@ namespace BinanceBot.Validator
         /// Checks if validation is required for "StrategyDecision.TradeDecision"
         /// </summary>
         /// <param name="CallingDecision"></param>
-        /// <param name="TradeDecision"></param>
+        /// <param name="TradingRule"></param>
         /// <returns></returns>
-        private bool ValidationRequired(string CallingDecision, [CallerMemberName]string TradeDecision = "")
+        private bool ValidationRequired(string CallingDecision, [CallerMemberName]string TradingRule = "")
         {
-            if (ValidationRules.Contains(string.Format("{0}.{1}", CallingDecision, TradeDecision)))
+            if (ValidationRules.Contains(string.Format("{0}.{1}", CallingDecision, TradingRule)))
             {
                 return true;
             }
