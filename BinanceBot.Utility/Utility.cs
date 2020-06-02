@@ -144,7 +144,7 @@ namespace BinanceBot.Common
 
             if (strategyData.SkipReasons != null && strategyData.SkipReasons.Count > 0)
             {
-                LastAvoidReason = " Skip";
+                LastAvoidReason = "";
                 foreach (var AvoidReason in strategyData.SkipReasons)
                 {
                     LastAvoidReason += AvoidReason.ToString() + " ";
