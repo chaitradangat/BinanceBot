@@ -39,24 +39,7 @@ namespace BinanceBot.Settings
             }
         }
 
-
-
         //variables to set signal strength for decisions
-        
-        [ConfigurationProperty("EscapeTrapSignalStrength", IsRequired = true)]
-        public int EscapeTrapSignalStrength
-        {
-            get
-            {
-                return Convert.ToInt32(this["EscapeTrapSignalStrength"]);
-            }
-            set
-            {
-                this["EscapeTrapSignalStrength"] = value;
-            }
-        }
-        //TakeProfit
-
         [ConfigurationProperty("OpenPositionSignalStrength", IsRequired = true)]
         public int OpenPositionSignalStrength
         {
@@ -81,7 +64,7 @@ namespace BinanceBot.Settings
                 this["MissedPositionSignalStrength"] = value;
             }
         }
-        [ConfigurationProperty("MissedPositionSignalStrength", IsRequired = true)]
+        [ConfigurationProperty("ExitPositionHeavyLossSignalStrength", IsRequired = true)]
         public int ExitPositionHeavyLossSignalStrength
         {
             get
@@ -117,7 +100,18 @@ namespace BinanceBot.Settings
                 this["TakeProfitSignalStrength"] = value;
             }
         }
-
+        [ConfigurationProperty("EscapeTrapSignalStrength", IsRequired = true)]
+        public int EscapeTrapSignalStrength
+        {
+            get
+            {
+                return Convert.ToInt32(this["EscapeTrapSignalStrength"]);
+            }
+            set
+            {
+                this["EscapeTrapSignalStrength"] = value;
+            }
+        }
 
         //variables for escape traps decision policy
         [ConfigurationProperty("EscapeTraps", IsRequired = true)]
