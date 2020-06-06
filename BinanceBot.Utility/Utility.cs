@@ -140,7 +140,7 @@ namespace BinanceBot.Common
                 Console.WriteLine("DECISION : {0}\n", "NO DECISION");
             }
 
-            Console.WriteLine("SGNLHISTORY : {0}\n", strategyData.histdata);
+            Console.WriteLine("SGNLHISTORY :{0}\n", strategyData.histdata);
 
             if (strategyData.SkipReasons != null && strategyData.SkipReasons.Count > 0)
             {
