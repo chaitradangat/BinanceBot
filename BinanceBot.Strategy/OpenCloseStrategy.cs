@@ -168,7 +168,7 @@ namespace BinanceBot.Strategy
 
             UpdateSignalData(ref strategyData, xlong, xshort);
 
-            strategyDecision.Decide(ref strategyData, currentPosition, robotInput);
+            strategyDecision.Decide(ref strategyData, currentPosition, robotInput, true);
 
             if (strategyData.Decision != StrategyDecision.None)
             {

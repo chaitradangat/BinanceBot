@@ -245,6 +245,19 @@ namespace BinanceBot.Settings
                 this["ValidationRuleSet"] = value;
             }
         }
+        [ConfigurationProperty("DecisionSet", IsRequired = true)]
+        public string DecisionSet
+        {
+            get
+            {
+                //sanitize the input ruleset for garbage charachters
+                return Convert.ToString(this["DecisionSet"]).Replace(" ", "").Replace("\t", "").Replace("\r\n", "");
+            }
+            set
+            {
+                this["DecisionSet"] = value;
+            }
+        }
         [ConfigurationProperty("BollingerCrossLookBack", IsRequired = true)]
         public int BollingerCrossLookBack
         {
