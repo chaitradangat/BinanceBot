@@ -140,18 +140,6 @@ namespace BinanceBot.Settings
         }
 
         //variables for missed position decision policy
-        [ConfigurationProperty("GrabMissedPosition", IsRequired = true)]
-        public bool GrabMissedPosition
-        {
-            get
-            {
-                return bool.Parse(this["GrabMissedPosition"].ToString());
-            }
-            set
-            {
-                this["GrabMissedPosition"] = value;
-            }
-        }
         [ConfigurationProperty("MissedPositionStartCandleIndex", IsRequired = true)]
         public int MissedPositionStartCandleIndex
         {

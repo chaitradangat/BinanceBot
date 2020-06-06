@@ -32,7 +32,6 @@ namespace BinanceBot.Strategy
         private int EscapeTrapSignalStrength; //300
 
         //missed position vars
-        private bool GrabMissedPosition; //true
         private int MissedPositionStartCandleIndex; //3
         private int MissedPositionEndCandleIndex; //5
 
@@ -575,7 +574,6 @@ namespace BinanceBot.Strategy
             StrategyDecision.Escape};
 
             //missedposition decision variables
-            GrabMissedPosition = OpenCloseStrategySettings.settings.GrabMissedPosition;
             MissedPositionStartCandleIndex = OpenCloseStrategySettings.settings.MissedPositionStartCandleIndex;
             MissedPositionEndCandleIndex = OpenCloseStrategySettings.settings.MissedPositionEndCandleIndex;
 
@@ -613,7 +611,7 @@ namespace BinanceBot.Strategy
                 ValidateDecision(roboInput, ref strategyData, OpenPositionSignalStrength, true);
             }
 
-            else if (OpenMissedPosition(position, ref strategyData) && GrabMissedPosition)
+            else if (OpenMissedPosition(position, ref strategyData))
             {
                 ValidateDecision(roboInput, ref strategyData, MissedPositionSignalStrength, true);
             }
