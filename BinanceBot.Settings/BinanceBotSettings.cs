@@ -16,6 +16,20 @@ namespace BinanceBot.Settings
             }
         }
 
+        //WebcallTimeout
+        [ConfigurationProperty("WebcallTimeout", IsRequired = true)]
+        public long WebcallTimeout
+        {
+            get
+            {
+                return long.Parse(this["WebcallTimeout"].ToString());
+            }
+            set
+            {
+                this["WebcallTimeout"] = value;
+            }
+        }
+
         [ConfigurationProperty("PINGTIMER", DefaultValue = 1500, IsRequired = false)]
         public int PingTimer
         {
@@ -56,7 +70,7 @@ namespace BinanceBot.Settings
             }
         }
 
-        [ConfigurationProperty("APIKEY",  IsRequired = true)]
+        [ConfigurationProperty("APIKEY", IsRequired = true)]
         public string ApiKey
         {
             get
@@ -97,7 +111,7 @@ namespace BinanceBot.Settings
             }
         }
 
-        [ConfigurationProperty("REWARDPERCENTAGE",  IsRequired = true)]
+        [ConfigurationProperty("REWARDPERCENTAGE", IsRequired = true)]
         public decimal RewardPercentage
         {
             get

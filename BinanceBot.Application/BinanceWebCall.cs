@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Linq;
-using System.IO;
-
 
 using Binance.Net;
 using Binance.Net.Objects;
@@ -13,6 +11,8 @@ using BinanceBot.Domain;
 
 using BinanceBot.Common;
 
+using BinanceBot.Settings;
+//WebcallTimeout
 namespace BinanceBot.Application
 {
     public class BinanceWebCall
@@ -23,13 +23,15 @@ namespace BinanceBot.Application
         private TimeSpan? TimeZoneDiff;
         private List<OHLCKandle> kandleCache;
         private string timeframeCache;
+        private long WebcallTimeout;
+
 
         /// <summary>
         /// constructor
         /// </summary>
         public BinanceWebCall()
         {
-
+            WebcallTimeout = BinanceBotSettings.settings.WebcallTimeout;
         }
 
         /// <summary>
@@ -123,7 +125,7 @@ namespace BinanceBot.Application
                 Quantity = robotInput.quantity
             };
 
-            var positions = client.GetPositions(default, true);
+            var positions = client.GetPositions(default, WebcallTimeout, true);
 
             var currentPosition = positions.Data.Where(x => x.symbol == symbol && x.positionSide == "BOTH").Single();
 
@@ -135,7 +137,7 @@ namespace BinanceBot.Application
 
                 if (currentPosition.entryPrice > currentPosition.markPrice && currentPosition.unRealizedProfit > 0)
                 {
-                    position.PositionType = PositionType.Sell;   
+                    position.PositionType = PositionType.Sell;
                 }
                 else if (currentPosition.entryPrice < currentPosition.markPrice && currentPosition.unRealizedProfit < 0)
                 {
@@ -633,7 +635,7 @@ namespace BinanceBot.Application
 
             if (placedOrder != null || strategyData.Decision.ToString().ToLower().Contains("skip"))
             {
-               Utility.DumpToLog(robotInput, strategyData);
+                Utility.DumpToLog(robotInput, strategyData);
             }
         }
     }

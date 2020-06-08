@@ -116,6 +116,7 @@ namespace Binance.Net
         /// <param name="endTime">End time to get candlestick data</param>
         /// <param name="limit">Max number of results</param>
         /// <param name="ct">Cancellation token</param>
+        /// <param name="futures"></param>
         /// <returns>The candlestick data for the provided symbol</returns>
         public WebCallResult<IEnumerable<BinanceKline>> GetKlines(string symbol, KlineInterval interval, DateTime? startTime = null, DateTime? endTime = null, int? limit = null, CancellationToken ct = default, bool futures = true) => GetKlinesAsync(symbol, interval, startTime, endTime, limit, ct, futures).Result;
 
@@ -128,6 +129,7 @@ namespace Binance.Net
         /// <param name="endTime">End time to get candlestick data</param>
         /// <param name="limit">Max number of results</param>
         /// <param name="ct">Cancellation token</param>
+        /// <param name="futures"></param>
         /// <returns>The candlestick data for the provided symbol</returns>
         public async Task<WebCallResult<IEnumerable<BinanceKline>>> GetKlinesAsync(string symbol, KlineInterval interval, DateTime? startTime = null, DateTime? endTime = null, int? limit = null, CancellationToken ct = default, bool futures = true)
         {
@@ -145,7 +147,7 @@ namespace Binance.Net
         }
 
 
-        public WebCallResult<BinancePlacedOrder> PlaceOrder(string symbol,OrderSide side,OrderType type,decimal? quantity = null,decimal? quoteOrderQuantity = null,string? newClientOrderId = null,decimal? price = null,TimeInForce? timeInForce = null,decimal? stopPrice = null,decimal? icebergQty = null,OrderResponseType? orderResponseType = null,int? receiveWindow = null,CancellationToken ct = default, bool futures = true) 
+        public WebCallResult<BinancePlacedOrder> PlaceOrder(string symbol, OrderSide side, OrderType type, decimal? quantity = null, decimal? quoteOrderQuantity = null, string? newClientOrderId = null, decimal? price = null, TimeInForce? timeInForce = null, decimal? stopPrice = null, decimal? icebergQty = null, OrderResponseType? orderResponseType = null, int? receiveWindow = null, CancellationToken ct = default, bool futures = true)
         => PlaceOrderAsync(symbol, side, type, quantity, quoteOrderQuantity, newClientOrderId, price, timeInForce, stopPrice, icebergQty, orderResponseType, receiveWindow, ct, futures).Result;
 
         /// <summary>
@@ -166,7 +168,7 @@ namespace Binance.Net
         /// <param name="ct">Cancellation token</param>
         /// <param name="futures"></param>
         /// <returns>Id's for the placed order</returns>
-        public async Task<WebCallResult<BinancePlacedOrder>> PlaceOrderAsync(string symbol,OrderSide side,OrderType type,decimal? quantity = null,decimal? quoteOrderQuantity = null,string? newClientOrderId = null,decimal? price = null,TimeInForce? timeInForce = null,decimal? stopPrice = null,decimal? icebergQty = null,OrderResponseType? orderResponseType = null,int? receiveWindow = null,CancellationToken ct = default, bool futures = true)
+        public async Task<WebCallResult<BinancePlacedOrder>> PlaceOrderAsync(string symbol, OrderSide side, OrderType type, decimal? quantity = null, decimal? quoteOrderQuantity = null, string? newClientOrderId = null, decimal? price = null, TimeInForce? timeInForce = null, decimal? stopPrice = null, decimal? icebergQty = null, OrderResponseType? orderResponseType = null, int? receiveWindow = null, CancellationToken ct = default, bool futures = true)
         {
             return await PlaceOrderInternal(GetUrl(NewOrderEndpoint, FuturesApi, FuturesVersion, true),
                 symbol,
@@ -194,8 +196,9 @@ namespace Binance.Net
         /// <param name="newClientOrderId">The new client order id of the order</param>
         /// <param name="receiveWindow">The receive window for which this request is active. When the request takes longer than this to complete the server will reject the request</param>
         /// <param name="ct">Cancellation token</param>
+        /// <param name="futures"></param>
         /// <returns>Id's for canceled order</returns>
-        public WebCallResult<BinanceCanceledOrder> CancelOrder(string symbol, long? orderId = null, string? origClientOrderId = null, string? newClientOrderId = null, long? receiveWindow = null, CancellationToken ct = default,bool futures = true) => CancelOrderAsync(symbol, orderId, origClientOrderId, newClientOrderId, receiveWindow, ct,true).Result;
+        public WebCallResult<BinanceCanceledOrder> CancelOrder(string symbol, long? orderId = null, string? origClientOrderId = null, string? newClientOrderId = null, long? receiveWindow = null, CancellationToken ct = default, bool futures = true) => CancelOrderAsync(symbol, orderId, origClientOrderId, newClientOrderId, receiveWindow, ct, true).Result;
 
         /// <summary>
         /// Cancels a pending order
@@ -206,8 +209,9 @@ namespace Binance.Net
         /// <param name="newClientOrderId">Unique identifier for this cancel</param>
         /// <param name="receiveWindow">The receive window for which this request is active. When the request takes longer than this to complete the server will reject the request</param>
         /// <param name="ct">Cancellation token</param>
+        /// <param name="futures"></param>
         /// <returns>Id's for canceled order</returns>
-        public async Task<WebCallResult<BinanceCanceledOrder>> CancelOrderAsync(string symbol, long? orderId = null, string? origClientOrderId = null, string? newClientOrderId = null, long? receiveWindow = null, CancellationToken ct = default,bool futures= true)
+        public async Task<WebCallResult<BinanceCanceledOrder>> CancelOrderAsync(string symbol, long? orderId = null, string? origClientOrderId = null, string? newClientOrderId = null, long? receiveWindow = null, CancellationToken ct = default, bool futures = true)
         {
             symbol.ValidateBinanceSymbol();
             var timestampResult = await CheckAutoTimestamp(ct).ConfigureAwait(false);
@@ -227,7 +231,7 @@ namespace Binance.Net
             parameters.AddOptionalParameter("newClientOrderId", newClientOrderId);
             parameters.AddOptionalParameter("recvWindow", receiveWindow?.ToString(CultureInfo.InvariantCulture) ?? defaultReceiveWindow.TotalMilliseconds.ToString(CultureInfo.InvariantCulture));
 
-            return await SendRequest<BinanceCanceledOrder>(GetUrl(CancelOrderEndpoint, FuturesApi, FuturesVersion,true), HttpMethod.Delete, ct, parameters, true).ConfigureAwait(false);
+            return await SendRequest<BinanceCanceledOrder>(GetUrl(CancelOrderEndpoint, FuturesApi, FuturesVersion, true), HttpMethod.Delete, ct, parameters, true).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -235,16 +239,18 @@ namespace Binance.Net
         /// </summary>
         /// <param name="symbol">The symbol to get the price for</param>
         /// <param name="ct">Cancellation token</param>
+        /// <param name="futures"></param>
         /// <returns>Price of symbol</returns>
-        public WebCallResult<BinancePrice> GetPrice(string symbol, CancellationToken ct = default,bool futures = true) => GetPriceAsync(symbol, ct,true).Result;
+        public WebCallResult<BinancePrice> GetPrice(string symbol, CancellationToken ct = default, bool futures = true) => GetPriceAsync(symbol, ct, true).Result;
 
         /// <summary>
         /// Gets the price of a symbol
         /// </summary>
         /// <param name="symbol">The symbol to get the price for</param>
         /// <param name="ct">Cancellation token</param>
+        /// <param name="futures"></param>
         /// <returns>Price of symbol</returns>
-        public async Task<WebCallResult<BinancePrice>> GetPriceAsync(string symbol, CancellationToken ct = default,bool futures = true)
+        public async Task<WebCallResult<BinancePrice>> GetPriceAsync(string symbol, CancellationToken ct = default, bool futures = true)
         {
             symbol.ValidateBinanceSymbol();
             var parameters = new Dictionary<string, object>
@@ -252,7 +258,7 @@ namespace Binance.Net
                 { "symbol", symbol }
             };
 
-            return await SendRequest<BinancePrice>(GetUrl(AllPricesEndpoint, FuturesApi, FuturesVersion,true), HttpMethod.Get, ct, parameters).ConfigureAwait(false);
+            return await SendRequest<BinancePrice>(GetUrl(AllPricesEndpoint, FuturesApi, FuturesVersion, true), HttpMethod.Get, ct, parameters).ConfigureAwait(false);
         }
 
 
@@ -260,21 +266,21 @@ namespace Binance.Net
         /// Pings the Binance API
         /// </summary>
         /// <returns>True if successful ping, false if no response</returns>
-        public CallResult<List<PositionData>> GetPositions(CancellationToken ct = default, bool futures = true) => GetPositionsAsync(ct, futures).Result;
+        public CallResult<List<PositionData>> GetPositions(CancellationToken ct = default, long WebcallTimeout = 60000, bool futures = true) => GetPositionsAsync(ct, WebcallTimeout, futures).Result;
 
         /// <summary>
         /// Pings the Binance API
         /// </summary>
         /// <returns>True if successful ping, false if no response</returns>
-        public async Task<CallResult<List<PositionData>>> GetPositionsAsync(CancellationToken ct = default, bool futures = true)
+        public async Task<CallResult<List<PositionData>>> GetPositionsAsync(CancellationToken ct = default, long WebcallTimeout = 60000, bool futures = true)
         {
             var parameters = new Dictionary<string, object>
             {
               { "timestamp", GetTimestamp() },
-              { "recvWindow", 60000 }
+              { "recvWindow", WebcallTimeout }
               //'recvWindow': 10000000
             };
-            
+
             var result = await SendRequest<List<PositionData>>(GetUrl(PositionRiskEndpoint, FuturesApi, FuturesVersion, futures), HttpMethod.Get, ct, parameters, true).ConfigureAwait(false);
 
             return result;
