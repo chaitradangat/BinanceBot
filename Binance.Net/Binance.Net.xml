@@ -1510,6 +1510,7 @@
             <param name="endTime">End time to get candlestick data</param>
             <param name="limit">Max number of results</param>
             <param name="ct">Cancellation token</param>
+            <param name="futures"></param>
             <returns>The candlestick data for the provided symbol</returns>
         </member>
         <member name="M:Binance.Net.BinanceClient.GetKlinesAsync(System.String,Binance.Net.Objects.KlineInterval,System.Nullable{System.DateTime},System.Nullable{System.DateTime},System.Nullable{System.Int32},System.Threading.CancellationToken,System.Boolean)">
@@ -1522,6 +1523,7 @@
             <param name="endTime">End time to get candlestick data</param>
             <param name="limit">Max number of results</param>
             <param name="ct">Cancellation token</param>
+            <param name="futures"></param>
             <returns>The candlestick data for the provided symbol</returns>
         </member>
         <member name="M:Binance.Net.BinanceClient.PlaceOrderAsync(System.String,Binance.Net.Objects.OrderSide,Binance.Net.Objects.OrderType,System.Nullable{System.Decimal},System.Nullable{System.Decimal},System.String,System.Nullable{System.Decimal},System.Nullable{Binance.Net.Objects.TimeInForce},System.Nullable{System.Decimal},System.Nullable{System.Decimal},System.Nullable{Binance.Net.Objects.OrderResponseType},System.Nullable{System.Int32},System.Threading.CancellationToken,System.Boolean)">
@@ -1554,6 +1556,7 @@
             <param name="newClientOrderId">The new client order id of the order</param>
             <param name="receiveWindow">The receive window for which this request is active. When the request takes longer than this to complete the server will reject the request</param>
             <param name="ct">Cancellation token</param>
+            <param name="futures"></param>
             <returns>Id's for canceled order</returns>
         </member>
         <member name="M:Binance.Net.BinanceClient.CancelOrderAsync(System.String,System.Nullable{System.Int64},System.String,System.String,System.Nullable{System.Int64},System.Threading.CancellationToken,System.Boolean)">
@@ -1566,6 +1569,7 @@
             <param name="newClientOrderId">Unique identifier for this cancel</param>
             <param name="receiveWindow">The receive window for which this request is active. When the request takes longer than this to complete the server will reject the request</param>
             <param name="ct">Cancellation token</param>
+            <param name="futures"></param>
             <returns>Id's for canceled order</returns>
         </member>
         <member name="M:Binance.Net.BinanceClient.GetPrice(System.String,System.Threading.CancellationToken,System.Boolean)">
@@ -1574,6 +1578,7 @@
             </summary>
             <param name="symbol">The symbol to get the price for</param>
             <param name="ct">Cancellation token</param>
+            <param name="futures"></param>
             <returns>Price of symbol</returns>
         </member>
         <member name="M:Binance.Net.BinanceClient.GetPriceAsync(System.String,System.Threading.CancellationToken,System.Boolean)">
@@ -1582,15 +1587,16 @@
             </summary>
             <param name="symbol">The symbol to get the price for</param>
             <param name="ct">Cancellation token</param>
+            <param name="futures"></param>
             <returns>Price of symbol</returns>
         </member>
-        <member name="M:Binance.Net.BinanceClient.GetPositions(System.Threading.CancellationToken,System.Boolean)">
+        <member name="M:Binance.Net.BinanceClient.GetPositions(System.Threading.CancellationToken,System.Int64,System.Boolean)">
             <summary>
             Pings the Binance API
             </summary>
             <returns>True if successful ping, false if no response</returns>
         </member>
-        <member name="M:Binance.Net.BinanceClient.GetPositionsAsync(System.Threading.CancellationToken,System.Boolean)">
+        <member name="M:Binance.Net.BinanceClient.GetPositionsAsync(System.Threading.CancellationToken,System.Int64,System.Boolean)">
             <summary>
             Pings the Binance API
             </summary>
