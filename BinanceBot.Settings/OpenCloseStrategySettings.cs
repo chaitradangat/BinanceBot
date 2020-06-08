@@ -114,18 +114,18 @@ namespace BinanceBot.Settings
         }
 
         //variables for escape traps decision policy
-        [ConfigurationProperty("EscapeTraps", IsRequired = true)]
-        public bool EscapeTraps
-        {
-            get
-            {
-                return bool.Parse(this["EscapeTraps"].ToString());
-            }
-            set
-            {
-                this["EscapeTraps"] = value;
-            }
-        }
+        // [ConfigurationProperty("EscapeTraps", IsRequired = true)]
+        // public bool EscapeTraps
+        // {
+        //     get
+        //     {
+        //         return bool.Parse(this["EscapeTraps"].ToString());
+        //     }
+        //     set
+        //     {
+        //         this["EscapeTraps"] = value;
+        //     }
+        // }
         [ConfigurationProperty("EscapeTrapCandleIdx", IsRequired = true)]
         public int EscapeTrapCandleIdx
         {

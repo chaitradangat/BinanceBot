@@ -27,7 +27,7 @@ namespace BinanceBot.Strategy
         private decimal HeavyRiskPercentage;//15
 
         //escape vars
-        private bool EscapeTraps; //true
+        //private bool EscapeTraps; //true
         private int EscapeTrapCandleIdx; //3
         private int EscapeTrapSignalStrength; //300
 
@@ -582,7 +582,7 @@ namespace BinanceBot.Strategy
             HeavyRiskPercentage = OpenCloseStrategySettings.settings.HeavyRiskPercentage;
 
             //escape decision variables
-            EscapeTraps = OpenCloseStrategySettings.settings.EscapeTraps;
+            //EscapeTraps = OpenCloseStrategySettings.settings.EscapeTraps;
             EscapeTrapCandleIdx = OpenCloseStrategySettings.settings.EscapeTrapCandleIdx;
 
             //set variables to avoid wrong trades (trade validation)
@@ -603,58 +603,7 @@ namespace BinanceBot.Strategy
             EscapeTrapSignalStrength = OpenCloseStrategySettings.settings.EscapeTrapSignalStrength;
         }
 
-        //method to take decision
-        public void Decide(ref StrategyData strategyData, SimplePosition position, RobotInput roboInput)
-        {
-            if (OpenPosition(position, ref strategyData))
-            {
-                ValidateDecision(roboInput, ref strategyData, OpenPositionSignalStrength, true);
-            }
-
-            else if (OpenMissedPosition(position, ref strategyData))
-            {
-                ValidateDecision(roboInput, ref strategyData, MissedPositionSignalStrength, true);
-            }
-
-            else if (ExitPositionHeavyLoss(position, ref strategyData))
-            {
-                ValidateDecision(roboInput, ref strategyData, ExitPositionHeavyLossSignalStrength, true);
-            }
-
-            else if (ExitPosition(position, ref strategyData, roboInput.risk))
-            {
-                ValidateDecision(roboInput, ref strategyData, ExitSignalStrength, true);
-            }
-
-            else if (TakeProfit(position, ref strategyData, roboInput.reward))
-            {
-                ValidateDecision(roboInput, ref strategyData, TakeProfitSignalStrength, true);
-            }
-
-            else if (EscapeTrap(position, ref strategyData) && EscapeTraps)
-            {
-                ValidateDecision(roboInput, ref strategyData, EscapeTrapSignalStrength, true);
-            }
-
-            else
-            {
-                ResetDecision(ref strategyData);
-            }
-
-            //signal strength data
-            strategyData.LatestSignalStrength = LatestSignalStrength;//improve this code laterz
-
-            strategyData.BuyCounter = BuyCounter;
-
-            strategyData.SellCounter = SellCounter;
-
-            strategyData.PrevDecision = prevDecision;
-
-            strategyData.PrevDecisionType = prevDecisionType;
-
-        }
-
-        public void Decide(ref StrategyData strategyData, SimplePosition position, RobotInput robotInput, bool refactoring)
+        public void Decide(ref StrategyData strategyData, SimplePosition position, RobotInput robotInput)
         {
             bool Decided = false;
 
