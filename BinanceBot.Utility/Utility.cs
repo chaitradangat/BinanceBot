@@ -58,9 +58,9 @@ namespace BinanceBot.Common
             string debuginfo = string.Format("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}\t{7}\t{8}\t{9}\t{10}\t{11}\t{12}\t{13}",
 
             timeutc530, strategyData.Decision.ToString(), strategyData.DecisionType.ToString(), strategyData.currentClose,
-            
-            strategyData.DecisionType != StrategyDecision.None ? strategyData.Percentage : 0, 
-            
+
+            strategyData.DecisionType != StrategyDecision.None ? strategyData.Percentage : 0,
+
             strategyData.histdata, strategyData.BollingerUpperPercentage, strategyData.BollingerMiddlePercentage, strategyData.BollingerLowerPercentage,
 
             strategyData.SignalGap0, strategyData.SignalGap1, strategyData.trend, strategyData.mood, skipReasons);
@@ -181,6 +181,15 @@ namespace BinanceBot.Common
 
 
 
+        }
+
+        public static void LogExceptions(Exception ex, string info)
+        {
+            string timeutc530 = DateTime.Now.ToUniversalTime().AddMinutes(330).ToString();
+
+            string exceptionString = string.Format("{0}\t{1}\t{2}", timeutc530, ex.ToString(), info);
+
+            File.AppendAllLines("exception.logs", new[] { exceptionString });
         }
     }
 }

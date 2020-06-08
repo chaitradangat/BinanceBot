@@ -89,6 +89,8 @@ namespace BinanceBot.Application
                     }
                     catch (Exception ex)
                     {
+                        Utility.LogExceptions(ex, "");
+
                         Thread.Sleep(10);
 
                         ++errorCount;
