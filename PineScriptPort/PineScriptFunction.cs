@@ -1026,6 +1026,24 @@ namespace PineScriptPort
             return results;
         }
 
+        public List<decimal> diff(List<decimal> series1, List<decimal> series2)
+        {
+            var result = new List<decimal>();
+
+            var _series1 = series1.Select(x => x).ToList();
+
+            var _series2 = series2.Select(x => x).ToList();
+
+            trimseries(ref _series1, ref _series2);
+
+            for (int i = 0; i < _series1.Count; i++)
+            {
+                result.Add(_series1[i] - _series2[i]);
+            }
+
+            return result;
+        }
+
 
     }
 }
