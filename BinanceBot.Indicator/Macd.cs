@@ -52,7 +52,7 @@ namespace BinanceBot.Indicator
 
             ema12 = fn.ema(closevalues, 12);
 
-            macd = fn.diff(ema12, ema26);
+            macd = fn.diff(ema12,ema26);
 
             signal = fn.ema(macd, 9);
 

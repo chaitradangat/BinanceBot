@@ -1,7 +1,7 @@
 ﻿using System;
 
 using System.IO;
-
+using System.Linq;
 using BinanceBot.Domain;
 
 using BinanceBot.Settings;
@@ -179,8 +179,13 @@ namespace BinanceBot.Common
             Console.WriteLine("Refresh Rate {0} milliseconds\n", cycleTime);
 
 
+            var macdData = strategyData.MacdData;
 
+            string macdvalues = string.Format("ema12*{0}* ema26*{1}* macd*{2}* signal*{3}*",
+            
+            macdData.ema12.Last(),macdData.ema26.Last(),macdData.macd.Last(),macdData.signal.Last());
 
+            Console.WriteLine(macdvalues);
         }
 
         public static void LogExceptions(Exception ex, string info)
