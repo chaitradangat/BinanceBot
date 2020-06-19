@@ -116,6 +116,27 @@ namespace BinanceBot.Strategy
             strategyData.BollMiddleCrossed = bBands.BollMiddleCrossed;
         }
 
+        private void UpdateMacdData(ref StrategyData strategyData)
+        {
+            Macd macd = new Macd(strategyData.kandles);
+
+            strategyData.MacdData.ema12 = macd.ema12;
+
+            strategyData.MacdData.ema26 = macd.ema26;
+
+            strategyData.MacdData.macd = macd.macd;
+
+            strategyData.MacdData.signal = macd.signal;
+
+            strategyData.MacdData.IsBearish = macd.IsBearish;
+
+            strategyData.MacdData.IsBullish = macd.IsBullish;
+
+            strategyData.MacdData.IsBearishCross = macd.IsBearishCross;
+
+            strategyData.MacdData.IsBullishCross = macd.IsBullishCross;
+        }
+
         public void RunStrategy(RobotInput robotInput, SimplePosition currentPosition, ref StrategyData strategyData)
         {
             List<OHLCKandle> inputkandles = strategyData.kandles.Select(x => new OHLCKandle
@@ -165,6 +186,8 @@ namespace BinanceBot.Strategy
             //end buy sell signal
 
             UpdateBollingerData(ref strategyData);
+
+            UpdateMacdData(ref strategyData);
 
             UpdateSignalData(ref strategyData, xlong, xshort);
 
