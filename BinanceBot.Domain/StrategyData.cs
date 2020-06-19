@@ -24,6 +24,8 @@ namespace BinanceBot.Domain
             this.PrevDecisionType = StrategyDecision.None;
 
             this.SkipReasons = new HashSet<SkipReason>();
+
+            this.MacdData = new MacdData();
         }
 
         public StrategyData(decimal profitFactor)
@@ -39,6 +41,8 @@ namespace BinanceBot.Domain
             this.PrevDecisionType = StrategyDecision.None;
 
             this.SkipReasons = new HashSet<SkipReason>();
+
+            this.MacdData = new MacdData();
         }
 
         //this is a copy of kandles which will be pristine or if read should not be modified in any part of kode
@@ -107,8 +111,33 @@ namespace BinanceBot.Domain
 
         public int SignalQuality { get; set; }
         //
-
-
         public HashSet<SkipReason> SkipReasons { get; set; }
+
+        public MacdData MacdData { get; set; }
+    }
+
+
+    public class MacdData
+    {
+        public MacdData()
+        {
+
+        }
+
+        public List<decimal> ema26 { get; set; }
+
+        public List<decimal> ema12 { get; set; }
+
+        public List<decimal> macd { get; set; }
+
+        public List<decimal> signal { get; set; }
+
+        public bool IsBullish { get; set; }
+
+        public bool IsBearish { get; set; }
+
+        public List<bool> IsBullishCross { get; set; }
+
+        public List<bool> IsBearishCross { get; set; }
     }
 }
