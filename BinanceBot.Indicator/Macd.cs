@@ -10,13 +10,15 @@ namespace BinanceBot.Indicator
 {
     public class Macd
     {
-        public List<decimal> ema26 { get; set; }
+        public List<decimal> emaslow { get; set; }
 
-        public List<decimal> ema12 { get; set; }
+        public List<decimal> emafast { get; set; }
 
-        public List<decimal> macd { get; set; }
+        public List<decimal> diff { get; set; }
 
         public List<decimal> signal { get; set; }
+
+        public List<decimal> macd { get; set; }
 
         public bool IsBullish { get; set; }
 
@@ -48,17 +50,19 @@ namespace BinanceBot.Indicator
 
             List<decimal> closevalues = kandles.Select(x => x.Close).ToList();
 
-            ema26 = fn.ema(closevalues, 26);
+            emaslow = fn.ema(closevalues, 26);
 
-            ema12 = fn.ema(closevalues, 12);
+            emafast = fn.ema(closevalues, 12);
 
-            macd = fn.diff(ema12,ema26);
+            diff = fn.diff(emafast, emaslow);
 
-            signal = fn.ema(macd, 9);
+            signal = fn.ema(diff, 9);
 
-            IsBullishCross = fn.crossover(macd, signal);
+            macd = fn.diff(diff, signal);
 
-            IsBearishCross = fn.crossunder(macd,signal);
+            IsBullishCross = fn.crossover(diff, signal);
+
+            IsBearishCross = fn.crossunder(diff, signal);
 
             IsBullish = IsBullishCross.Last();
 

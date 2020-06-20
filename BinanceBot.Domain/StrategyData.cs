@@ -124,13 +124,15 @@ namespace BinanceBot.Domain
 
         }
 
-        public List<decimal> ema26 { get; set; }
+        public List<decimal> emaslow { get; set; }
 
-        public List<decimal> ema12 { get; set; }
+        public List<decimal> emafast { get; set; }
 
-        public List<decimal> macd { get; set; }
+        public List<decimal> diff { get; set; }
 
         public List<decimal> signal { get; set; }
+
+        public List<decimal> macd { get; set; }
 
         public bool IsBullish { get; set; }
 

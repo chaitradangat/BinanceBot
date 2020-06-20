@@ -120,13 +120,15 @@ namespace BinanceBot.Strategy
         {
             Macd macd = new Macd(strategyData.kandles);
 
-            strategyData.MacdData.ema12 = macd.ema12;
+            strategyData.MacdData.emafast = macd.emafast;
 
-            strategyData.MacdData.ema26 = macd.ema26;
+            strategyData.MacdData.emaslow = macd.emaslow;
 
-            strategyData.MacdData.macd = macd.macd;
+            strategyData.MacdData.diff = macd.diff;
 
             strategyData.MacdData.signal = macd.signal;
+
+            strategyData.MacdData.macd = macd.macd;
 
             strategyData.MacdData.IsBearish = macd.IsBearish;
 
