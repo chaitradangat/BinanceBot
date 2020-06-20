@@ -49,7 +49,7 @@ namespace BinanceBot.Indicator
                 Low = x.Low
             }).ToList();
 
-            Calculate(kandles, bollCrossDistance);
+            Calculate(kcopy, bollCrossDistance);
         }
 
         /// <summary>
