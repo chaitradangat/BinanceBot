@@ -180,8 +180,8 @@ namespace BinanceBot.Common
 
             var macdData = strategyData.MacdData;
 
-            string macdvalues = string.Format("diff*{0}*\nsignal*{1}*\nmacd*{2}*\nemafast*{3}*\nemaslow*{4}*\nisbearishcross*{5}*\nisbullishcross*{6}*",
-            macdData.diff.Last(),macdData.signal.Last(),macdData.macd.Last(),macdData.emafast.Last(),macdData.emaslow.Last(),macdData.IsBearish,macdData.IsBullish);
+            string macdvalues = string.Format("diff*{0}*\nsignal*{1}*\nmacd*{2}*\nnisbearishcross*{3}*\nisbullishcross*{4}*",
+            macdData.diffvalue, macdData.signalvalue, macdData.macdvalue, macdData.IsBearish, macdData.IsBullish);
 
             Console.WriteLine(macdvalues);
         }
