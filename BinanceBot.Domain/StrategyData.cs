@@ -141,5 +141,11 @@ namespace BinanceBot.Domain
         public List<bool> IsBullishCross { get; set; }
 
         public List<bool> IsBearishCross { get; set; }
+
+        public decimal diffvalue { get; set; }
+
+        public decimal signalvalue { get; set; }
+
+        public decimal macdvalue { get; set; }
     }
 }

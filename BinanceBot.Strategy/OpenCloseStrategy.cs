@@ -137,6 +137,12 @@ namespace BinanceBot.Strategy
             strategyData.MacdData.IsBearishCross = macd.IsBearishCross;
 
             strategyData.MacdData.IsBullishCross = macd.IsBullishCross;
+
+            strategyData.MacdData.diffvalue = macd.diffvalue;
+
+            strategyData.MacdData.signalvalue = macd.signalvalue;
+
+            strategyData.MacdData.macdvalue = macd.macdvalue;
         }
 
         public void RunStrategy(RobotInput robotInput, SimplePosition currentPosition, ref StrategyData strategyData)

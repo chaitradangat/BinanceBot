@@ -28,6 +28,12 @@ namespace BinanceBot.Indicator
 
         public List<bool> IsBearishCross { get; set; }
 
+        public decimal diffvalue { get; set; }
+
+        public decimal signalvalue { get; set; }
+
+        public decimal macdvalue { get; set; }
+
         public Macd(List<OHLCKandle> kandles)
         {
             //make a copy to avoid spoiling the inputdata
@@ -67,6 +73,12 @@ namespace BinanceBot.Indicator
             IsBullish = IsBullishCross.Last();
 
             IsBearish = IsBearishCross.Last();
+
+            diffvalue = diff.Last();
+
+            signalvalue = signal.Last();
+
+            macdvalue = macd.Last();
         }
     }
 }
