@@ -1,9 +1,8 @@
 ﻿using System;
-
 using System.IO;
 using System.Linq;
-using BinanceBot.Domain;
 
+using BinanceBot.Domain;
 using BinanceBot.Settings;
 
 namespace BinanceBot.Common
@@ -29,11 +28,11 @@ namespace BinanceBot.Common
         {
             if (!File.Exists(PrimaryLogPath))
             {
-                File.AppendAllLines(PrimaryLogPath, new[] { "Date\tSignal\tSignalType\tPrice\t%\tSignalHistory\tBU\tBM\tBL\tS0\tS1\tTrend\tMood\tA1\tA2\tA3\tA4" });
+                File.AppendAllLines(PrimaryLogPath, new[] { "Date\tSignal\tSignalType\tPrice\t%\tSignalHistory\tBU\tBM\tBL\tS0\tS1\tTrend\tMood\tMdiff\tMsignal\tMmacd\tMbullcross\tMbearcross\tA1\tA2\tA3\tA4" });
             }
             if (!File.Exists(SecondaryLogPath))
             {
-                File.AppendAllLines(SecondaryLogPath, new[] { "Date\tSignal\tSignalType\tPrice\t%\tSignalHistory\tBU\tBM\tBL\tS0\tS1\tTrend\tMood\tA1\tA2\tA3\tA4" });
+                File.AppendAllLines(SecondaryLogPath, new[] { "Date\tSignal\tSignalType\tPrice\t%\tSignalHistory\tBU\tBM\tBL\tS0\tS1\tTrend\tMood\tMdiff\tMsignal\tMmacd\tMbullcross\tMbearcross\tA1\tA2\tA3\tA4" });
             }
         }
         /// <summary>
@@ -55,7 +54,7 @@ namespace BinanceBot.Common
                 }
             }
 
-            string debuginfo = string.Format("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}\t{7}\t{8}\t{9}\t{10}\t{11}\t{12}\t{13}",
+            string debuginfo = string.Format("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}\t{7}\t{8}\t{9}\t{10}\t{11}\t{12}\t{13}\t{14}\t{15}\t{16}\t{17}\t{18}",
 
             timeutc530, strategyData.Decision.ToString(), strategyData.DecisionType.ToString(), strategyData.currentClose,
 
@@ -63,7 +62,13 @@ namespace BinanceBot.Common
 
             strategyData.histdata, strategyData.BollingerUpperPercentage, strategyData.BollingerMiddlePercentage, strategyData.BollingerLowerPercentage,
 
-            strategyData.SignalGap0, strategyData.SignalGap1, strategyData.trend, strategyData.mood, skipReasons);
+            strategyData.SignalGap0, strategyData.SignalGap1, strategyData.trend, strategyData.mood,
+
+            strategyData.MacdData.diffvalue, strategyData.MacdData.signalvalue, strategyData.MacdData.macdvalue,
+
+            strategyData.MacdData.IsBullish, strategyData.MacdData.IsBearish,
+
+            skipReasons);
 
             File.AppendAllLines(PrimaryLogPath, new[] { debuginfo });
 
@@ -178,10 +183,15 @@ namespace BinanceBot.Common
 
             Console.WriteLine("Refresh Rate {0} milliseconds\n", cycleTime);
 
+            DisplayMacdIndicator(strategyData);
+        }
+
+        public static void DisplayMacdIndicator(StrategyData strategyData)
+        {
             var macdData = strategyData.MacdData;
 
-            string macdvalues = string.Format("diff*{0}*\nsignal*{1}*\nmacd*{2}*\nnisbearishcross*{3}*\nisbullishcross*{4}*",
-            macdData.diffvalue, macdData.signalvalue, macdData.macdvalue, macdData.IsBearish, macdData.IsBullish);
+            string macdvalues = string.Format("diff*{0}*\nsignal*{1}*\nmacd*{2}*\nisbearishcross*{3}*\nisbullishcross*{4}*",
+            Math.Round(macdData.diffvalue, 4), Math.Round(macdData.signalvalue, 4), Math.Round(macdData.macdvalue, 4), macdData.IsBearish, macdData.IsBullish);
 
             Console.WriteLine(macdvalues);
         }
