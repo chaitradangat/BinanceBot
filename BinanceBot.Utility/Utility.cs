@@ -66,7 +66,7 @@ namespace BinanceBot.Common
 
             strategyData.MacdData.macdvalue, strategyData.MacdData.signalvalue, strategyData.MacdData.histogramvalue,
 
-            strategyData.MacdData.IsBullish, strategyData.MacdData.IsBearish, strategyData.MacdData.signalvalue,
+            strategyData.MacdData.IsBullish, strategyData.MacdData.IsBearish, strategyData.MacdData.signalhistory,
 
             skipReasons);
 
