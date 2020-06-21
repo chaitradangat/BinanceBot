@@ -28,11 +28,11 @@ namespace BinanceBot.Common
         {
             if (!File.Exists(PrimaryLogPath))
             {
-                File.AppendAllLines(PrimaryLogPath, new[] { "Date\tSignal\tSignalType\tPrice\t%\tSignalHistory\tBU\tBM\tBL\tS0\tS1\tTrend\tMood\tMdiff\tMsignal\tMmacd\tMbullcross\tMbearcross\tA1\tA2\tA3\tA4" });
+                File.AppendAllLines(PrimaryLogPath, new[] { "Date\tSignal\tSignalType\tPrice\t%\tSignalHistory\tBU\tBM\tBL\tS0\tS1\tTrend\tMood\tMmacd\tMsignal\tMhistogram\tMbullcross\tMbearcross\tA1\tA2\tA3\tA4" });
             }
             if (!File.Exists(SecondaryLogPath))
             {
-                File.AppendAllLines(SecondaryLogPath, new[] { "Date\tSignal\tSignalType\tPrice\t%\tSignalHistory\tBU\tBM\tBL\tS0\tS1\tTrend\tMood\tMdiff\tMsignal\tMmacd\tMbullcross\tMbearcross\tA1\tA2\tA3\tA4" });
+                File.AppendAllLines(SecondaryLogPath, new[] { "Date\tSignal\tSignalType\tPrice\t%\tSignalHistory\tBU\tBM\tBL\tS0\tS1\tTrend\tMood\tMmacd\tMsignal\tMhistogram\tMbullcross\tMbearcross\tA1\tA2\tA3\tA4" });
             }
         }
         /// <summary>
@@ -64,7 +64,7 @@ namespace BinanceBot.Common
 
             strategyData.SignalGap0, strategyData.SignalGap1, strategyData.trend, strategyData.mood,
 
-            strategyData.MacdData.diffvalue, strategyData.MacdData.signalvalue, strategyData.MacdData.macdvalue,
+            strategyData.MacdData.macdvalue, strategyData.MacdData.signalvalue, strategyData.MacdData.histogramvalue,
 
             strategyData.MacdData.IsBullish, strategyData.MacdData.IsBearish,
 
@@ -190,8 +190,9 @@ namespace BinanceBot.Common
         {
             var macdData = strategyData.MacdData;
 
-            string macdvalues = string.Format("diff*{0}*\nsignal*{1}*\nmacd*{2}*\nisbearishcross*{3}*\nisbullishcross*{4}*",
-            Math.Round(macdData.diffvalue, 4), Math.Round(macdData.signalvalue, 4), Math.Round(macdData.macdvalue, 4), macdData.IsBearish, macdData.IsBullish);
+            string macdvalues = string.Format("macd*{0}*\nsignal*{1}*\nhistogram*{2}*\nisbearishcross*{3}*\nisbullishcross*{4}*\nmacdsignal*{5}",
+            Math.Round(macdData.macdvalue, 4), Math.Round(macdData.signalvalue, 4),
+            Math.Round(macdData.histogramvalue, 4), macdData.IsBearish, macdData.IsBullish, macdData.signalhistory);
 
             Console.WriteLine(macdvalues);
         }

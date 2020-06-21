@@ -124,7 +124,7 @@ namespace BinanceBot.Strategy
 
             strategyData.MacdData.emaslow = macd.emaslow;
 
-            strategyData.MacdData.diff = macd.diff;
+            strategyData.MacdData.histogram = macd.histogram;
 
             strategyData.MacdData.signal = macd.signal;
 
@@ -138,11 +138,13 @@ namespace BinanceBot.Strategy
 
             strategyData.MacdData.IsBullishCross = macd.IsBullishCross;
 
-            strategyData.MacdData.diffvalue = macd.diffvalue;
+            strategyData.MacdData.histogramvalue = macd.histogramvalue;
 
             strategyData.MacdData.signalvalue = macd.signalvalue;
 
             strategyData.MacdData.macdvalue = macd.macdvalue;
+
+            strategyData.MacdData.signalhistory = macd.signalhistory;
         }
 
         public void RunStrategy(RobotInput robotInput, SimplePosition currentPosition, ref StrategyData strategyData)

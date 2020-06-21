@@ -116,7 +116,7 @@ namespace BinanceBot.Domain
         public MacdData MacdData { get; set; }
     }
 
-
+    
     public class MacdData
     {
         public MacdData()
@@ -128,11 +128,13 @@ namespace BinanceBot.Domain
 
         public List<decimal> emafast { get; set; }
 
-        public List<decimal> diff { get; set; }
+        //public List<decimal> diff { get; set; }
 
         public List<decimal> signal { get; set; }
 
         public List<decimal> macd { get; set; }
+
+        public List<decimal> histogram { get; set; }
 
         public bool IsBullish { get; set; }
 
@@ -142,10 +144,14 @@ namespace BinanceBot.Domain
 
         public List<bool> IsBearishCross { get; set; }
 
-        public decimal diffvalue { get; set; }
+        //public decimal diffvalue { get; set; }
 
         public decimal signalvalue { get; set; }
 
         public decimal macdvalue { get; set; }
+
+        public decimal histogramvalue { get; set; }
+
+        public string signalhistory { get; set; }
     }
 }
