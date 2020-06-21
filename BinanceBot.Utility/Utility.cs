@@ -28,11 +28,11 @@ namespace BinanceBot.Common
         {
             if (!File.Exists(PrimaryLogPath))
             {
-                File.AppendAllLines(PrimaryLogPath, new[] { "Date\tSignal\tSignalType\tPrice\t%\tSignalHistory\tBU\tBM\tBL\tS0\tS1\tTrend\tMood\tMmacd\tMsignal\tMhistogram\tMbullcross\tMbearcross\tA1\tA2\tA3\tA4" });
+                File.AppendAllLines(PrimaryLogPath, new[] { "Date\tSignal\tSignalType\tPrice\t%\tSignalHistory\tBU\tBM\tBL\tS0\tS1\tTrend\tMood\tMmacd\tMsignal\tMhistogram\tMbullcross\tMbearcross\tMSignal\tA1\tA2\tA3\tA4" });
             }
             if (!File.Exists(SecondaryLogPath))
             {
-                File.AppendAllLines(SecondaryLogPath, new[] { "Date\tSignal\tSignalType\tPrice\t%\tSignalHistory\tBU\tBM\tBL\tS0\tS1\tTrend\tMood\tMmacd\tMsignal\tMhistogram\tMbullcross\tMbearcross\tA1\tA2\tA3\tA4" });
+                File.AppendAllLines(SecondaryLogPath, new[] { "Date\tSignal\tSignalType\tPrice\t%\tSignalHistory\tBU\tBM\tBL\tS0\tS1\tTrend\tMood\tMmacd\tMsignal\tMhistogram\tMbullcross\tMbearcross\tMSignal\tA1\tA2\tA3\tA4" });
             }
         }
         /// <summary>
@@ -54,7 +54,7 @@ namespace BinanceBot.Common
                 }
             }
 
-            string debuginfo = string.Format("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}\t{7}\t{8}\t{9}\t{10}\t{11}\t{12}\t{13}\t{14}\t{15}\t{16}\t{17}\t{18}",
+            string debuginfo = string.Format("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}\t{7}\t{8}\t{9}\t{10}\t{11}\t{12}\t{13}\t{14}\t{15}\t{16}\t{17}\t{18}\t{19}",
 
             timeutc530, strategyData.Decision.ToString(), strategyData.DecisionType.ToString(), strategyData.currentClose,
 
@@ -66,7 +66,7 @@ namespace BinanceBot.Common
 
             strategyData.MacdData.macdvalue, strategyData.MacdData.signalvalue, strategyData.MacdData.histogramvalue,
 
-            strategyData.MacdData.IsBullish, strategyData.MacdData.IsBearish,
+            strategyData.MacdData.IsBullish, strategyData.MacdData.IsBearish, strategyData.MacdData.signalvalue,
 
             skipReasons);
 
