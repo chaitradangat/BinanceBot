@@ -121,7 +121,13 @@ namespace Binance.Net.Objects
         /// Sell
         /// </summary>
         Sell,
+        /// <summary>
+        /// Long
+        /// </summary>
         Long,
+        /// <summary>
+        /// Short
+        /// </summary>
         Short
     }
 

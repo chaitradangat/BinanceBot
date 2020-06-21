@@ -6733,6 +6733,16 @@
             Sell
             </summary>
         </member>
+        <member name="F:Binance.Net.Objects.OrderSide.Long">
+            <summary>
+            Long
+            </summary>
+        </member>
+        <member name="F:Binance.Net.Objects.OrderSide.Short">
+            <summary>
+            Short
+            </summary>
+        </member>
         <member name="T:Binance.Net.Objects.TimeInForce">
             <summary>
             The time the order will be active for
